@@ -106,7 +106,7 @@ contract Clicker is ERC721, Ownable {
         if (cost == 0) revert Clicker__LevelMaxed();
         claim(clickerId); 
         clickerId_buildingId_Lvl[clickerId][buildingId]++;
-        clickerId_Cps[clickerId] += (buildingId_BaseCps[buildingId] * 2 ** (clickerId_buildingId_Lvl[clickerId][buildingId] - 1) - buildingId_BaseCps[buildingId] * 2 ** (currentLvl - 1)) * clickerId_buildingId_Amount[clickerId][buildingId];
+        clickerId_Cps[clickerId] += ((buildingId_BaseCps[buildingId] * 2 ** currentLevel) - (buildingId_BaseCps[buildingId] * 2 ** (currentLvl - 1))) * clickerId_buildingId_Amount[clickerId][buildingId];
         emit Clicker__BuildingUpgraded(clickerId, buildingId, clickerId_buildingId_Lvl[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
         ICookie(cookie).burn(msg.sender, cost);
     }
