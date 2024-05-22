@@ -93,7 +93,7 @@ contract Clicker is ERC721, Ownable {
         uint256 currentAmount = clickerId_buildingId_Amount[clickerId][buildingId];
         if (currentAmount == buildingId_MaxAmount[buildingId]) revert Clicker__AmountMaxed();
         claim(clickerId);
-        uint256 cost = buildingId_BaseCost[buildingId] * 2 ** (currentAmount + 1);
+        uint256 cost = buildingId_BaseCost[buildingId] * 115 ** (currentAmount + 1) / 100;
         clickerId_buildingId_Amount[clickerId][buildingId]++;
         clickerId_Cps[clickerId] += buildingId_BaseCps[buildingId] * 2 ** (clickerId_buildingId_Lvl[clickerId][buildingId] - 1);
         emit Clicker__BuildingPurchased(clickerId, buildingId, clickerId_buildingId_Amount[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
