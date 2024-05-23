@@ -29,6 +29,7 @@ contract Clicker is ERC721, Ownable {
     mapping(uint256 => uint256) public buildingId_MaxAmount;   // building id => max amount
     mapping(uint256 => mapping(uint256 => uint256)) public buildingId_Lvl_Cost; // building id => level => cost
     
+    mapping(uint256 => string) public clickerId_Name;   // clicker id => name
     mapping(uint256 => uint256) public clickerId_Cps;   // clicker id => cookies per second
     mapping(uint256 => uint256) public clickerId_Last;  // clicker id => last time claimed
     mapping(uint256 => uint256) public clickerId_Lvl;   // clicker id => level
@@ -37,13 +38,14 @@ contract Clicker is ERC721, Ownable {
 
     /*----------  ERRORS ------------------------------------------------*/
 
+    error Clicker__InvalidPayment();
     error Clicker__AmountMaxed();
     error Clicker__LevelMaxed();
     error Clicker__InvalidInput();
 
     /*----------  EVENTS ------------------------------------------------*/
 
-    event Clicker__ClickerPurchased(address indexed owner, address indexed clickerId);
+    event Clicker__ClickerPurchased(address indexed owner, uint256 indexed clickerId);
     event Clicker__ClickerUpgraded(uint256 indexed clickerId, uint256 newLevel, uint256 cost, uint256 cpc);
     event Clicker__BuildingPurchased(uint256 indexed clickerId, uint256 buildingId, uint256 newAmount, uint256 cost, uint256 cps);
     event Clicker__BuildingUpgraded(uint256 indexed clickerId, uint256 buildingId, uint256 newLevel, uint256 cost, uint256 cps);
@@ -57,19 +59,20 @@ contract Clicker is ERC721, Ownable {
 
     /*----------  FUNCTIONS  --------------------------------------------*/
 
-    constructor(address _cookie) ERC721("Clicker", "CLICKER") Ownable(msg.sender) {
+    constructor(address _cookie) ERC721("Clicker", "CLICKER") {
         cookie = _cookie;
     }
 
-    function mintClicker() external {
-        ICookie(cookie).burn(msg.sender, clickerCost);
+    function mintClicker() external payable {
+        if (msg.value != clickerCost) revert Clicker__InvalidPayment();
+        payable(owner()).transfer(clickerCost);
         _safeMint(msg.sender, nextClickerId);
         emit Clicker__ClickerPurchased(msg.sender, nextClickerId);
         nextClickerId++;
     }
 
     function click(uint256 clickerId) external {
-        uint256 amount = baseCpc * 2 ** (clickerId_Lvl[clickerId] - 1);
+        uint256 amount = baseCpc * 2 ** (clickerId_Lvl[clickerId]);
         emit Clicker__Claimed(clickerId, amount);
         ICookie(cookie).mint(ownerOf(clickerId), amount);
     }
@@ -95,7 +98,7 @@ contract Clicker is ERC721, Ownable {
         claim(clickerId);
         uint256 cost = buildingId_BaseCost[buildingId] * 115 ** (currentAmount + 1) / 100;
         clickerId_buildingId_Amount[clickerId][buildingId]++;
-        clickerId_Cps[clickerId] += buildingId_BaseCps[buildingId] * 2 ** (clickerId_buildingId_Lvl[clickerId][buildingId] - 1);
+        clickerId_Cps[clickerId] += buildingId_BaseCps[buildingId] * 2 ** (clickerId_buildingId_Lvl[clickerId][buildingId]);
         emit Clicker__BuildingPurchased(clickerId, buildingId, clickerId_buildingId_Amount[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
         ICookie(cookie).burn(msg.sender, cost);
     }
@@ -106,7 +109,7 @@ contract Clicker is ERC721, Ownable {
         if (cost == 0) revert Clicker__LevelMaxed();
         claim(clickerId); 
         clickerId_buildingId_Lvl[clickerId][buildingId]++;
-        clickerId_Cps[clickerId] += ((buildingId_BaseCps[buildingId] * 2 ** currentLevel) - (buildingId_BaseCps[buildingId] * 2 ** (currentLvl - 1))) * clickerId_buildingId_Amount[clickerId][buildingId];
+        clickerId_Cps[clickerId] += ((buildingId_BaseCps[buildingId] * 2 ** currentLvl + 1) - (buildingId_BaseCps[buildingId] * 2 ** (currentLvl))) * clickerId_buildingId_Amount[clickerId][buildingId];
         emit Clicker__BuildingUpgraded(clickerId, buildingId, clickerId_buildingId_Lvl[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
         ICookie(cookie).burn(msg.sender, cost);
     }
@@ -152,4 +155,22 @@ contract Clicker is ERC721, Ownable {
     }
 
     /*----------  VIEW FUNCTIONS  ---------------------------------------*/
+
+    function getClicker(uint256 clickerId) external view returns (string memory name, uint256 cps, uint256 cpc, uint256 last, uint256 lvl, uint256 cost) {
+        name = clickerId_Name[clickerId];
+        cps = clickerId_Cps[clickerId];
+        cpc = baseCpc * 2 ** clickerId_Lvl[clickerId];
+        last = clickerId_Last[clickerId];
+        lvl = clickerId_Lvl[clickerId];
+        cost = clickerLvl_Cost[lvl + 1];
+    }
+
+    function getBuilding(uint256 clickerId, uint256 buildingId) external view returns (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 cost) {
+        amount = clickerId_buildingId_Amount[clickerId][buildingId];
+        lvl = clickerId_buildingId_Lvl[clickerId][buildingId];
+        cpsPerUnit = buildingId_BaseCps[buildingId] * 2 ** lvl;
+        totalCps = cpsPerUnit * amount;
+        cost = buildingId_BaseCost[buildingId] * 115 ** (amount + 1) / 100;
+    }
+
 }

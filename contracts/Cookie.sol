@@ -7,15 +7,15 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Cookie is ERC20, ERC20Permit, ERC20Votes, ReentrancyGuard, Ownable {
+contract Cookie is ERC20, Ownable {
 
-    constructor() ERC20("Cookie", "COOKIE") ERC20Permit("Cookie") {}
+    constructor() ERC20("Cookie", "COOKIE") {}
 
-    function mint(address to, uint256 amount) external onlyOwner {
-        _mint(to, amount);
+    function mint(address account, uint256 amount) external onlyOwner {
+        _mint(account, amount);
     }
 
-    function burn(address from, uint256 amount) external onlyOwner {
-        _burn(from, amount);
+    function burn(address account, uint256 amount) external onlyOwner {
+        _burn(account, amount);
     }
 }
