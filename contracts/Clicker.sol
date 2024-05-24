@@ -22,11 +22,16 @@ contract Clicker is ERC721, Ownable {
     uint256 public clickerCost = 1000000000000000000; // 1 eth
     uint256 public nextClickerId = 1;
 
+    uint256 clickerIndex = 0;
     uint256 public baseCpc = 15 * PRECISION;    // 15 cookies per click
     mapping(uint256 => uint256) public clickerLvl_Cost;     // clicker level => cost to upgrade
+
+    uint256 buildingIndex = 0;
     mapping(uint256 => uint256) public buildingId_BaseCost; // building id => base cost
     mapping(uint256 => uint256) public buildingId_BaseCps;  // building id => base cookies per second
     mapping(uint256 => uint256) public buildingId_MaxAmount;   // building id => max amount
+
+    mapping(uint256 => uint256) public buildingId_LvlIndex; // building id => level index
     mapping(uint256 => mapping(uint256 => uint256)) public buildingId_Lvl_Cost; // building id => level => cost
     
     mapping(uint256 => string) public clickerId_Name;   // clicker id => name
@@ -45,10 +50,11 @@ contract Clicker is ERC721, Ownable {
 
     /*----------  EVENTS ------------------------------------------------*/
 
-    event Clicker__ClickerPurchased(address indexed owner, uint256 indexed clickerId);
+    event Clicker__ClickerMinted(address indexed owner, uint256 indexed clickerId);
     event Clicker__ClickerUpgraded(uint256 indexed clickerId, uint256 newLevel, uint256 cost, uint256 cpc);
     event Clicker__BuildingPurchased(uint256 indexed clickerId, uint256 buildingId, uint256 newAmount, uint256 cost, uint256 cps);
     event Clicker__BuildingUpgraded(uint256 indexed clickerId, uint256 buildingId, uint256 newLevel, uint256 cost, uint256 cps);
+    event Clicker__Clicked(uint256 indexed clickerId, uint256 amount);
     event Clicker__Claimed(uint256 indexed clickerId, uint256 amount);
     event Clicker__ClickerLvlSet(uint256 clickerLvl, uint256 cost);
     event Clicker__BuildingSet(uint256 buildingId, uint256 baseCps, uint256 baseCost, uint256 maxAmount);
@@ -63,17 +69,20 @@ contract Clicker is ERC721, Ownable {
         cookie = _cookie;
     }
 
-    function mintClicker() external payable {
+    function mint() external payable {
         if (msg.value != clickerCost) revert Clicker__InvalidPayment();
         payable(owner()).transfer(clickerCost);
         _safeMint(msg.sender, nextClickerId);
-        emit Clicker__ClickerPurchased(msg.sender, nextClickerId);
+        clickerId_Lvl[nextClickerId] = 0;
+        clickerId_Last[nextClickerId] = block.timestamp;
+        emit Clicker__ClickerMinted(msg.sender, nextClickerId);
         nextClickerId++;
     }
 
     function click(uint256 clickerId) external {
-        uint256 amount = baseCpc * 2 ** (clickerId_Lvl[clickerId]);
-        emit Clicker__Claimed(clickerId, amount);
+        uint256 amount = getClickerCpc(clickerId);
+        emit Clicker__Clicked(clickerId, amount);
+        claim(clickerId);
         ICookie(cookie).mint(ownerOf(clickerId), amount);
     }
 
@@ -96,9 +105,9 @@ contract Clicker is ERC721, Ownable {
         uint256 currentAmount = clickerId_buildingId_Amount[clickerId][buildingId];
         if (currentAmount == buildingId_MaxAmount[buildingId]) revert Clicker__AmountMaxed();
         claim(clickerId);
-        uint256 cost = buildingId_BaseCost[buildingId] * 115 ** (currentAmount + 1) / 100;
+        uint256 cost = getBuildingCost(buildingId, currentAmount);
         clickerId_buildingId_Amount[clickerId][buildingId]++;
-        clickerId_Cps[clickerId] += buildingId_BaseCps[buildingId] * 2 ** (clickerId_buildingId_Lvl[clickerId][buildingId]);
+        clickerId_Cps[clickerId] += getBuildingCps(buildingId, clickerId_buildingId_Lvl[clickerId][buildingId]);
         emit Clicker__BuildingPurchased(clickerId, buildingId, clickerId_buildingId_Amount[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
         ICookie(cookie).burn(msg.sender, cost);
     }
@@ -109,31 +118,30 @@ contract Clicker is ERC721, Ownable {
         if (cost == 0) revert Clicker__LevelMaxed();
         claim(clickerId); 
         clickerId_buildingId_Lvl[clickerId][buildingId]++;
-        clickerId_Cps[clickerId] += ((buildingId_BaseCps[buildingId] * 2 ** currentLvl + 1) - (buildingId_BaseCps[buildingId] * 2 ** (currentLvl))) * clickerId_buildingId_Amount[clickerId][buildingId];
+        clickerId_Cps[clickerId] += (getBuildingCps(buildingId, currentLvl + 1) - getBuildingCps(buildingId, currentLvl)) * clickerId_buildingId_Amount[clickerId][buildingId];
         emit Clicker__BuildingUpgraded(clickerId, buildingId, clickerId_buildingId_Lvl[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
         ICookie(cookie).burn(msg.sender, cost);
     }
 
     /*----------  RESTRICTED FUNCTIONS  ---------------------------------*/
 
-    function setClickerLvl(uint256[] calldata clickerLvl, uint256[] calldata cost) external onlyOwner {
-        if (clickerLvl.length != cost.length) revert Clicker__InvalidInput();
-        for (uint256 i = 0; i < clickerLvl.length; i++) {
-            if (clickerLvl_Cost[clickerLvl[i]] != 0) revert Clicker__InvalidInput();
-            clickerLvl_Cost[clickerLvl[i]] = cost[i];
-            emit Clicker__ClickerLvlSet(clickerLvl[i], cost[i]);
+    function setClickerLvl(uint256[] calldata cost) external onlyOwner {
+        for (uint256 i = clickerIndex; i < clickerIndex + cost.length; i++) {
+            clickerLvl_Cost[i] = cost[i];
+            emit Clicker__ClickerLvlSet(i, cost[i]);
         }
+        clickerIndex += cost.length;
     }
 
-    function setBuilding(uint256[] calldata buildingId, uint256[] calldata baseCps, uint256[] calldata baseCost, uint256[] calldata maxAmount) external onlyOwner {
-        if (buildingId.length != baseCps.length || buildingId.length != baseCost.length || buildingId.length != maxAmount.length) revert Clicker__InvalidInput();
-        for (uint256 i = 0; i < buildingId.length; i++) {
-            if (buildingId_BaseCps[buildingId[i]] != 0) revert Clicker__InvalidInput();
-            buildingId_BaseCps[buildingId[i]] = baseCps[i];
-            buildingId_BaseCost[buildingId[i]] = baseCost[i];
-            buildingId_MaxAmount[buildingId[i]] = maxAmount[i];
-            emit Clicker__BuildingSet(buildingId[i], baseCps[i], baseCost[i], maxAmount[i]);
+    function setBuilding(uint256[] calldata baseCps, uint256[] calldata baseCost, uint256[] calldata maxAmount) external onlyOwner {
+        if (baseCps.length != baseCost.length || baseCps.length != maxAmount.length) revert Clicker__InvalidInput();
+        for (uint256 i = buildingIndex; i < buildingIndex + baseCps.length; i++) {
+            buildingId_BaseCps[i] = baseCps[i];
+            buildingId_BaseCost[i] = baseCost[i];
+            buildingId_MaxAmount[i] = maxAmount[i];
+            emit Clicker__BuildingSet(i, baseCps[i], baseCost[i], maxAmount[i]);
         }
+        buildingIndex += baseCps.length;
     }
 
     function setBuildingMaxAmount(uint256[] calldata buildingId, uint256[] calldata maxAmount) external onlyOwner {
@@ -145,16 +153,31 @@ contract Clicker is ERC721, Ownable {
         }
     }
 
-    function setBuildingLvl(uint256 buildingId, uint256[] calldata lvl, uint256[] calldata cost) external onlyOwner {
-        if (lvl.length != cost.length) revert Clicker__InvalidInput();
-        for (uint256 i = 0; i < lvl.length; i++) {
-            if (buildingId_Lvl_Cost[buildingId][lvl[i]] != 0) revert Clicker__InvalidInput();
-            buildingId_Lvl_Cost[buildingId][lvl[i]] = cost[i];
-            emit Clicker__BuildingLvlSet(buildingId, lvl[i], cost[i]);
+    function setBuildingLvl(uint256 buildingId, uint256[] calldata cost) external onlyOwner {
+        for (uint256 i = buildingId_LvlIndex[buildingId]; i < buildingId_LvlIndex[buildingId] + cost.length; i++) {
+            buildingId_Lvl_Cost[buildingId][i] = cost[i];
+            emit Clicker__BuildingLvlSet(buildingId, i, cost[i]);
         }
+        buildingId_LvlIndex[buildingId] += cost.length;
     }
 
     /*----------  VIEW FUNCTIONS  ---------------------------------------*/
+
+    function getClickerCpc(uint256 clickerId) public view returns (uint256) {
+        return baseCpc * 2 ** clickerId_Lvl[clickerId];
+    }
+        
+    function getBuildingCost(uint256 buildingId, uint256 amount) public view returns (uint256) {
+        return amount == 0 ? buildingId_BaseCost[buildingId] : buildingId_BaseCost[buildingId] * (115 ** amount) / (100 ** amount);
+    }
+
+    function getBuildingCps(uint256 buildingId, uint256 lvl) public view returns (uint256) {
+        return buildingId_BaseCps[buildingId] * 2 ** lvl;
+    }
+
+    function getClaimable(uint256 clickerId) external view returns (uint256) {
+        return clickerId_Cps[clickerId] * (block.timestamp - clickerId_Last[clickerId]);
+    }
 
     function getClicker(uint256 clickerId) external view returns (string memory name, uint256 cps, uint256 cpc, uint256 last, uint256 lvl, uint256 cost) {
         name = clickerId_Name[clickerId];
@@ -165,12 +188,13 @@ contract Clicker is ERC721, Ownable {
         cost = clickerLvl_Cost[lvl + 1];
     }
 
-    function getBuilding(uint256 clickerId, uint256 buildingId) external view returns (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 cost) {
+    function getBuilding(uint256 clickerId, uint256 buildingId) external view returns (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 purchaseCost, uint256 upgradeCost) {
         amount = clickerId_buildingId_Amount[clickerId][buildingId];
         lvl = clickerId_buildingId_Lvl[clickerId][buildingId];
-        cpsPerUnit = buildingId_BaseCps[buildingId] * 2 ** lvl;
+        cpsPerUnit = getBuildingCps(buildingId, lvl);
         totalCps = cpsPerUnit * amount;
-        cost = buildingId_BaseCost[buildingId] * 115 ** (amount + 1) / 100;
+        purchaseCost = getBuildingCost(buildingId, amount);
+        upgradeCost = buildingId_Lvl_Cost[buildingId][lvl + 1];
     }
 
 }
