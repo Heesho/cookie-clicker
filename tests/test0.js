@@ -395,4 +395,45 @@ describe("local: test0", function () {
     console.log(await multicall.getClickerState(1));
     console.log(await multicall.getBuildingState(1));
   });
+
+  it("Owner sets buildings", async function () {
+    console.log("******************************************************");
+    await clicker
+      .connect(owner)
+      .setBuilding(
+        [pointOne, one, eight, fourtySeven],
+        [fifteen, oneHundred, oneThousandOneHundred, twelveThousand],
+        [1, 1, 1, 1]
+      );
+  });
+
+  it("Get id of owner", async function () {
+    console.log("******************************************************");
+    console.log(await clicker.tokenOfOwnerByIndex(user0.address, 0));
+  });
+
+  it("Forward 2 hour", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [7200]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getClickerState(1));
+    console.log(await multicall.getBuildingState(1));
+  });
+
+  it("User0 upgrades building0", async function () {
+    console.log("******************************************************");
+    await clicker.connect(user0).purchaseBuilding(1, 3);
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getClickerState(1));
+    console.log(await multicall.getBuildingState(1));
+  });
 });

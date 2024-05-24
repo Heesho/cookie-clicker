@@ -2,6 +2,7 @@
 pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
+import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 interface ICookie {
@@ -9,7 +10,7 @@ interface ICookie {
     function burn(address account, uint256 amount) external;
 }
 
-contract Clicker is ERC721, Ownable {
+contract Clicker is ERC721Enumerable, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
@@ -99,6 +100,7 @@ contract Clicker is ERC721, Ownable {
     function upgradeClicker(uint256 clickerId) external {
         uint256 cost = clickerLvl_Cost[clickerId_Lvl[clickerId] + 1];
         if (cost == 0) revert Clicker__LevelMaxed();
+        claim(clickerId);
         clickerId_Lvl[clickerId]++;
         clickerId_Cpc[clickerId] = getClickerCpc(clickerId);
         emit Clicker__ClickerUpgraded(clickerId, clickerId_Lvl[clickerId], cost, clickerId_Cps[clickerId]);
@@ -136,8 +138,9 @@ contract Clicker is ERC721, Ownable {
 
     function setClickerLvl(uint256[] calldata cost) external onlyOwner {
         for (uint256 i = clickerIndex; i < clickerIndex + cost.length; i++) {
-            clickerLvl_Cost[i] = cost[i];
-            emit Clicker__ClickerLvlSet(i, cost[i]);
+            uint256 arrayIndex = i - clickerIndex;
+            clickerLvl_Cost[i] = cost[arrayIndex];
+            emit Clicker__ClickerLvlSet(i, cost[arrayIndex]);
         }
         clickerIndex += cost.length;
     }
@@ -145,10 +148,11 @@ contract Clicker is ERC721, Ownable {
     function setBuilding(uint256[] calldata baseCps, uint256[] calldata baseCost, uint256[] calldata maxAmount) external onlyOwner {
         if (baseCps.length != baseCost.length || baseCps.length != maxAmount.length) revert Clicker__InvalidInput();
         for (uint256 i = buildingIndex; i < buildingIndex + baseCps.length; i++) {
-            buildingId_BaseCps[i] = baseCps[i];
-            buildingId_BaseCost[i] = baseCost[i];
-            buildingId_MaxAmount[i] = maxAmount[i];
-            emit Clicker__BuildingSet(i, baseCps[i], baseCost[i], maxAmount[i]);
+            uint256 arrayIndex = i - buildingIndex;
+            buildingId_BaseCps[i] = baseCps[arrayIndex];
+            buildingId_BaseCost[i] = baseCost[arrayIndex];
+            buildingId_MaxAmount[i] = maxAmount[arrayIndex];
+            emit Clicker__BuildingSet(i, baseCps[arrayIndex], baseCost[arrayIndex], maxAmount[arrayIndex]);
         }
         buildingIndex += baseCps.length;
     }
