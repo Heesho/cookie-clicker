@@ -22,11 +22,11 @@ contract Clicker is ERC721, Ownable {
     uint256 public clickerCost = 1000000000000000000; // 1 eth
     uint256 public nextClickerId = 1;
 
-    uint256 clickerIndex = 0;
+    uint256 public clickerIndex = 0;
     uint256 public baseCpc = 15 * PRECISION;    // 15 cookies per click
     mapping(uint256 => uint256) public clickerLvl_Cost;     // clicker level => cost to upgrade
 
-    uint256 buildingIndex = 0;
+    uint256 public buildingIndex = 0;
     mapping(uint256 => uint256) public buildingId_BaseCost; // building id => base cost
     mapping(uint256 => uint256) public buildingId_BaseCps;  // building id => base cookies per second
     mapping(uint256 => uint256) public buildingId_MaxAmount;   // building id => max amount
@@ -36,6 +36,7 @@ contract Clicker is ERC721, Ownable {
     
     mapping(uint256 => string) public clickerId_Name;   // clicker id => name
     mapping(uint256 => uint256) public clickerId_Cps;   // clicker id => cookies per second
+    mapping(uint256 => uint256) public clickerId_Cpc;   // clicker id => cookies per click
     mapping(uint256 => uint256) public clickerId_Last;  // clicker id => last time claimed
     mapping(uint256 => uint256) public clickerId_Lvl;   // clicker id => level
     mapping(uint256 => mapping(uint256 => uint256)) public clickerId_buildingId_Amount; // clicker id => building id => amount
@@ -73,16 +74,17 @@ contract Clicker is ERC721, Ownable {
         if (msg.value != clickerCost) revert Clicker__InvalidPayment();
         payable(owner()).transfer(clickerCost);
         _safeMint(msg.sender, nextClickerId);
+        clickerId_Name[nextClickerId] = "Clicker";
         clickerId_Lvl[nextClickerId] = 0;
         clickerId_Last[nextClickerId] = block.timestamp;
+        clickerId_Cpc[nextClickerId] = getClickerCpc(nextClickerId);
         emit Clicker__ClickerMinted(msg.sender, nextClickerId);
         nextClickerId++;
     }
 
     function click(uint256 clickerId) external {
-        uint256 amount = getClickerCpc(clickerId);
+        uint256 amount = clickerId_Cpc[clickerId];
         emit Clicker__Clicked(clickerId, amount);
-        claim(clickerId);
         ICookie(cookie).mint(ownerOf(clickerId), amount);
     }
 
@@ -97,6 +99,7 @@ contract Clicker is ERC721, Ownable {
         uint256 cost = clickerLvl_Cost[clickerId_Lvl[clickerId] + 1];
         if (cost == 0) revert Clicker__LevelMaxed();
         clickerId_Lvl[clickerId]++;
+        clickerId_Cpc[clickerId] = getClickerCpc(clickerId);
         emit Clicker__ClickerUpgraded(clickerId, clickerId_Lvl[clickerId], cost, clickerId_Cps[clickerId]);
         ICookie(cookie).burn(msg.sender, cost);
     }
@@ -175,17 +178,14 @@ contract Clicker is ERC721, Ownable {
         return buildingId_BaseCps[buildingId] * 2 ** lvl;
     }
 
-    function getClaimable(uint256 clickerId) external view returns (uint256) {
-        return clickerId_Cps[clickerId] * (block.timestamp - clickerId_Last[clickerId]);
-    }
-
-    function getClicker(uint256 clickerId) external view returns (string memory name, uint256 cps, uint256 cpc, uint256 last, uint256 lvl, uint256 cost) {
+    function getClicker(uint256 clickerId) external view returns (string memory name, uint256 cps, uint256 cpc, uint256 last, uint256 lvl, uint256 cost, uint256 claimable) {
         name = clickerId_Name[clickerId];
         cps = clickerId_Cps[clickerId];
-        cpc = baseCpc * 2 ** clickerId_Lvl[clickerId];
+        cpc = getClickerCpc(clickerId);
         last = clickerId_Last[clickerId];
         lvl = clickerId_Lvl[clickerId];
         cost = clickerLvl_Cost[lvl + 1];
+        claimable = clickerId_Cps[clickerId] * (block.timestamp - clickerId_Last[clickerId]);
     }
 
     function getBuilding(uint256 clickerId, uint256 buildingId) external view returns (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 purchaseCost, uint256 upgradeCost) {

@@ -16,7 +16,7 @@ const oneThousandOneHundred = convert("1100", 18);
 const twelveThousand = convert("12000", 18);
 
 let owner, user0, user1, user2;
-let cookie, clicker;
+let cookie, clicker, multicall;
 
 describe("local: test0", function () {
   before("Initial set up", async function () {
@@ -32,6 +32,10 @@ describe("local: test0", function () {
     const clickerArtifact = await ethers.getContractFactory("Clicker");
     clicker = await clickerArtifact.deploy(cookie.address);
     console.log("- Clicker Initialized");
+
+    const multicallArtifact = await ethers.getContractFactory("Multicall");
+    multicall = await multicallArtifact.deploy(cookie.address, clicker.address);
+    console.log("- Multicall Initialized");
 
     await cookie.transferOwnership(clicker.address);
     console.log("- System set up");
@@ -120,25 +124,9 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
-  it("User0 claimable cookies", async function () {
-    console.log("******************************************************");
-    console.log(
-      "USER0 CLAIMABLE: ",
-      divDec(await clicker.connect(user0).getClaimable(1))
-    );
-  });
-
   it("User0 claims cookies", async function () {
     console.log("******************************************************");
     await clicker.connect(user0).claim(1);
-  });
-
-  it("User0 claimable cookies", async function () {
-    console.log("******************************************************");
-    console.log(
-      "USER0 CLAIMABLE: ",
-      divDec(await clicker.connect(user0).getClaimable(1))
-    );
   });
 
   it("User0 purchases building", async function () {
@@ -353,9 +341,9 @@ describe("local: test0", function () {
     console.log("Upgrade Cost: ", divDec(res.cost));
   });
 
-  it("User0 building0 state", async function () {
+  it("User0 building1 state", async function () {
     console.log("******************************************************");
-    let res = await clicker.getBuilding(1, 0);
+    let res = await clicker.getBuilding(1, 1);
     console.log("USER0 BUILDING0 STATE");
     console.log("Amount: ", res.amount);
     console.log("Level: ", res.lvl);
@@ -363,5 +351,48 @@ describe("local: test0", function () {
     console.log("Total CpS: ", divDec(res.totalCps));
     console.log("Purchase Cost: ", divDec(res.purchaseCost));
     console.log("Upgrade Cost: ", divDec(res.upgradeCost));
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    let res = await clicker.getBuilding(1, 2);
+    console.log("USER0 BUILDING0 STATE");
+    console.log("Amount: ", res.amount);
+    console.log("Level: ", res.lvl);
+    console.log("CpS per Unit: ", divDec(res.cpsPerUnit));
+    console.log("Total CpS: ", divDec(res.totalCps));
+    console.log("Purchase Cost: ", divDec(res.purchaseCost));
+    console.log("Upgrade Cost: ", divDec(res.upgradeCost));
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    let res = await clicker.getBuilding(1, 3);
+    console.log("USER0 BUILDING0 STATE");
+    console.log("Amount: ", res.amount);
+    console.log("Level: ", res.lvl);
+    console.log("CpS per Unit: ", divDec(res.cpsPerUnit));
+    console.log("Total CpS: ", divDec(res.totalCps));
+    console.log("Purchase Cost: ", divDec(res.purchaseCost));
+    console.log("Upgrade Cost: ", divDec(res.upgradeCost));
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    let res = await clicker.getBuilding(1, 4);
+    console.log("USER0 BUILDING0 STATE");
+    console.log("Amount: ", res.amount);
+    console.log("Level: ", res.lvl);
+    console.log("CpS per Unit: ", divDec(res.cpsPerUnit));
+    console.log("Total CpS: ", divDec(res.totalCps));
+    console.log("Purchase Cost: ", divDec(res.purchaseCost));
+    console.log("Upgrade Cost: ", divDec(res.upgradeCost));
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getClickerState(1));
+    console.log(await multicall.getBuildingState(1));
   });
 });
