@@ -48,6 +48,7 @@ contract Clicker is ERC721, Ownable {
     error Clicker__AmountMaxed();
     error Clicker__LevelMaxed();
     error Clicker__InvalidInput();
+    error Clicker__NotAuthorized();
 
     /*----------  EVENTS ------------------------------------------------*/
 
@@ -74,7 +75,7 @@ contract Clicker is ERC721, Ownable {
         if (msg.value != clickerCost) revert Clicker__InvalidPayment();
         payable(owner()).transfer(clickerCost);
         _safeMint(msg.sender, nextClickerId);
-        clickerId_Name[nextClickerId] = "Clicker";
+        clickerId_Name[nextClickerId] = "Bakery";
         clickerId_Lvl[nextClickerId] = 0;
         clickerId_Last[nextClickerId] = block.timestamp;
         clickerId_Cpc[nextClickerId] = getClickerCpc(nextClickerId);
@@ -124,6 +125,11 @@ contract Clicker is ERC721, Ownable {
         clickerId_Cps[clickerId] += (getBuildingCps(buildingId, currentLvl + 1) - getBuildingCps(buildingId, currentLvl)) * clickerId_buildingId_Amount[clickerId][buildingId];
         emit Clicker__BuildingUpgraded(clickerId, buildingId, clickerId_buildingId_Lvl[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
         ICookie(cookie).burn(msg.sender, cost);
+    }
+
+    function setName(uint256 clickerId, string calldata name) external {
+        if (msg.sender != ownerOf(clickerId)) revert Clicker__NotAuthorized();
+        clickerId_Name[clickerId] = name;
     }
 
     /*----------  RESTRICTED FUNCTIONS  ---------------------------------*/
@@ -196,5 +202,5 @@ contract Clicker is ERC721, Ownable {
         purchaseCost = getBuildingCost(buildingId, amount);
         upgradeCost = buildingId_Lvl_Cost[buildingId][lvl + 1];
     }
-
+                                      
 }
