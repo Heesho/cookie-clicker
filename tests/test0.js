@@ -52,6 +52,8 @@ describe("local: test0", function () {
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
     await clicker.connect(user0).click(1);
+    await clicker.connect(user0).click(1);
+    await clicker.connect(user0).click(1);
   });
 
   it("Owner sets buildings", async function () {
@@ -176,7 +178,9 @@ describe("local: test0", function () {
 
   it("Owner sets building0 levels", async function () {
     console.log("******************************************************");
-    await clicker.connect(owner).setBuildingLvl(0, [0, oneHundred, oneHundred]);
+    await clicker
+      .connect(owner)
+      .setBuildingLvl(0, [0, oneHundred, oneHundred], [0, 1, 10]);
   });
 
   it("User0 clicker state", async function () {
@@ -201,6 +205,13 @@ describe("local: test0", function () {
     console.log("Total CpS: ", divDec(res.totalCps));
     console.log("Purchase Cost: ", divDec(res.purchaseCost));
     console.log("Upgrade Cost: ", divDec(res.upgradeCost));
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getClickerState(1));
+    console.log(await multicall.getBuildingState(1));
   });
 
   it("User0 upgrades building0", async function () {
@@ -235,6 +246,9 @@ describe("local: test0", function () {
   it("User0 purchases building", async function () {
     console.log("******************************************************");
     await clicker.connect(user0).purchaseBuilding(1, 0);
+    await clicker.connect(user0).purchaseBuilding(1, 0);
+    await clicker.connect(user0).purchaseBuilding(1, 0);
+    await clicker.connect(user0).purchaseBuilding(1, 0);
   });
 
   it("User0 clicker state", async function () {
@@ -261,14 +275,16 @@ describe("local: test0", function () {
     console.log("Upgrade Cost: ", divDec(res.upgradeCost));
   });
 
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getClickerState(1));
+    console.log(await multicall.getBuildingState(1));
+  });
+
   it("User0 upgrades building0", async function () {
     console.log("******************************************************");
     await clicker.connect(user0).upgradeBuilding(1, 0);
-  });
-
-  it("User0 purchases building", async function () {
-    console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0);
   });
 
   it("User0 clicker state", async function () {
@@ -297,7 +313,9 @@ describe("local: test0", function () {
 
   it("Owner sets clciker levels", async function () {
     console.log("******************************************************");
-    await clicker.connect(owner).setClickerLvl([0, oneHundred, oneHundred]);
+    await clicker
+      .connect(owner)
+      .setClickerLvl([0, oneHundred, oneHundred], [0, 1, 10]);
   });
 
   it("User0 clicker state", async function () {
@@ -428,6 +446,19 @@ describe("local: test0", function () {
   it("User0 upgrades building0", async function () {
     console.log("******************************************************");
     await clicker.connect(user0).purchaseBuilding(1, 3);
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getClickerState(1));
+    console.log(await multicall.getBuildingState(1));
+  });
+
+  it("Forward 2 hour", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [7200]);
+    await network.provider.send("evm_mine");
   });
 
   it("User0 building1 state", async function () {

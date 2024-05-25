@@ -6,8 +6,8 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IClicker {
     function buildingIndex() external view returns (uint256);
-    function getClicker(uint256 clickerId) external view returns (string memory name, uint256 cps, uint256 cpc, uint256 last, uint256 lvl, uint256 cost, uint256 claimable);
-    function getBuilding(uint256 clickerId, uint256 buildingId) external view returns (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 purchaseCost, uint256 upgradeCost);
+    function getClicker(uint256 clickerId) external view returns (string memory name, uint256 cps, uint256 cpc, uint256 last, uint256 lvl, uint256 cost, uint256 claimable, uint256 clicks, bool upgradeable);
+    function getBuilding(uint256 clickerId, uint256 buildingId) external view returns (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 purchaseCost, uint256 upgradeCost, bool upgradeable);
 }
 
 contract Multicall {
@@ -24,6 +24,9 @@ contract Multicall {
         uint256 cps;
         uint256 lvl;
         uint256 upgradeCost;
+        uint256 clicks;
+        bool maxed;
+        bool upgradeable;
     }
 
     struct BuildingState {
@@ -34,6 +37,9 @@ contract Multicall {
         uint256 totalCps;
         uint256 purchaseCost;
         uint256 upgradeCost;
+        bool maxed;
+        bool upgradeable;
+
     }
 
     constructor(address _cookie, address _clicker) {
@@ -42,7 +48,7 @@ contract Multicall {
     }
 
     function getClickerState(uint256 clickerId) external view returns (ClickerState memory clickerState) {
-        (string memory name, uint256 cps, uint256 cpc, , uint256 lvl, uint256 cost, uint256 claimable) = IClicker(clicker).getClicker(clickerId);
+        (string memory name, uint256 cps, uint256 cpc, , uint256 lvl, uint256 cost, uint256 claimable, uint256 clicks, bool upgradeable) = IClicker(clicker).getClicker(clickerId);
         clickerState.id = clickerId;
         clickerState.name = name;
         clickerState.cookies = IERC20(cookie).balanceOf(IERC721(clicker).ownerOf(clickerId));
@@ -51,13 +57,16 @@ contract Multicall {
         clickerState.cps = cps;
         clickerState.lvl = lvl;
         clickerState.upgradeCost = cost;
+        clickerState.clicks = clicks;
+        clickerState.maxed = cost == 0;
+        clickerState.upgradeable = clickerState.maxed ? false : upgradeable;
     }
 
     function getBuildingState(uint256 clickerId) external view returns (BuildingState[] memory buildingState) {
         uint256 buildingCount = IClicker(clicker).buildingIndex();
         buildingState = new BuildingState[](buildingCount);
         for (uint256 i = 0; i < buildingCount; i++) {
-            (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 purchaseCost, uint256 upgradeCost) = IClicker(clicker).getBuilding(clickerId, i);
+            (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 purchaseCost, uint256 upgradeCost, bool upgradeable) = IClicker(clicker).getBuilding(clickerId, i);
             buildingState[i].id = i;
             buildingState[i].amount = amount;
             buildingState[i].lvl = lvl;
@@ -65,6 +74,8 @@ contract Multicall {
             buildingState[i].totalCps = totalCps;
             buildingState[i].purchaseCost = purchaseCost;
             buildingState[i].upgradeCost = upgradeCost;
+            buildingState[i].maxed = upgradeCost == 0;
+            buildingState[i].upgradeable = buildingState[i].maxed ? false : upgradeable;
         }
     }
 

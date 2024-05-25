@@ -24,7 +24,8 @@ contract Clicker is ERC721Enumerable, Ownable {
     uint256 public nextClickerId = 1;
 
     uint256 public clickerIndex = 0;
-    uint256 public baseCpc = 15 * PRECISION;    // 15 cookies per click
+    uint256 public baseCpc = 5 * PRECISION;    // 5 cookies per click
+    mapping(uint256 => uint256) public clickerLvl_UnlockClicks; // clicker level => clicks required to unlock
     mapping(uint256 => uint256) public clickerLvl_Cost;     // clicker level => cost to upgrade
 
     uint256 public buildingIndex = 0;
@@ -33,6 +34,7 @@ contract Clicker is ERC721Enumerable, Ownable {
     mapping(uint256 => uint256) public buildingId_MaxAmount;   // building id => max amount
 
     mapping(uint256 => uint256) public buildingId_LvlIndex; // building id => level index
+    mapping(uint256 => mapping(uint256 => uint256)) public buildingId_Lvl_UnlockAmount; // building id => level => amount required to unlock
     mapping(uint256 => mapping(uint256 => uint256)) public buildingId_Lvl_Cost; // building id => level => cost
     
     mapping(uint256 => string) public clickerId_Name;   // clicker id => name
@@ -40,6 +42,8 @@ contract Clicker is ERC721Enumerable, Ownable {
     mapping(uint256 => uint256) public clickerId_Cpc;   // clicker id => cookies per click
     mapping(uint256 => uint256) public clickerId_Last;  // clicker id => last time claimed
     mapping(uint256 => uint256) public clickerId_Lvl;   // clicker id => level
+    mapping(uint256 => uint256) public clickerId_Clicks;  // clicker id => cost
+
     mapping(uint256 => mapping(uint256 => uint256)) public clickerId_buildingId_Amount; // clicker id => building id => amount
     mapping(uint256 => mapping(uint256 => uint256)) public clickerId_buildingId_Lvl;    // clicker id => building id => level
 
@@ -50,6 +54,7 @@ contract Clicker is ERC721Enumerable, Ownable {
     error Clicker__LevelMaxed();
     error Clicker__InvalidInput();
     error Clicker__NotAuthorized();
+    error Clicker__UpgradeLocked();
 
     /*----------  EVENTS ------------------------------------------------*/
 
@@ -77,7 +82,6 @@ contract Clicker is ERC721Enumerable, Ownable {
         payable(owner()).transfer(clickerCost);
         _safeMint(msg.sender, nextClickerId);
         clickerId_Name[nextClickerId] = "Bakery";
-        clickerId_Lvl[nextClickerId] = 0;
         clickerId_Last[nextClickerId] = block.timestamp;
         clickerId_Cpc[nextClickerId] = getClickerCpc(nextClickerId);
         emit Clicker__ClickerMinted(msg.sender, nextClickerId);
@@ -86,6 +90,7 @@ contract Clicker is ERC721Enumerable, Ownable {
 
     function click(uint256 clickerId) external {
         uint256 amount = clickerId_Cpc[clickerId];
+        clickerId_Clicks[clickerId]++;
         emit Clicker__Clicked(clickerId, amount);
         ICookie(cookie).mint(ownerOf(clickerId), amount);
     }
@@ -100,6 +105,7 @@ contract Clicker is ERC721Enumerable, Ownable {
     function upgradeClicker(uint256 clickerId) external {
         uint256 cost = clickerLvl_Cost[clickerId_Lvl[clickerId] + 1];
         if (cost == 0) revert Clicker__LevelMaxed();
+        if (clickerId_Clicks[clickerId] < clickerLvl_UnlockClicks[clickerId_Lvl[clickerId] + 1]) revert Clicker__UpgradeLocked();
         claim(clickerId);
         clickerId_Lvl[clickerId]++;
         clickerId_Cpc[clickerId] = getClickerCpc(clickerId);
@@ -122,6 +128,7 @@ contract Clicker is ERC721Enumerable, Ownable {
         uint256 currentLvl = clickerId_buildingId_Lvl[clickerId][buildingId];
         uint256 cost = buildingId_Lvl_Cost[buildingId][currentLvl + 1];
         if (cost == 0) revert Clicker__LevelMaxed();
+        if (clickerId_buildingId_Amount[clickerId][buildingId] < buildingId_Lvl_UnlockAmount[buildingId][currentLvl + 1]) revert Clicker__UpgradeLocked();
         claim(clickerId); 
         clickerId_buildingId_Lvl[clickerId][buildingId]++;
         clickerId_Cps[clickerId] += (getBuildingCps(buildingId, currentLvl + 1) - getBuildingCps(buildingId, currentLvl)) * clickerId_buildingId_Amount[clickerId][buildingId];
@@ -136,10 +143,12 @@ contract Clicker is ERC721Enumerable, Ownable {
 
     /*----------  RESTRICTED FUNCTIONS  ---------------------------------*/
 
-    function setClickerLvl(uint256[] calldata cost) external onlyOwner {
+    function setClickerLvl(uint256[] calldata cost, uint256[] calldata unlockClicks) external onlyOwner {
+        if (cost.length != unlockClicks.length) revert Clicker__InvalidInput();
         for (uint256 i = clickerIndex; i < clickerIndex + cost.length; i++) {
             uint256 arrayIndex = i - clickerIndex;
             clickerLvl_Cost[i] = cost[arrayIndex];
+            clickerLvl_UnlockClicks[i] = unlockClicks[arrayIndex];
             emit Clicker__ClickerLvlSet(i, cost[arrayIndex]);
         }
         clickerIndex += cost.length;
@@ -166,9 +175,11 @@ contract Clicker is ERC721Enumerable, Ownable {
         }
     }
 
-    function setBuildingLvl(uint256 buildingId, uint256[] calldata cost) external onlyOwner {
+    function setBuildingLvl(uint256 buildingId, uint256[] calldata cost, uint256[] calldata unlockAmount) external onlyOwner {
+        if (cost.length != unlockAmount.length) revert Clicker__InvalidInput();
         for (uint256 i = buildingId_LvlIndex[buildingId]; i < buildingId_LvlIndex[buildingId] + cost.length; i++) {
             buildingId_Lvl_Cost[buildingId][i] = cost[i];
+            buildingId_Lvl_UnlockAmount[buildingId][i] = unlockAmount[i];
             emit Clicker__BuildingLvlSet(buildingId, i, cost[i]);
         }
         buildingId_LvlIndex[buildingId] += cost.length;
@@ -188,7 +199,7 @@ contract Clicker is ERC721Enumerable, Ownable {
         return buildingId_BaseCps[buildingId] * 2 ** lvl;
     }
 
-    function getClicker(uint256 clickerId) external view returns (string memory name, uint256 cps, uint256 cpc, uint256 last, uint256 lvl, uint256 cost, uint256 claimable) {
+    function getClicker(uint256 clickerId) external view returns (string memory name, uint256 cps, uint256 cpc, uint256 last, uint256 lvl, uint256 cost, uint256 claimable, uint256 clicks, bool upgradeable) {
         name = clickerId_Name[clickerId];
         cps = clickerId_Cps[clickerId];
         cpc = getClickerCpc(clickerId);
@@ -196,15 +207,18 @@ contract Clicker is ERC721Enumerable, Ownable {
         lvl = clickerId_Lvl[clickerId];
         cost = clickerLvl_Cost[lvl + 1];
         claimable = clickerId_Cps[clickerId] * (block.timestamp - clickerId_Last[clickerId]);
+        clicks = clickerId_Clicks[clickerId];
+        upgradeable = clickerId_Clicks[clickerId] >= clickerLvl_UnlockClicks[lvl + 1];
     }
 
-    function getBuilding(uint256 clickerId, uint256 buildingId) external view returns (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 purchaseCost, uint256 upgradeCost) {
+    function getBuilding(uint256 clickerId, uint256 buildingId) external view returns (uint256 amount, uint256 lvl, uint256 cpsPerUnit, uint256 totalCps, uint256 purchaseCost, uint256 upgradeCost, bool upgradeable) {
         amount = clickerId_buildingId_Amount[clickerId][buildingId];
         lvl = clickerId_buildingId_Lvl[clickerId][buildingId];
         cpsPerUnit = getBuildingCps(buildingId, lvl);
         totalCps = cpsPerUnit * amount;
         purchaseCost = getBuildingCost(buildingId, amount);
         upgradeCost = buildingId_Lvl_Cost[buildingId][lvl + 1];
+        upgradeable = clickerId_buildingId_Amount[clickerId][buildingId] >= buildingId_Lvl_UnlockAmount[buildingId][lvl + 1];
     }
                                       
 }
