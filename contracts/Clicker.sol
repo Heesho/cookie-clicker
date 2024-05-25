@@ -15,6 +15,7 @@ contract Clicker is ERC721Enumerable, Ownable {
     /*----------  CONSTANTS  --------------------------------------------*/
 
     uint256 constant PRECISION = 1e18;
+    uint256 constant DURATION = 28800; // 8 hours
 
     /*----------  STATE VARIABLES  --------------------------------------*/
 
@@ -97,6 +98,8 @@ contract Clicker is ERC721Enumerable, Ownable {
 
     function claim(uint256 clickerId) public {
         uint256 amount = clickerId_Cps[clickerId] * (block.timestamp - clickerId_Last[clickerId]);
+        uint256 maxAmount = clickerId_Cps[clickerId] * DURATION;
+        if (amount > maxAmount) amount = maxAmount;
         clickerId_Last[clickerId] = block.timestamp;
         emit Clicker__Claimed(clickerId, amount);
         ICookie(cookie).mint(ownerOf(clickerId), amount);
