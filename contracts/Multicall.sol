@@ -14,6 +14,7 @@ interface IClicker {
 
     function clickerBaseCost() external view returns (uint256);
     function buildingId_BaseCost(uint256 buildingId) external view returns (uint256);
+    function buildingId_MaxAmount(uint256 buildingId) external view returns (uint256);
     function lvl_CostMultiplier(uint256 lvl) external view returns (uint256);
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
     function buildingIndex() external view returns (uint256);
@@ -55,6 +56,7 @@ contract Multicall {
         uint256 cpsPerUnit;
         uint256 cpsTotal;
         uint256 percentOfProduction;
+        bool maxed;
     }
 
     constructor(address _cookie, address _clicker) {
@@ -100,6 +102,7 @@ contract Multicall {
             buildingState[i].cpsPerUnit = IClicker(clicker).getBuildingCps(i, lvl);
             buildingState[i].cpsTotal = buildingState[i].cpsPerUnit * buildingState[i].amount;
             buildingState[i].percentOfProduction = buildingState[i].cpsTotal * 100 / IClicker(clicker).clickerId_Cps(clickerId);
+            buildingState[i].maxed = IClicker(clicker).buildingId_MaxAmount(i) == buildingState[i].amount;
         }
     }
 

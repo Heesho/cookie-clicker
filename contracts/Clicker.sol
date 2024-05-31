@@ -14,8 +14,8 @@ contract Clicker is ERC721Enumerable, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
-    uint256 constant PRECISION = 1e18;
-    uint256 constant DURATION = 28800; // 8 hours
+    uint256 constant PRECISION = 1e18;   
+    uint256 constant DURATION = 28800;  // 8 hours
 
     /*----------  STATE VARIABLES  --------------------------------------*/
 
@@ -24,24 +24,24 @@ contract Clicker is ERC721Enumerable, Ownable {
     uint256 public gameCost = 1000000000000000000; // 1 ether
     uint256 public nextClickerId = 1;
 
-    uint256 public baseCpc = 5 * PRECISION;    // 5 cookies per click
+    uint256 public baseCpc = 5 * PRECISION;             // 5 cookies per click
     uint256 public clickerBaseCost = 10000000000000000; // 0.01 cookies
 
     uint256 public lvlIndex;
-    mapping(uint256 => uint256) public lvl_CostMultiplier; // level => cost multiplier
-    mapping(uint256 => uint256) public lvl_Unlock; // level => amount required to unlock
+    mapping(uint256 => uint256) public lvl_Unlock;          // level => amount required to unlock
+    mapping(uint256 => uint256) public lvl_CostMultiplier;  // level => cost multiplier
 
     uint256 public buildingIndex = 0;
-    mapping(uint256 => uint256) public buildingId_BaseCost; // building id => base cost
-    mapping(uint256 => uint256) public buildingId_BaseCps;  // building id => base cookies per second
-    mapping(uint256 => uint256) public buildingId_MaxAmount;   // building id => max amount
+    mapping(uint256 => uint256) public buildingId_BaseCost;     // building id => base cost
+    mapping(uint256 => uint256) public buildingId_BaseCps;      // building id => base cookies per second
+    mapping(uint256 => uint256) public buildingId_MaxAmount;    // building id => max amount
     
-    mapping(uint256 => string) public clickerId_Name;   // clicker id => name
-    mapping(uint256 => uint256) public clickerId_Cps;   // clicker id => cookies per second
-    mapping(uint256 => uint256) public clickerId_Cpc;   // clicker id => cookies per click
-    mapping(uint256 => uint256) public clickerId_Last;  // clicker id => last time claimed
-    mapping(uint256 => uint256) public clickerId_Lvl;   // clicker id => level
-    mapping(uint256 => uint256) public clickerId_Clicks;  // clicker id => cost
+    mapping(uint256 => string) public clickerId_Name;       // clicker id => name
+    mapping(uint256 => uint256) public clickerId_Cps;       // clicker id => cookies per second
+    mapping(uint256 => uint256) public clickerId_Cpc;       // clicker id => cookies per click
+    mapping(uint256 => uint256) public clickerId_Last;      // clicker id => last time claimed
+    mapping(uint256 => uint256) public clickerId_Lvl;       // clicker id => level
+    mapping(uint256 => uint256) public clickerId_Clicks;    // clicker id => cost
 
     mapping(uint256 => mapping(uint256 => uint256)) public clickerId_buildingId_Amount; // clicker id => building id => amount
     mapping(uint256 => mapping(uint256 => uint256)) public clickerId_buildingId_Lvl;    // clicker id => building id => level
