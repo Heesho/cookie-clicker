@@ -5,6 +5,8 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IClicker {
+    function gameCost() external view returns (uint256);
+
     function clickerId_Lvl(uint256 clickerId) external view returns (uint256);
     function clickerId_Cps(uint256 clickerId) external view returns (uint256);
     function clickerId_Last(uint256 clickerId) external view returns (uint256);
@@ -19,6 +21,7 @@ interface IClicker {
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
     function buildingIndex() external view returns (uint256);
 
+    function getClickerCpc(uint256 lvl) external view returns (uint256);
     function getBuildingCost(uint256 buildingId, uint256 amount) external view returns (uint256);
     function getBuildingCps(uint256 buildingId, uint256 lvl) external view returns (uint256);
 }
@@ -33,8 +36,10 @@ contract Multicall {
     struct BakeryState {
         uint256 cookies;
         uint256 cps;
+        uint256 cpc;
         uint256 capacity;
         uint256 claimable;
+        uint256 cursors;
         bool full;
     }
 
@@ -64,12 +69,18 @@ contract Multicall {
         clicker = _clicker;
     }
 
+    function getGameCost() external view returns (uint256) {
+        return IClicker(clicker).gameCost();
+    }
+
     function getBakery(uint256 clickerId) external view returns (BakeryState memory bakeryState) {
         bakeryState.cookies = IERC20(cookie).balanceOf(IERC721(clicker).ownerOf(clickerId));
         bakeryState.cps = IClicker(clicker).clickerId_Cps(clickerId);
+        bakeryState.cpc = IClicker(clicker).getClickerCpc(IClicker(clicker).clickerId_Lvl(clickerId));
         uint256 amount = bakeryState.cps * (block.timestamp - IClicker(clicker).clickerId_Last(clickerId));
         bakeryState.capacity = bakeryState.cps * DURATION;
         bakeryState.claimable = amount >= bakeryState.capacity ? bakeryState.capacity : amount;
+        bakeryState.cursors = IClicker(clicker).clickerId_buildingId_Amount(clickerId, 0);
         bakeryState.full = amount >= bakeryState.capacity;
     }
 
