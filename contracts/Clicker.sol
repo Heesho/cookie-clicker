@@ -21,11 +21,11 @@ contract Clicker is ERC721Enumerable, Ownable {
 
     address immutable public cookie;
 
-    uint256 public gameCost = 1000000000000000000; // 1 ether
+    uint256 public gameCost = 10000000000000000; // 0.01 ether
     uint256 public nextClickerId = 1;
 
-    uint256 public baseCpc = 5 * PRECISION;             // 5 cookies per click
-    uint256 public clickerBaseCost = 10000000000000000; // 0.01 cookies
+    uint256 public baseCpc = 5000000000000;             // 5 cookies per click
+    uint256 public clickerBaseCost = 15000000000000; // cookies
 
     uint256 public lvlIndex;
     mapping(uint256 => uint256) public lvl_Unlock;          // level => amount required to unlock

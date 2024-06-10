@@ -6,6 +6,7 @@ const { ethers, network } = require("hardhat");
 const { execPath } = require("process");
 
 const AddressZero = "0x0000000000000000000000000000000000000000";
+const pointZeroOne = convert("0.01", 18);
 const pointOne = convert("0.1", 18);
 const one = convert("1", 18);
 const eight = convert("8", 18);
@@ -46,7 +47,7 @@ describe("local: test0", function () {
 
   it("User0 mints a clicker", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).mint({ value: one });
+    await clicker.connect(user0).mint({ value: pointZeroOne });
   });
 
   it("User0 clicks cookie", async function () {
@@ -61,9 +62,44 @@ describe("local: test0", function () {
     await clicker
       .connect(owner)
       .setBuilding(
-        [pointOne, one, eight, fourtySeven],
-        [fifteen, oneHundred, oneThousandOneHundred, twelveThousand],
-        [1, 1, 1, 1]
+        [
+          ethers.utils.parseUnits("0.0000001", 18),
+          ethers.utils.parseUnits("0.000001", 18),
+          ethers.utils.parseUnits("0.000008", 18),
+          ethers.utils.parseUnits("0.000047", 18),
+          ethers.utils.parseUnits("0.00026", 18),
+          ethers.utils.parseUnits("0.0014", 18),
+          ethers.utils.parseUnits("0.0078", 18),
+          ethers.utils.parseUnits("0.044", 18),
+          ethers.utils.parseUnits("0.26", 18),
+          ethers.utils.parseUnits("1.6", 18),
+          ethers.utils.parseUnits("10", 18),
+          ethers.utils.parseUnits("65", 18),
+          ethers.utils.parseUnits("430", 18),
+          ethers.utils.parseUnits("2900", 18),
+          ethers.utils.parseUnits("21000", 18),
+        ],
+        [
+          ethers.utils.parseUnits("0.000015", 18),
+          ethers.utils.parseUnits("0.0001", 18),
+          ethers.utils.parseUnits("0.0011", 18),
+          ethers.utils.parseUnits("0.012", 18),
+          ethers.utils.parseUnits("0.13", 18),
+          ethers.utils.parseUnits("1.4", 18),
+          ethers.utils.parseUnits("20", 18),
+          ethers.utils.parseUnits("330", 18),
+          ethers.utils.parseUnits("5100", 18),
+          ethers.utils.parseUnits("75000", 18),
+          ethers.utils.parseUnits("1000000", 18),
+          ethers.utils.parseUnits("14000000", 18),
+          ethers.utils.parseUnits("170000000", 18),
+          ethers.utils.parseUnits("2100000000", 18),
+          ethers.utils.parseUnits("26000000000", 18),
+        ],
+        [
+          1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
+          1000, 1000, 1000, 1000,
+        ]
       );
   });
 
@@ -85,18 +121,6 @@ describe("local: test0", function () {
 
   it("User0 purchases building", async function () {
     console.log("******************************************************");
-    await expect(
-      clicker.connect(user0).purchaseBuilding(1, 0)
-    ).to.be.revertedWith("Clicker__AmountMaxed");
-  });
-
-  it("Owner sets building0 max amount to 10", async function () {
-    console.log("******************************************************");
-    await clicker.connect(owner).setBuildingMaxAmount([0], [10]);
-  });
-
-  it("User0 purchases building", async function () {
-    console.log("******************************************************");
     await clicker.connect(user0).purchaseBuilding(1, 0);
     await clicker.connect(user0).purchaseBuilding(1, 0);
     await clicker.connect(user0).purchaseBuilding(1, 0);
@@ -106,7 +130,24 @@ describe("local: test0", function () {
 
   it("Owner sets levels", async function () {
     console.log("******************************************************");
-    await clicker.connect(owner).setLvl([0, 10, 50, 500], [0, 1, 10, 10]);
+    await clicker
+      .connect(owner)
+      .setLvl(
+        [
+          "0",
+          "10",
+          "50",
+          "500",
+          "50000",
+          "5000000",
+          "500000000",
+          "500000000000",
+          "500000000000000",
+          "500000000000000000",
+          "500000000000000000000",
+        ],
+        [0, 1, 5, 25, 50, 100, 150, 200, 250, 300, 350]
+      );
   });
 
   it("User0 building1 state", async function () {
@@ -160,17 +201,6 @@ describe("local: test0", function () {
     console.log(await multicall.getBakery(1));
     console.log(await multicall.getUpgrades(1));
     console.log(await multicall.getBuildings(1));
-  });
-
-  it("Owner sets buildings", async function () {
-    console.log("******************************************************");
-    await clicker
-      .connect(owner)
-      .setBuilding(
-        [pointOne, one, eight, fourtySeven],
-        [fifteen, oneHundred, oneThousandOneHundred, twelveThousand],
-        [1, 1, 1, 1]
-      );
   });
 
   it("Get id of owner", async function () {
