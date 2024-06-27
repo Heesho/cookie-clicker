@@ -76,6 +76,36 @@ async function printDeployment() {
   console.log("**************************************************************");
 }
 
+async function verifyCookie() {
+  console.log("Starting Cookie Verification");
+  await hre.run("verify:verify", {
+    address: cookie.address,
+    contract: "contracts/Cookie.sol:Cookie",
+    constructorArguments: [],
+  });
+  console.log("Cookie Verified");
+}
+
+async function verifyClicker() {
+  console.log("Starting Clicker Verification");
+  await hre.run("verify:verify", {
+    address: clicker.address,
+    contract: "contracts/Clicker.sol:Clicker",
+    constructorArguments: [cookie.address],
+  });
+  console.log("Clicker Verified");
+}
+
+async function verifyMulticall() {
+  console.log("Starting Multicall Verification");
+  await hre.run("verify:verify", {
+    address: multicall.address,
+    contract: "contracts/Multicall.sol:Multicall",
+    constructorArguments: [cookie.address, clicker.address],
+  });
+  console.log("Clicker Verified");
+}
+
 async function setUpSystem(wallet) {
   console.log("Starting System Set Up");
   await cookie.connect(wallet).setMinter(clicker.address, true);
@@ -161,6 +191,10 @@ async function main() {
   //   await deployClicker();
   //   await deployMulticall();
   //   await printDeployment();
+
+  //   await verifyCookie();
+  //   await verifyClicker();
+  //   await verifyMulticall();
 
   //   await setUpSystem(wallet);
   //   await setBuildings(wallet);
