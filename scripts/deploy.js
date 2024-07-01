@@ -24,7 +24,7 @@ async function getContracts() {
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x5Db084766Eea0dFC017e89Aa99bea3690bCA3B8e"
+    "0x130A35Fe3A7365c7663A2D1c9D352848444AB1aE"
   );
   console.log("Contracts Retrieved");
 }
@@ -187,18 +187,18 @@ async function main() {
 
   await getContracts();
 
-  //   await deployCookie();
-  //   await deployClicker();
-  //   await deployMulticall();
-  //   await printDeployment();
+  // await deployCookie();
+  // await deployClicker();
+  // await deployMulticall();
+  // await printDeployment();
 
-  //   await verifyCookie();
-  //   await verifyClicker();
-  //   await verifyMulticall();
+  // await verifyCookie();
+  // await verifyClicker();
+  // await verifyMulticall();
 
-  //   await setUpSystem(wallet);
-  //   await setBuildings(wallet);
-  //   await setLevels(wallet);
+  // await setUpSystem(wallet);
+  // await setBuildings(wallet);
+  // await setLevels(wallet);
 }
 
 main()

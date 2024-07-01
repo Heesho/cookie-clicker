@@ -112,7 +112,7 @@ contract Multicall {
             uint256 lvl = IClicker(clicker).clickerId_buildingId_Lvl(clickerId, i);
             buildingState[i].cpsPerUnit = IClicker(clicker).getBuildingCps(i, lvl);
             buildingState[i].cpsTotal = buildingState[i].cpsPerUnit * buildingState[i].amount;
-            buildingState[i].percentOfProduction = buildingState[i].cpsTotal * 100 / IClicker(clicker).clickerId_Cps(clickerId);
+            buildingState[i].percentOfProduction = IClicker(clicker).clickerId_Cps(clickerId) == 0 ? 0 : buildingState[i].cpsTotal * 100 / IClicker(clicker).clickerId_Cps(clickerId);
             buildingState[i].maxed = IClicker(clicker).buildingId_MaxAmount(i) == buildingState[i].amount;
         }
     }
