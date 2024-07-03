@@ -16,15 +16,15 @@ let cookie, clicker, multicall;
 async function getContracts() {
   cookie = await ethers.getContractAt(
     "contracts/Cookie.sol:Cookie",
-    "0x03eDf18C2048F3b7612ceD1147100FaBA4f02e25"
+    "0x0c09B539BBDE11979235F08454D4923B7303C98e"
   );
   clicker = await ethers.getContractAt(
     "contracts/Clicker.sol:Clicker",
-    "0xE193d11579bc052b0359a61A83FdC852CAE0FB79"
+    "0xAa69bB1171510F4d006C7ab0A3fBf0dCbb6296A2"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x130A35Fe3A7365c7663A2D1c9D352848444AB1aE"
+    "0x61d0b4fbB9d507F64112e859523524AA2c548A6C"
   );
   console.log("Contracts Retrieved");
 }
@@ -198,7 +198,7 @@ async function main() {
 
   // await setUpSystem(wallet);
   // await setBuildings(wallet);
-  // await setLevels(wallet);
+  await setLevels(wallet);
 }
 
 main()

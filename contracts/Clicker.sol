@@ -114,15 +114,18 @@ contract Clicker is ERC721Enumerable, Ownable {
         ICookie(cookie).burn(msg.sender, cost);
     }
 
-    function purchaseBuilding(uint256 clickerId, uint256 buildingId) external {
-        uint256 currentAmount = clickerId_buildingId_Amount[clickerId][buildingId];
-        if (currentAmount == buildingId_MaxAmount[buildingId]) revert Clicker__AmountMaxed();
+    function purchaseBuilding(uint256 clickerId, uint256 buildingId, uint256 buildingAmount) external {
+        if (buildingAmount == 0) revert Clicker__InvalidInput();
         claim(clickerId);
-        uint256 cost = getBuildingCost(buildingId, currentAmount);
-        clickerId_buildingId_Amount[clickerId][buildingId]++;
-        clickerId_Cps[clickerId] += getBuildingCps(buildingId, clickerId_buildingId_Lvl[clickerId][buildingId]);
-        emit Clicker__BuildingPurchased(clickerId, buildingId, clickerId_buildingId_Amount[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
-        ICookie(cookie).burn(msg.sender, cost);
+        for (uint256 i = 0; i < buildingAmount; i++) {
+            uint256 currentAmount = clickerId_buildingId_Amount[clickerId][buildingId];
+            if (currentAmount == buildingId_MaxAmount[buildingId]) revert Clicker__AmountMaxed();
+            uint256 cost = getBuildingCost(buildingId, currentAmount);
+            clickerId_buildingId_Amount[clickerId][buildingId]++;
+            clickerId_Cps[clickerId] += getBuildingCps(buildingId, clickerId_buildingId_Lvl[clickerId][buildingId]);
+            emit Clicker__BuildingPurchased(clickerId, buildingId, clickerId_buildingId_Amount[clickerId][buildingId], cost, clickerId_Cps[clickerId]);
+            ICookie(cookie).burn(msg.sender, cost);
+        }
     }
 
     function upgradeBuilding(uint256 clickerId, uint256 buildingId) external {
@@ -193,6 +196,14 @@ contract Clicker is ERC721Enumerable, Ownable {
         
     function getBuildingCost(uint256 buildingId, uint256 amount) public view returns (uint256) {
         return amount == 0 ? buildingId_BaseCost[buildingId] : buildingId_BaseCost[buildingId] * (115 ** amount) / (100 ** amount);
+    }
+
+    function getMultipleBuildingCost(uint256 buildingId, uint256 initialAmount, uint256 finalAmount) external view returns (uint256){
+        uint256 cost = 0;
+        for (uint256 i = initialAmount; i < finalAmount; i++) {
+            cost += getBuildingCost(buildingId, i);
+        }
+        return cost;
     }
                   
 }

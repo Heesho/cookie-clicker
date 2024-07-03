@@ -105,7 +105,7 @@ describe("local: test0", function () {
 
   it("User0 purchases building", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0);
+    await clicker.connect(user0).purchaseBuilding(1, 0, 1);
   });
 
   it("Forward 2 hour", async function () {
@@ -121,11 +121,7 @@ describe("local: test0", function () {
 
   it("User0 purchases building", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0);
-    await clicker.connect(user0).purchaseBuilding(1, 0);
-    await clicker.connect(user0).purchaseBuilding(1, 0);
-    await clicker.connect(user0).purchaseBuilding(1, 0);
-    await clicker.connect(user0).purchaseBuilding(1, 0);
+    await clicker.connect(user0).purchaseBuilding(1, 0, 5);
   });
 
   it("Owner sets levels", async function () {
@@ -165,10 +161,7 @@ describe("local: test0", function () {
 
   it("User0 purchases building", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0);
-    await clicker.connect(user0).purchaseBuilding(1, 0);
-    await clicker.connect(user0).purchaseBuilding(1, 0);
-    await clicker.connect(user0).purchaseBuilding(1, 0);
+    await clicker.connect(user0).purchaseBuilding(1, 0, 4);
   });
 
   it("User0 building1 state", async function () {
@@ -224,7 +217,7 @@ describe("local: test0", function () {
 
   it("User0 upgrades building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 3);
+    await clicker.connect(user0).purchaseBuilding(1, 3, 1);
   });
 
   it("User0 building1 state", async function () {
@@ -247,5 +240,13 @@ describe("local: test0", function () {
     console.log(await multicall.getBakery(1));
     console.log(await multicall.getUpgrades(1));
     console.log(await multicall.getBuildings(1));
+  });
+
+  it("User0 building id 1 costs", async function () {
+    console.log("******************************************************");
+    console.log(await clicker.getMultipleBuildingCost(0, 10, 15));
+    console.log(await multicall.getMultipleBuildingCost(1, 0, 5));
+    console.log(await clicker.getMultipleBuildingCost(0, 10, 27));
+    console.log(await multicall.getMultipleBuildingCost(1, 0, 17));
   });
 });

@@ -23,6 +23,7 @@ interface IClicker {
 
     function getClickerCpc(uint256 lvl) external view returns (uint256);
     function getBuildingCost(uint256 buildingId, uint256 amount) external view returns (uint256);
+    function getMultipleBuildingCost(uint256 buildingId, uint256 initialAmount, uint256 finalAmount) external view returns (uint256);
     function getBuildingCps(uint256 buildingId, uint256 lvl) external view returns (uint256);
 }
 
@@ -73,6 +74,11 @@ contract Multicall {
         return IClicker(clicker).gameCost();
     }
 
+    function getMultipleBuildingCost(uint256 clickerId, uint256 buildingId, uint256 purchaseAmount) external view returns (uint256) {
+        uint256 currentAmount = IClicker(clicker).clickerId_buildingId_Amount(clickerId, buildingId);
+        return IClicker(clicker).getMultipleBuildingCost(buildingId, currentAmount, currentAmount + purchaseAmount);
+    }
+
     function getBakery(uint256 clickerId) external view returns (BakeryState memory bakeryState) {
         bakeryState.cookies = IERC20(cookie).balanceOf(IERC721(clicker).ownerOf(clickerId));
         bakeryState.cps = IClicker(clicker).clickerId_Cps(clickerId);
@@ -112,7 +118,7 @@ contract Multicall {
             uint256 lvl = IClicker(clicker).clickerId_buildingId_Lvl(clickerId, i);
             buildingState[i].cpsPerUnit = IClicker(clicker).getBuildingCps(i, lvl);
             buildingState[i].cpsTotal = buildingState[i].cpsPerUnit * buildingState[i].amount;
-            buildingState[i].percentOfProduction = IClicker(clicker).clickerId_Cps(clickerId) == 0 ? 0 : buildingState[i].cpsTotal * 100 / IClicker(clicker).clickerId_Cps(clickerId);
+            buildingState[i].percentOfProduction = IClicker(clicker).clickerId_Cps(clickerId) == 0 ? 0 : buildingState[i].cpsTotal * 1e18 * 100 / IClicker(clicker).clickerId_Cps(clickerId);
             buildingState[i].maxed = IClicker(clicker).buildingId_MaxAmount(i) == buildingState[i].amount;
         }
     }
