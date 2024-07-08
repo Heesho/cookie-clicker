@@ -16,10 +16,10 @@ interface IClicker {
 
     function clickerBaseCost() external view returns (uint256);
     function buildingId_BaseCost(uint256 buildingId) external view returns (uint256);
-    function buildingId_MaxAmount(uint256 buildingId) external view returns (uint256);
     function lvl_CostMultiplier(uint256 lvl) external view returns (uint256);
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
     function buildingIndex() external view returns (uint256);
+    function amountIndex() external view returns (uint256);
 
     function getClickerCpc(uint256 lvl) external view returns (uint256);
     function getBuildingCost(uint256 buildingId, uint256 amount) external view returns (uint256);
@@ -114,12 +114,13 @@ contract Multicall {
         for (uint256 i = 0; i < buildingCount; i++) {
             buildingState[i].id = i;
             buildingState[i].amount = IClicker(clicker).clickerId_buildingId_Amount(clickerId, i);
-            buildingState[i].cost = IClicker(clicker).getBuildingCost(i, buildingState[i].amount);
+            buildingState[i].maxed = IClicker(clicker).amountIndex() == buildingState[i].amount;
+            buildingState[i].cost = buildingState[i].maxed ? 0 : IClicker(clicker).getBuildingCost(i, buildingState[i].amount);
             uint256 lvl = IClicker(clicker).clickerId_buildingId_Lvl(clickerId, i);
             buildingState[i].cpsPerUnit = IClicker(clicker).getBuildingCps(i, lvl);
             buildingState[i].cpsTotal = buildingState[i].cpsPerUnit * buildingState[i].amount;
             buildingState[i].percentOfProduction = IClicker(clicker).clickerId_Cps(clickerId) == 0 ? 0 : buildingState[i].cpsTotal * 1e18 * 100 / IClicker(clicker).clickerId_Cps(clickerId);
-            buildingState[i].maxed = IClicker(clicker).buildingId_MaxAmount(i) == buildingState[i].amount;
+
         }
     }
 

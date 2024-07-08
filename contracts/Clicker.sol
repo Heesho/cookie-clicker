@@ -32,9 +32,10 @@ contract Clicker is ERC721Enumerable, Ownable {
     mapping(uint256 => uint256) public lvl_CostMultiplier;  // level => cost multiplier
 
     uint256 public buildingIndex = 0;
+    uint256 public amountIndex = 0;
     mapping(uint256 => uint256) public buildingId_BaseCost;     // building id => base cost
     mapping(uint256 => uint256) public buildingId_BaseCps;      // building id => base cookies per second
-    mapping(uint256 => uint256) public buildingId_MaxAmount;    // building id => max amount
+    mapping(uint256 => uint256) public amount_CostMultiplier;       // building amount => cost multiplier
     
     mapping(uint256 => string) public clickerId_Name;       // clicker id => name
     mapping(uint256 => uint256) public clickerId_Cps;       // clicker id => cookies per second
@@ -65,8 +66,8 @@ contract Clicker is ERC721Enumerable, Ownable {
     event Clicker__Clicked(uint256 indexed clickerId, uint256 amount);
     event Clicker__Claimed(uint256 indexed clickerId, uint256 amount);
     event Clicker__LvlSet(uint256 lvl, uint256 cost, uint256 unlock);
-    event Clicker__BuildingSet(uint256 buildingId, uint256 baseCps, uint256 baseCost, uint256 maxAmount);
-    event Clicker__BuildingMaxAmountSet(uint256 buildingId, uint256 maxAmount);
+    event Clicker__BuildingSet(uint256 buildingId, uint256 baseCps, uint256 baseCost);
+    event Clicker__BuildingMultiplierSet(uint256 index, uint256 multiplier);
 
     /*----------  MODIFIERS  --------------------------------------------*/
 
@@ -119,7 +120,7 @@ contract Clicker is ERC721Enumerable, Ownable {
         claim(clickerId);
         for (uint256 i = 0; i < buildingAmount; i++) {
             uint256 currentAmount = clickerId_buildingId_Amount[clickerId][buildingId];
-            if (currentAmount == buildingId_MaxAmount[buildingId]) revert Clicker__AmountMaxed();
+            if (currentAmount == amountIndex) revert Clicker__AmountMaxed();
             uint256 cost = getBuildingCost(buildingId, currentAmount);
             clickerId_buildingId_Amount[clickerId][buildingId]++;
             clickerId_Cps[clickerId] += getBuildingCps(buildingId, clickerId_buildingId_Lvl[clickerId][buildingId]);
@@ -163,25 +164,24 @@ contract Clicker is ERC721Enumerable, Ownable {
         lvlIndex += cost.length;
     }
 
-    function setBuilding(uint256[] calldata baseCps, uint256[] calldata baseCost, uint256[] calldata maxAmount) external onlyOwner {
-        if (baseCps.length != baseCost.length || baseCps.length != maxAmount.length) revert Clicker__InvalidInput();
+    function setBuilding(uint256[] calldata baseCps, uint256[] calldata baseCost) external onlyOwner {
+        if (baseCps.length != baseCost.length) revert Clicker__InvalidInput();
         for (uint256 i = buildingIndex; i < buildingIndex + baseCps.length; i++) {
             uint256 arrayIndex = i - buildingIndex;
             buildingId_BaseCps[i] = baseCps[arrayIndex];
             buildingId_BaseCost[i] = baseCost[arrayIndex];
-            buildingId_MaxAmount[i] = maxAmount[arrayIndex];
-            emit Clicker__BuildingSet(i, baseCps[arrayIndex], baseCost[arrayIndex], maxAmount[arrayIndex]);
+            emit Clicker__BuildingSet(i, baseCps[arrayIndex], baseCost[arrayIndex]);
         }
         buildingIndex += baseCps.length;
     }
 
-    function setBuildingMaxAmount(uint256[] calldata buildingId, uint256[] calldata maxAmount) external onlyOwner {
-        if (buildingId.length != maxAmount.length) revert Clicker__InvalidInput();
-        for (uint256 i = 0; i < buildingId.length; i++) {
-            if (maxAmount[i] < buildingId_MaxAmount[buildingId[i]]) revert Clicker__InvalidInput();
-            buildingId_MaxAmount[buildingId[i]] = maxAmount[i];
-            emit Clicker__BuildingMaxAmountSet(buildingId[i], maxAmount[i]);
+    function setBuildingMultipliers(uint256[] calldata multipliers) external onlyOwner {
+        for (uint256 i = amountIndex; i < amountIndex + multipliers.length; i++) {
+            uint256 arrayIndex = i - amountIndex;
+            amount_CostMultiplier[i] = multipliers[arrayIndex];
+            emit Clicker__BuildingMultiplierSet(i, multipliers[arrayIndex]);
         }
+        amountIndex += multipliers.length;
     }
 
     /*----------  VIEW FUNCTIONS  ---------------------------------------*/
@@ -195,7 +195,8 @@ contract Clicker is ERC721Enumerable, Ownable {
     }
         
     function getBuildingCost(uint256 buildingId, uint256 amount) public view returns (uint256) {
-        return amount == 0 ? buildingId_BaseCost[buildingId] : buildingId_BaseCost[buildingId] * (115 ** amount) / (100 ** amount);
+        if (amount >= amountIndex) revert Clicker__AmountMaxed();
+        return buildingId_BaseCost[buildingId] * amount_CostMultiplier[amount] / PRECISION;
     }
 
     function getMultipleBuildingCost(uint256 buildingId, uint256 initialAmount, uint256 finalAmount) external view returns (uint256){
