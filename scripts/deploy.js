@@ -198,7 +198,7 @@ async function main() {
 
   // await setUpSystem(wallet);
   // await setBuildings(wallet);
-  await setLevels(wallet);
+  // await setLevels(wallet);
 }
 
 main()

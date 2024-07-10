@@ -26,13 +26,21 @@ interface IWBERA {
     function deposit() external payable;
 }
 
+interface IClicker {
+    function clickerId_Power(uint256 clickerId) external view returns (uint256);
+    function clickerId_Name(uint256 clickerId) external view returns (string memory);
+    function ownerOf(uint256 tokenId) external view returns (address);
+}
+
 contract ClickerPlugin is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
     address public constant WBERA = 0x7507c1dc16935B82698e4C63f2746A2fCf994dF8;
+    uint256 public constant BASE_CPC = 0.000005 ether;
     uint256 public constant QUEUE_SIZE = 100;
+    
     string public constant SYMBOL = "CLICKER";
     string public constant PROTOCOL = "ClickerPlugin";
 
@@ -46,6 +54,7 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
     address[] private tokensInUnderlying;
     address[] private bribeTokens;
 
+    address public clicker;
     address public treasury;
     uint256 public fee = 0.01 ether;
 
@@ -53,7 +62,7 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         uint256 tokenId;
         uint256 power;
         address account;
-        string message;
+        string name;
     }
 
     mapping(uint256 => Post) public queue;
@@ -67,12 +76,16 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
     error Plugin__InvalidZeroInput();
     error Plugin__NotAuthorizedVoter();
     error Plugin__InsufficientFunds();
+    error Plugin__NotAuthorized();
+    error Plugin__InvalidPayment();
 
     /*----------  EVENTS ------------------------------------------------*/
 
+    event Plugin__ClaimedAnDistributed();
     event Plugin__PostAdded(uint256 tokenId, address author, uint256 power, string message);
     event Plugin__PostRemoved(uint256 tokenId, address author, uint256 power, string message);
-    event Plugin__ClaimedAnDistributed();
+    event Plugin__TreasurySet(address treasury);
+    event Plugin__FeeSet(uint256 fee);
 
     /*----------  MODIFIERS  --------------------------------------------*/
 
@@ -93,13 +106,15 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         address _voter, 
         address[] memory _tokensInUnderlying,   // [WBERA]
         address[] memory _bribeTokens,          // [WBERA]
-        address _treasury
+        address _treasury,
+        address _clicker
     ) {
         underlying = IERC20Metadata(_underlying);
         voter = _voter;
         tokensInUnderlying = _tokensInUnderlying;
         bribeTokens = _bribeTokens;
         treasury = _treasury;
+        clicker = _clicker;
         OTOKEN = IVoter(_voter).OTOKEN();
     }
 
@@ -110,7 +125,7 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         uint256 duration = IBribe(bribe).DURATION();
         uint256 balance = address(this).balance;
         if (balance > duration) {
-            uint256 treasuryFee = balance / 10;
+            uint256 treasuryFee = balance / 5;
             IWBERA(WBERA).deposit{value: balance}();
             IERC20(WBERA).safeTransfer(treasury, treasuryFee);
             IERC20(WBERA).safeApprove(bribe, 0);
@@ -119,27 +134,30 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         }
     }
 
-    function post(uint256 tokenId, string memory message)         
+    function post(uint256 tokenId)         
         external
         payable
         nonReentrant 
     {
+        if (msg.value != fee) revert Plugin__InvalidPayment();
+        if (msg.sender != IClicker(clicker).ownerOf(tokenId)) revert Plugin__NotAuthorized();
+
         uint256 currentIndex = tail % QUEUE_SIZE;
 
         if (count == QUEUE_SIZE) {
             IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
-            emit Plugin__PostRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].message);
+            emit Plugin__PostRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].name);
             head++;
         }
 
-        queue[currentIndex] = Post(tokenId, msg.value, msg.sender, message);
+        uint256 power = IClicker(clicker).clickerId_Power(tokenId) == 0 ? BASE_CPC : BASE_CPC * IClicker(clicker).clickerId_Power(tokenId) / 1e18;
+        queue[currentIndex] = Post(tokenId, power, msg.sender, IClicker(clicker).clickerId_Name(tokenId));
         tail++;
         count = count < QUEUE_SIZE ? count + 1 : count;
-        emit Plugin__PostAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].message);
+        emit Plugin__PostAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name);
 
-        payable(address(this)).transfer(fee * 9 / 10);
-        payable(treasury).transfer(fee / 10);
-        IGauge(gauge)._deposit(msg.sender, msg.value);
+        payable(address(this)).transfer(fee);
+        IGauge(gauge)._deposit(msg.sender, queue[currentIndex].power);
     }
 
     // Function to receive Ether. msg.data must be empty
@@ -152,10 +170,12 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
 
     function setTreasury(address _treasury) external onlyOwner {
         treasury = _treasury;
+        emit Plugin__TreasurySet(_treasury);
     }
 
     function setFee(uint256 _fee) external onlyOwner {
         fee = _fee;
+        emit Plugin__FeeSet(_fee);
     }
 
     function setGauge(address _gauge) external onlyVoter {
