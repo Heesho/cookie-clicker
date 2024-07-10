@@ -32,6 +32,10 @@ interface IClicker {
     function ownerOf(uint256 tokenId) external view returns (address);
 }
 
+interface ICookie {
+    function mint(address account, uint256 amount) external;
+}
+
 contract ClickerPlugin is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
 
@@ -54,18 +58,19 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
     address[] private tokensInUnderlying;
     address[] private bribeTokens;
 
+    address public cookie;
     address public clicker;
     address public treasury;
     uint256 public fee = 0.01 ether;
 
-    struct Post {
+    struct Click {
         uint256 tokenId;
         uint256 power;
         address account;
         string name;
     }
 
-    mapping(uint256 => Post) public queue;
+    mapping(uint256 => Click) public queue;
     uint256 public head = 0;
     uint256 public tail = 0;
     uint256 public count = 0;
@@ -107,7 +112,8 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         address[] memory _tokensInUnderlying,   // [WBERA]
         address[] memory _bribeTokens,          // [WBERA]
         address _treasury,
-        address _clicker
+        address _clicker,
+        address _cookie
     ) {
         underlying = IERC20Metadata(_underlying);
         voter = _voter;
@@ -115,6 +121,7 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         bribeTokens = _bribeTokens;
         treasury = _treasury;
         clicker = _clicker;
+        cookie = _cookie;
         OTOKEN = IVoter(_voter).OTOKEN();
     }
 
@@ -151,13 +158,14 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         }
 
         uint256 power = IClicker(clicker).clickerId_Power(tokenId) == 0 ? BASE_CPC : BASE_CPC * IClicker(clicker).clickerId_Power(tokenId) / 1e18;
-        queue[currentIndex] = Post(tokenId, power, msg.sender, IClicker(clicker).clickerId_Name(tokenId));
+        queue[currentIndex] = Click(tokenId, power, msg.sender, IClicker(clicker).clickerId_Name(tokenId));
         tail++;
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__PostAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name);
 
         payable(address(this)).transfer(fee);
         IGauge(gauge)._deposit(msg.sender, queue[currentIndex].power);
+        ICookie(cookie).mint(msg.sender, queue[currentIndex].power);
     }
 
     // Function to receive Ether. msg.data must be empty
