@@ -87,8 +87,8 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
     /*----------  EVENTS ------------------------------------------------*/
 
     event Plugin__ClaimedAnDistributed();
-    event Plugin__PostAdded(uint256 tokenId, address author, uint256 power, string message);
-    event Plugin__PostRemoved(uint256 tokenId, address author, uint256 power, string message);
+    event Plugin__ClickAdded(uint256 tokenId, address author, uint256 power, string name);
+    event Plugin__ClickRemoved(uint256 tokenId, address author, uint256 power, string name);
     event Plugin__TreasurySet(address treasury);
     event Plugin__FeeSet(uint256 fee);
 
@@ -132,16 +132,20 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         uint256 duration = IBribe(bribe).DURATION();
         uint256 balance = address(this).balance;
         if (balance > duration) {
-            uint256 treasuryFee = balance / 5;
             IWBERA(WBERA).deposit{value: balance}();
-            IERC20(WBERA).safeTransfer(treasury, treasuryFee);
-            IERC20(WBERA).safeApprove(bribe, 0);
-            IERC20(WBERA).safeApprove(bribe, balance - treasuryFee);
-            IBribe(bribe).notifyRewardAmount(WBERA, balance - treasuryFee);
+            if (bribe != address(0)) {
+                uint256 treasuryFee = balance / 5;
+                IERC20(WBERA).safeTransfer(treasury, treasuryFee);
+                IERC20(WBERA).safeApprove(bribe, 0);
+                IERC20(WBERA).safeApprove(bribe, balance - treasuryFee);
+                IBribe(bribe).notifyRewardAmount(WBERA, balance - treasuryFee);
+            } else {
+                IERC20(WBERA).safeTransfer(treasury, balance);
+            }
         }
     }
 
-    function post(uint256 tokenId)         
+    function click(uint256 tokenId)         
         external
         payable
         nonReentrant 
@@ -152,19 +156,19 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         uint256 currentIndex = tail % QUEUE_SIZE;
 
         if (count == QUEUE_SIZE) {
-            IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
-            emit Plugin__PostRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].name);
+            if (gauge != address(0)) IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
+            emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].name);
             head++;
         }
 
-        uint256 power = IClicker(clicker).clickerId_Power(tokenId) == 0 ? BASE_CPC : BASE_CPC * IClicker(clicker).clickerId_Power(tokenId) / 1e18;
+        uint256 power = getPower(tokenId);
         queue[currentIndex] = Click(tokenId, power, msg.sender, IClicker(clicker).clickerId_Name(tokenId));
         tail++;
         count = count < QUEUE_SIZE ? count + 1 : count;
-        emit Plugin__PostAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name);
+        emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name);
 
         payable(address(this)).transfer(fee);
-        IGauge(gauge)._deposit(msg.sender, queue[currentIndex].power);
+        if (gauge != address(0)) IGauge(gauge)._deposit(msg.sender, queue[currentIndex].power);
         ICookie(cookie).mint(msg.sender, queue[currentIndex].power);
     }
 
@@ -242,6 +246,10 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
 
     function getBribeTokens() public view returns (address[] memory) {
         return bribeTokens;
+    }
+
+    function getPower(uint256 tokenId) public view returns (uint256) {
+        return IClicker(clicker).clickerId_Power(tokenId) == 0 ? BASE_CPC : BASE_CPC * IClicker(clicker).clickerId_Power(tokenId) / 1e18;
     }
 
 }

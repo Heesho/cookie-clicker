@@ -7,24 +7,33 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 interface IClicker {
     function gameCost() external view returns (uint256);
 
-    function clickerId_Lvl(uint256 clickerId) external view returns (uint256);
+    function clickerId_Power(uint256 clickerId) external view returns (uint256);
     function clickerId_Cps(uint256 clickerId) external view returns (uint256);
     function clickerId_Last(uint256 clickerId) external view returns (uint256);
-    function clickerId_Clicks(uint256 clickerId) external view returns (uint256);
     function clickerId_buildingId_Amount(uint256 clickerId, uint256 buildingId) external view returns (uint256);
     function clickerId_buildingId_Lvl(uint256 clickerId, uint256 buildingId) external view returns (uint256);
 
-    function clickerBaseCost() external view returns (uint256);
     function buildingId_BaseCost(uint256 buildingId) external view returns (uint256);
     function lvl_CostMultiplier(uint256 lvl) external view returns (uint256);
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
     function buildingIndex() external view returns (uint256);
     function amountIndex() external view returns (uint256);
 
-    function getClickerCpc(uint256 lvl) external view returns (uint256);
     function getBuildingCost(uint256 buildingId, uint256 amount) external view returns (uint256);
     function getMultipleBuildingCost(uint256 buildingId, uint256 initialAmount, uint256 finalAmount) external view returns (uint256);
     function getBuildingCps(uint256 buildingId, uint256 lvl) external view returns (uint256);
+}
+
+interface IClickerPlugin {
+    function getPower(uint256 tokenId) external view returns (uint256);
+    function getGauge() external view returns (address);
+}
+
+interface IGauge {
+    function balanceOf(address account) external view returns (uint256);
+    function totalSupply() external view returns (uint256);
+    function getRewardForDuration(address reward) external view returns (uint256);
+    function earned(address account, address reward) external view returns (uint256);
 }
 
 contract Multicall {
@@ -33,6 +42,15 @@ contract Multicall {
 
     address public immutable cookie;
     address public immutable clicker;
+    address public immutable plugin;
+    address public immutable oBERO;
+
+    struct GaugeState {
+        uint256 rewardPerToken;
+        uint256 totalSupply;
+        uint256 balance;
+        uint256 reward;
+    }
 
     struct BakeryState {
         uint256 cookies;
@@ -42,11 +60,6 @@ contract Multicall {
         uint256 claimable;
         uint256 cursors;
         bool full;
-    }
-
-    struct ClickerUpgradeState {
-        uint256 cost;
-        bool upgradeable;
     }
 
     struct BuildingUpgradeState {
@@ -65,9 +78,11 @@ contract Multicall {
         bool maxed;
     }
 
-    constructor(address _cookie, address _clicker) {
+    constructor(address _cookie, address _clicker, address _plugin, address _oBERO) {
         cookie = _cookie;
         clicker = _clicker;
+        plugin = _plugin;
+        oBERO = _oBERO;
     }
 
     function getGameCost() external view returns (uint256) {
@@ -79,10 +94,20 @@ contract Multicall {
         return IClicker(clicker).getMultipleBuildingCost(buildingId, currentAmount, currentAmount + purchaseAmount);
     }
 
+    function getGauge(address account) external view returns (GaugeState memory gaugeState) {
+        address gauge = IClickerPlugin(plugin).getGauge();
+        if (gauge != address(0)) {
+            gaugeState.rewardPerToken = IGauge(gauge).totalSupply() == 0 ? 0 : (IGauge(gauge).getRewardForDuration(oBERO) * 1e18 / IGauge(gauge).totalSupply());
+            gaugeState.totalSupply = IGauge(gauge).totalSupply();
+            gaugeState.balance = IGauge(gauge).balanceOf(account);
+            gaugeState.reward = IGauge(gauge).earned(account, oBERO);
+        }
+    }
+
     function getBakery(uint256 clickerId) external view returns (BakeryState memory bakeryState) {
         bakeryState.cookies = IERC20(cookie).balanceOf(IERC721(clicker).ownerOf(clickerId));
         bakeryState.cps = IClicker(clicker).clickerId_Cps(clickerId);
-        bakeryState.cpc = IClicker(clicker).getClickerCpc(IClicker(clicker).clickerId_Lvl(clickerId));
+        bakeryState.cpc = IClickerPlugin(plugin).getPower(clickerId);
         uint256 amount = bakeryState.cps * (block.timestamp - IClicker(clicker).clickerId_Last(clickerId));
         bakeryState.capacity = bakeryState.cps * DURATION;
         bakeryState.claimable = amount >= bakeryState.capacity ? bakeryState.capacity : amount;
@@ -90,12 +115,7 @@ contract Multicall {
         bakeryState.full = amount >= bakeryState.capacity;
     }
 
-    function getUpgrades(uint256 clickerId) external view returns (ClickerUpgradeState memory clickerUpgradeState, BuildingUpgradeState[] memory buildingUpgradeState) {
-        uint256 clickerLvl = IClicker(clicker).clickerId_Lvl(clickerId);
-        uint256 clicks = IClicker(clicker).clickerId_Clicks(clickerId);
-        uint256 clicksRequired = IClicker(clicker).lvl_Unlock(clickerLvl + 1);
-        clickerUpgradeState.cost = IClicker(clicker).clickerBaseCost() * IClicker(clicker).lvl_CostMultiplier(clickerLvl + 1);
-        clickerUpgradeState.upgradeable = clicks < clicksRequired || clickerUpgradeState.cost == 0 ? false : true;
+    function getUpgrades(uint256 clickerId) external view returns (BuildingUpgradeState[] memory buildingUpgradeState) {
         uint256 buildingCount = IClicker(clicker).buildingIndex();
         buildingUpgradeState = new BuildingUpgradeState[](buildingCount);
         for (uint256 i = 0; i < buildingCount; i++) {

@@ -4,6 +4,7 @@ pragma solidity 0.8.19;
 import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
 
 interface ICookie {
     function mint(address account, uint256 amount) external;
@@ -78,7 +79,8 @@ contract Clicker is ERC721Enumerable, Ownable {
         if (msg.value != gameCost) revert Clicker__InvalidPayment();
         payable(owner()).transfer(gameCost);
         _safeMint(msg.sender, nextClickerId);
-        clickerId_Name[nextClickerId] = "Bakery";
+        string memory tokenIdStr = Strings.toString(nextClickerId);
+        clickerId_Name[nextClickerId] = string(abi.encodePacked("Bakery ", tokenIdStr));
         clickerId_Last[nextClickerId] = block.timestamp;
         emit Clicker__ClickerMinted(msg.sender, nextClickerId, gameCost);
         nextClickerId++;
