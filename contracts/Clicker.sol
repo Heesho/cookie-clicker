@@ -24,7 +24,7 @@ contract Clicker is ERC721Enumerable, Ownable {
     uint256 public gameCost = 10000000000000000; // 0.01 ether
     uint256 public nextClickerId = 1;
 
-    uint256 public baseCpc = 5000000000000;             // 5 cookies per click
+    uint256 public baseCpc = 5000000000000;          // 5 cookies per click
     uint256 public clickerBaseCost = 15000000000000; // cookies
 
     uint256 public lvlIndex;
@@ -35,7 +35,7 @@ contract Clicker is ERC721Enumerable, Ownable {
     uint256 public amountIndex = 0;
     mapping(uint256 => uint256) public buildingId_BaseCost;     // building id => base cost
     mapping(uint256 => uint256) public buildingId_BaseCps;      // building id => base cookies per second
-    mapping(uint256 => uint256) public amount_CostMultiplier;       // building amount => cost multiplier
+    mapping(uint256 => uint256) public amount_CostMultiplier;   // building amount => cost multiplier
     
     mapping(uint256 => string) public clickerId_Name;       // clicker id => name
     mapping(uint256 => uint256) public clickerId_Cps;       // clicker id => cookies per second
