@@ -707,4 +707,11 @@ describe("local: test0", function () {
     console.log("******************************************************");
     console.log(await plugin.getQueueFragment(0, 10));
   });
+
+  it("Claim and distro from plugin", async function () {
+    console.log("******************************************************");
+    console.log("Treasury Balance: ", await base.balanceOf(treasury.address));
+    await plugin.claimAndDistribute();
+    console.log("Treasury Balance: ", await base.balanceOf(treasury.address));
+  });
 });

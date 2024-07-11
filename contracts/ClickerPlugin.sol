@@ -22,7 +22,7 @@ interface IVoter {
     function OTOKEN() external view returns (address);
 }
 
-interface IWBERA {
+interface IWETH {
     function deposit() external payable;
 }
 
@@ -41,9 +41,9 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
-    address public constant WBERA = 0x7507c1dc16935B82698e4C63f2746A2fCf994dF8;
     uint256 public constant BASE_CPC = 0.000005 ether;
     uint256 public constant QUEUE_SIZE = 100;
+    uint256 public constant DURATION = 7 days;
     
     string public constant SYMBOL = "CLICKER";
     string public constant PROTOCOL = "ClickerPlugin";
@@ -129,18 +129,18 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         external 
         nonReentrant
     {
-        uint256 duration = IBribe(bribe).DURATION();
         uint256 balance = address(this).balance;
-        if (balance > duration) {
-            IWBERA(WBERA).deposit{value: balance}();
+        if (balance > DURATION) {
+            address token = getUnderlyingAddress();
+            IWETH(token).deposit{value: balance}();
             if (bribe != address(0)) {
                 uint256 treasuryFee = balance / 5;
-                IERC20(WBERA).safeTransfer(treasury, treasuryFee);
-                IERC20(WBERA).safeApprove(bribe, 0);
-                IERC20(WBERA).safeApprove(bribe, balance - treasuryFee);
-                IBribe(bribe).notifyRewardAmount(WBERA, balance - treasuryFee);
+                IERC20(token).safeTransfer(treasury, treasuryFee);
+                IERC20(token).safeApprove(bribe, 0);
+                IERC20(token).safeApprove(bribe, balance - treasuryFee);
+                IBribe(bribe).notifyRewardAmount(token, balance - treasuryFee);
             } else {
-                IERC20(WBERA).safeTransfer(treasury, balance);
+                IERC20(token).safeTransfer(treasury, balance);
             }
         }
     }
@@ -280,8 +280,5 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         }
         return result;
     }
-
-
-    
 
 }
