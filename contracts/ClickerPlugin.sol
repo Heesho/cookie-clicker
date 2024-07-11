@@ -156,21 +156,26 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         uint256 currentIndex = tail % QUEUE_SIZE;
 
         if (count == QUEUE_SIZE) {
+            // If the queue is full, remove the oldest element
             if (gauge != address(0)) IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
             emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].name);
-            head++;
+            head = (head + 1) % QUEUE_SIZE;
         }
 
         uint256 power = getPower(tokenId);
         queue[currentIndex] = Click(tokenId, power, msg.sender, IClicker(clicker).clickerId_Name(tokenId));
-        tail++;
+        tail = (tail + 1) % QUEUE_SIZE;
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name);
 
+        // Transfer the fee to the contract
         payable(address(this)).transfer(fee);
+
+        // Handle gauge deposit and cookie minting
         if (gauge != address(0)) IGauge(gauge)._deposit(msg.sender, queue[currentIndex].power);
         ICookie(cookie).mint(msg.sender, queue[currentIndex].power);
     }
+
 
     // Function to receive Ether. msg.data must be empty
     receive() external payable {}
@@ -251,5 +256,32 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
     function getPower(uint256 tokenId) public view returns (uint256) {
         return IClicker(clicker).clickerId_Power(tokenId) == 0 ? BASE_CPC : BASE_CPC * IClicker(clicker).clickerId_Power(tokenId) / 1e18;
     }
+
+    function getQueueSize() public view returns (uint256) {
+        return count;
+    }
+
+    function getClick(uint256 index) public view returns (Click memory) {
+        return queue[(head + index) % QUEUE_SIZE];
+    }
+
+    function getQueueFragment(uint256 start, uint256 end) public view returns (Click[] memory) {
+        Click[] memory result = new Click[](end - start);
+        for (uint256 i = start; i < end; i++) {
+            result[i - start] = queue[(head + i) % QUEUE_SIZE];
+        }
+        return result;
+    }
+
+    function getQueue() public view returns (Click[] memory) {
+        Click[] memory result = new Click[](count);
+        for (uint256 i = 0; i < count; i++) {
+            result[i] = queue[(head + i) % QUEUE_SIZE];
+        }
+        return result;
+    }
+
+
+    
 
 }

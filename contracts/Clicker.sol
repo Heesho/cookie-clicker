@@ -88,6 +88,7 @@ contract Clicker is ERC721Enumerable, Ownable {
 
     function burnForPower(uint256 clickerId, uint256 amount) external {
         if (amount == 0) revert Clicker__InvalidInput();
+        claim(clickerId);
         clickerId_Power[clickerId] += amount;
         if (clickerId_Power[clickerId] > maxPower) revert Clicker__PowerMaxed();
         ICookie(cookie).burn(msg.sender, amount);
