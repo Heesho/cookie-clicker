@@ -7,11 +7,11 @@ import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 interface IClicker {
     function gameCost() external view returns (uint256);
 
-    function clickerId_Power(uint256 clickerId) external view returns (uint256);
-    function clickerId_Cps(uint256 clickerId) external view returns (uint256);
-    function clickerId_Last(uint256 clickerId) external view returns (uint256);
-    function clickerId_buildingId_Amount(uint256 clickerId, uint256 buildingId) external view returns (uint256);
-    function clickerId_buildingId_Lvl(uint256 clickerId, uint256 buildingId) external view returns (uint256);
+    function tokenId_Power(uint256 tokenId) external view returns (uint256);
+    function tokenId_Cps(uint256 tokenId) external view returns (uint256);
+    function tokenId_Last(uint256 tokenId) external view returns (uint256);
+    function tokenId_buildingId_Amount(uint256 tokenId, uint256 buildingId) external view returns (uint256);
+    function tokenId_buildingId_Lvl(uint256 tokenId, uint256 buildingId) external view returns (uint256);
 
     function buildingId_BaseCost(uint256 buildingId) external view returns (uint256);
     function lvl_CostMultiplier(uint256 lvl) external view returns (uint256);
@@ -89,8 +89,8 @@ contract Multicall {
         return IClicker(clicker).gameCost();
     }
 
-    function getMultipleBuildingCost(uint256 clickerId, uint256 buildingId, uint256 purchaseAmount) external view returns (uint256) {
-        uint256 currentAmount = IClicker(clicker).clickerId_buildingId_Amount(clickerId, buildingId);
+    function getMultipleBuildingCost(uint256 tokenId, uint256 buildingId, uint256 purchaseAmount) external view returns (uint256) {
+        uint256 currentAmount = IClicker(clicker).tokenId_buildingId_Amount(tokenId, buildingId);
         return IClicker(clicker).getMultipleBuildingCost(buildingId, currentAmount, currentAmount + purchaseAmount);
     }
 
@@ -104,23 +104,23 @@ contract Multicall {
         }
     }
 
-    function getBakery(uint256 clickerId) external view returns (BakeryState memory bakeryState) {
-        bakeryState.cookies = IERC20(cookie).balanceOf(IERC721(clicker).ownerOf(clickerId));
-        bakeryState.cps = IClicker(clicker).clickerId_Cps(clickerId);
-        bakeryState.cpc = IClickerPlugin(plugin).getPower(clickerId);
-        uint256 amount = bakeryState.cps * (block.timestamp - IClicker(clicker).clickerId_Last(clickerId));
+    function getBakery(uint256 tokenId) external view returns (BakeryState memory bakeryState) {
+        bakeryState.cookies = IERC20(cookie).balanceOf(IERC721(clicker).ownerOf(tokenId));
+        bakeryState.cps = IClicker(clicker).tokenId_Cps(tokenId);
+        bakeryState.cpc = IClickerPlugin(plugin).getPower(tokenId);
+        uint256 amount = bakeryState.cps * (block.timestamp - IClicker(clicker).tokenId_Last(tokenId));
         bakeryState.capacity = bakeryState.cps * DURATION;
         bakeryState.claimable = amount >= bakeryState.capacity ? bakeryState.capacity : amount;
-        bakeryState.cursors = IClicker(clicker).clickerId_buildingId_Amount(clickerId, 0);
+        bakeryState.cursors = IClicker(clicker).tokenId_buildingId_Amount(tokenId, 0);
         bakeryState.full = amount >= bakeryState.capacity;
     }
 
-    function getUpgrades(uint256 clickerId) external view returns (BuildingUpgradeState[] memory buildingUpgradeState) {
+    function getUpgrades(uint256 tokenId) external view returns (BuildingUpgradeState[] memory buildingUpgradeState) {
         uint256 buildingCount = IClicker(clicker).buildingIndex();
         buildingUpgradeState = new BuildingUpgradeState[](buildingCount);
         for (uint256 i = 0; i < buildingCount; i++) {
-            uint256 lvl = IClicker(clicker).clickerId_buildingId_Lvl(clickerId, i);
-            uint256 amount = IClicker(clicker).clickerId_buildingId_Amount(clickerId, i);
+            uint256 lvl = IClicker(clicker).tokenId_buildingId_Lvl(tokenId, i);
+            uint256 amount = IClicker(clicker).tokenId_buildingId_Amount(tokenId, i);
             uint256 amountRequired = IClicker(clicker).lvl_Unlock(lvl + 1);
             buildingUpgradeState[i].id = i;
             buildingUpgradeState[i].cost = IClicker(clicker).buildingId_BaseCost(i) * IClicker(clicker).lvl_CostMultiplier(lvl + 1);
@@ -128,18 +128,18 @@ contract Multicall {
         }
     }
 
-    function getBuildings(uint256 clickerId) external view returns (BuildingState[] memory buildingState) {
+    function getBuildings(uint256 tokenId) external view returns (BuildingState[] memory buildingState) {
         uint256 buildingCount = IClicker(clicker).buildingIndex();
         buildingState = new BuildingState[](buildingCount);
         for (uint256 i = 0; i < buildingCount; i++) {
             buildingState[i].id = i;
-            buildingState[i].amount = IClicker(clicker).clickerId_buildingId_Amount(clickerId, i);
+            buildingState[i].amount = IClicker(clicker).tokenId_buildingId_Amount(tokenId, i);
             buildingState[i].maxed = IClicker(clicker).amountIndex() == buildingState[i].amount;
             buildingState[i].cost = buildingState[i].maxed ? 0 : IClicker(clicker).getBuildingCost(i, buildingState[i].amount);
-            uint256 lvl = IClicker(clicker).clickerId_buildingId_Lvl(clickerId, i);
+            uint256 lvl = IClicker(clicker).tokenId_buildingId_Lvl(tokenId, i);
             buildingState[i].cpsPerUnit = IClicker(clicker).getBuildingCps(i, lvl);
             buildingState[i].cpsTotal = buildingState[i].cpsPerUnit * buildingState[i].amount;
-            buildingState[i].percentOfProduction = IClicker(clicker).clickerId_Cps(clickerId) == 0 ? 0 : buildingState[i].cpsTotal * 1e18 * 100 / IClicker(clicker).clickerId_Cps(clickerId);
+            buildingState[i].percentOfProduction = IClicker(clicker).tokenId_Cps(tokenId) == 0 ? 0 : buildingState[i].cpsTotal * 1e18 * 100 / IClicker(clicker).tokenId_Cps(tokenId);
 
         }
     }

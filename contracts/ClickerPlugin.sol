@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IGauge {
     function _deposit(address account, uint256 amount) external;
@@ -22,31 +23,30 @@ interface IVoter {
     function OTOKEN() external view returns (address);
 }
 
-interface IWETH {
+interface IWBERA {
     function deposit() external payable;
 }
 
-interface IClicker {
-    function clickerId_Power(uint256 clickerId) external view returns (uint256);
-    function clickerId_Name(uint256 clickerId) external view returns (string memory);
-    function ownerOf(uint256 tokenId) external view returns (address);
+interface IFactory {
+    function tokenId_Power(uint256 tokenId) external view returns (uint256);
+    function tokenId_Name(uint256 tokenId) external view returns (string memory);
 }
 
-interface ICookie {
+interface IUnits {
     function mint(address account, uint256 amount) external;
 }
 
-contract ClickerPlugin is ReentrancyGuard, Ownable {
+contract QueuePlugin is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
-    uint256 public constant BASE_CPC = 0.000005 ether;
+    uint256 public constant BASE_UPC = 0.000005 ether;
     uint256 public constant QUEUE_SIZE = 100;
     uint256 public constant DURATION = 7 days;
     
-    string public constant SYMBOL = "CLICKER";
-    string public constant PROTOCOL = "ClickerPlugin";
+    string public constant SYMBOL = "QUEUE";
+    string public constant PROTOCOL = "Queue Game";
 
     /*----------  STATE VARIABLES  --------------------------------------*/
 
@@ -58,8 +58,10 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
     address[] private tokensInUnderlying;
     address[] private bribeTokens;
 
-    address public cookie;
-    address public clicker;
+    address public immutable units;
+    address public immutable factory;
+    address public immutable key;
+
     address public treasury;
     uint256 public fee = 0.01 ether;
 
@@ -77,12 +79,12 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
 
     /*----------  ERRORS ------------------------------------------------*/
 
-    error Plugin__InvalidInput();
     error Plugin__InvalidZeroInput();
     error Plugin__NotAuthorizedVoter();
     error Plugin__InsufficientFunds();
     error Plugin__NotAuthorized();
     error Plugin__InvalidPayment();
+    error Plugin__InvalidTokenId();
 
     /*----------  EVENTS ------------------------------------------------*/
 
@@ -112,16 +114,18 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         address[] memory _tokensInUnderlying,   // [WBERA]
         address[] memory _bribeTokens,          // [WBERA]
         address _treasury,
-        address _clicker,
-        address _cookie
+        address _factory,
+        address _units,
+        address _key
     ) {
         underlying = IERC20Metadata(_underlying);
         voter = _voter;
         tokensInUnderlying = _tokensInUnderlying;
         bribeTokens = _bribeTokens;
         treasury = _treasury;
-        clicker = _clicker;
-        cookie = _cookie;
+        factory = _factory;
+        units = _units;
+        key = _key;
         OTOKEN = IVoter(_voter).OTOKEN();
     }
 
@@ -132,7 +136,7 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         uint256 balance = address(this).balance;
         if (balance > DURATION) {
             address token = getUnderlyingAddress();
-            IWETH(token).deposit{value: balance}();
+            IWBERA(token).deposit{value: balance}();
             if (bribe != address(0)) {
                 uint256 treasuryFee = balance / 5;
                 IERC20(token).safeTransfer(treasury, treasuryFee);
@@ -151,9 +155,10 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         nonReentrant 
     {
         if (msg.value != fee) revert Plugin__InvalidPayment();
-        if (msg.sender != IClicker(clicker).ownerOf(tokenId)) revert Plugin__NotAuthorized();
 
         uint256 currentIndex = tail % QUEUE_SIZE;
+        address account = IERC721(key).ownerOf(tokenId);
+        if (account == address(0)) revert Plugin__InvalidTokenId();
 
         if (count == QUEUE_SIZE) {
             // If the queue is full, remove the oldest element
@@ -163,7 +168,7 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         }
 
         uint256 power = getPower(tokenId);
-        queue[currentIndex] = Click(tokenId, power, msg.sender, IClicker(clicker).clickerId_Name(tokenId));
+        queue[currentIndex] = Click(tokenId, power, msg.sender, IFactory(factory).tokenId_Name(tokenId));
         tail = (tail + 1) % QUEUE_SIZE;
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name);
@@ -172,8 +177,8 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
         payable(address(this)).transfer(fee);
 
         // Handle gauge deposit and cookie minting
-        if (gauge != address(0)) IGauge(gauge)._deposit(msg.sender, queue[currentIndex].power);
-        ICookie(cookie).mint(msg.sender, queue[currentIndex].power);
+        if (gauge != address(0)) IGauge(gauge)._deposit(account, queue[currentIndex].power);
+        IUnits(units).mint(account, queue[currentIndex].power);
     }
 
 
@@ -254,7 +259,7 @@ contract ClickerPlugin is ReentrancyGuard, Ownable {
     }
 
     function getPower(uint256 tokenId) public view returns (uint256) {
-        return IClicker(clicker).clickerId_Power(tokenId) == 0 ? BASE_CPC : BASE_CPC * IClicker(clicker).clickerId_Power(tokenId) / 1e18;
+        return IFactory(factory).tokenId_Power(tokenId) == 0 ? BASE_UPC : BASE_UPC * IFactory(factory).tokenId_Power(tokenId) / 1e18;
     }
 
     function getQueueSize() public view returns (uint256) {

@@ -7,20 +7,20 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Cookie is ERC20, Ownable {
+contract Units is ERC20, Ownable {
 
     mapping(address => bool) public minters;
 
-    error Cookie__NotAuthorized();
+    error Units__NotAuthorized();
 
     event MinterSet(address minter, bool flag);
 
     modifier onlyMinter() {
-        if (!minters[msg.sender]) revert Cookie__NotAuthorized();
+        if (!minters[msg.sender]) revert Units__NotAuthorized();
         _;
     }
 
-    constructor() ERC20("Cookie", "COOKIE") {}
+    constructor() ERC20("Units", "UNITS") {}
 
     function mint(address account, uint256 amount) external onlyMinter {
         _mint(account, amount);
