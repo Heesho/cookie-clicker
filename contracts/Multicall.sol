@@ -4,27 +4,25 @@ pragma solidity 0.8.19;
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
-interface IClicker {
-    function gameCost() external view returns (uint256);
-
+interface IFactory {
     function tokenId_Power(uint256 tokenId) external view returns (uint256);
-    function tokenId_Cps(uint256 tokenId) external view returns (uint256);
+    function tokenId_Ups(uint256 tokenId) external view returns (uint256);
     function tokenId_Last(uint256 tokenId) external view returns (uint256);
-    function tokenId_buildingId_Amount(uint256 tokenId, uint256 buildingId) external view returns (uint256);
-    function tokenId_buildingId_Lvl(uint256 tokenId, uint256 buildingId) external view returns (uint256);
+    function tokenId_toolId_Amount(uint256 tokenId, uint256 toolId) external view returns (uint256);
+    function tokenId_toolId_Lvl(uint256 tokenId, uint256 toolId) external view returns (uint256);
 
-    function buildingId_BaseCost(uint256 buildingId) external view returns (uint256);
+    function toolId_BaseCost(uint256 toolId) external view returns (uint256);
     function lvl_CostMultiplier(uint256 lvl) external view returns (uint256);
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
-    function buildingIndex() external view returns (uint256);
+    function toolIndex() external view returns (uint256);
     function amountIndex() external view returns (uint256);
 
-    function getBuildingCost(uint256 buildingId, uint256 amount) external view returns (uint256);
-    function getMultipleBuildingCost(uint256 buildingId, uint256 initialAmount, uint256 finalAmount) external view returns (uint256);
-    function getBuildingCps(uint256 buildingId, uint256 lvl) external view returns (uint256);
+    function getToolCost(uint256 toolId, uint256 amount) external view returns (uint256);
+    function getMultipleToolCost(uint256 toolId, uint256 initialAmount, uint256 finalAmount) external view returns (uint256);
+    function getToolUps(uint256 toolId, uint256 lvl) external view returns (uint256);
 }
 
-interface IClickerPlugin {
+interface IQueuePlugin {
     function getPower(uint256 tokenId) external view returns (uint256);
     function getGauge() external view returns (address);
 }
@@ -40,8 +38,9 @@ contract Multicall {
 
     uint256 constant DURATION = 28800; // 8 hours
 
-    address public immutable cookie;
-    address public immutable clicker;
+    address public immutable units;
+    address public immutable factory;
+    address public immutable key;
     address public immutable plugin;
     address public immutable oBERO;
 
@@ -52,50 +51,46 @@ contract Multicall {
         uint256 reward;
     }
 
-    struct BakeryState {
-        uint256 cookies;
-        uint256 cps;
-        uint256 cpc;
+    struct FactoryState {
+        uint256 unitsBalance;
+        uint256 ups;
+        uint256 upc;
         uint256 capacity;
         uint256 claimable;
-        uint256 cursors;
         bool full;
     }
 
-    struct BuildingUpgradeState {
+    struct ToolUpgradeState {
         uint256 id;
         uint256 cost;
         bool upgradeable;
     }
 
-    struct BuildingState {
+    struct ToolState {
         uint256 id;
         uint256 amount;
         uint256 cost;
-        uint256 cpsPerUnit;
-        uint256 cpsTotal;
+        uint256 ups;
+        uint256 upsTotal;
         uint256 percentOfProduction;
         bool maxed;
     }
 
-    constructor(address _cookie, address _clicker, address _plugin, address _oBERO) {
-        cookie = _cookie;
-        clicker = _clicker;
+    constructor(address _units, address _factory, address _key, address _plugin, address _oBERO) {
+        units = _units;
+        factory = _factory;
+        key = _key;
         plugin = _plugin;
         oBERO = _oBERO;
     }
 
-    function getGameCost() external view returns (uint256) {
-        return IClicker(clicker).gameCost();
-    }
-
-    function getMultipleBuildingCost(uint256 tokenId, uint256 buildingId, uint256 purchaseAmount) external view returns (uint256) {
-        uint256 currentAmount = IClicker(clicker).tokenId_buildingId_Amount(tokenId, buildingId);
-        return IClicker(clicker).getMultipleBuildingCost(buildingId, currentAmount, currentAmount + purchaseAmount);
+    function getMultipleToolCost(uint256 tokenId, uint256 toolId, uint256 purchaseAmount) external view returns (uint256) {
+        uint256 currentAmount = IFactory(factory).tokenId_toolId_Amount(tokenId, toolId);
+        return IFactory(factory).getMultipleToolCost(toolId, currentAmount, currentAmount + purchaseAmount);
     }
 
     function getGauge(address account) external view returns (GaugeState memory gaugeState) {
-        address gauge = IClickerPlugin(plugin).getGauge();
+        address gauge = IQueuePlugin(plugin).getGauge();
         if (gauge != address(0)) {
             gaugeState.rewardPerToken = IGauge(gauge).totalSupply() == 0 ? 0 : (IGauge(gauge).getRewardForDuration(oBERO) * 1e18 / IGauge(gauge).totalSupply());
             gaugeState.totalSupply = IGauge(gauge).totalSupply();
@@ -104,43 +99,41 @@ contract Multicall {
         }
     }
 
-    function getBakery(uint256 tokenId) external view returns (BakeryState memory bakeryState) {
-        bakeryState.cookies = IERC20(cookie).balanceOf(IERC721(clicker).ownerOf(tokenId));
-        bakeryState.cps = IClicker(clicker).tokenId_Cps(tokenId);
-        bakeryState.cpc = IClickerPlugin(plugin).getPower(tokenId);
-        uint256 amount = bakeryState.cps * (block.timestamp - IClicker(clicker).tokenId_Last(tokenId));
-        bakeryState.capacity = bakeryState.cps * DURATION;
-        bakeryState.claimable = amount >= bakeryState.capacity ? bakeryState.capacity : amount;
-        bakeryState.cursors = IClicker(clicker).tokenId_buildingId_Amount(tokenId, 0);
-        bakeryState.full = amount >= bakeryState.capacity;
+    function getFactory(uint256 tokenId) external view returns (FactoryState memory factoryState) {
+        factoryState.unitsBalance = IERC20(units).balanceOf(IERC721(key).ownerOf(tokenId));
+        factoryState.ups = IFactory(factory).tokenId_Ups(tokenId);
+        factoryState.upc = IQueuePlugin(plugin).getPower(tokenId);
+        uint256 amount = factoryState.ups * (block.timestamp - IFactory(factory).tokenId_Last(tokenId));
+        factoryState.capacity = factoryState.ups * DURATION;
+        factoryState.claimable = amount >= factoryState.capacity ? factoryState.capacity : amount;
+        factoryState.full = amount >= factoryState.capacity;
     }
 
-    function getUpgrades(uint256 tokenId) external view returns (BuildingUpgradeState[] memory buildingUpgradeState) {
-        uint256 buildingCount = IClicker(clicker).buildingIndex();
-        buildingUpgradeState = new BuildingUpgradeState[](buildingCount);
-        for (uint256 i = 0; i < buildingCount; i++) {
-            uint256 lvl = IClicker(clicker).tokenId_buildingId_Lvl(tokenId, i);
-            uint256 amount = IClicker(clicker).tokenId_buildingId_Amount(tokenId, i);
-            uint256 amountRequired = IClicker(clicker).lvl_Unlock(lvl + 1);
-            buildingUpgradeState[i].id = i;
-            buildingUpgradeState[i].cost = IClicker(clicker).buildingId_BaseCost(i) * IClicker(clicker).lvl_CostMultiplier(lvl + 1);
-            buildingUpgradeState[i].upgradeable = amount < amountRequired || buildingUpgradeState[i].cost == 0 ? false : true;
+    function getUpgrades(uint256 tokenId) external view returns (ToolUpgradeState[] memory toolUpgradeState) {
+        uint256 toolCount = IFactory(factory).toolIndex();
+        toolUpgradeState = new ToolUpgradeState[](toolCount);
+        for (uint256 i = 0; i < toolCount; i++) {
+            uint256 lvl = IFactory(factory).tokenId_toolId_Lvl(tokenId, i);
+            uint256 amount = IFactory(factory).tokenId_toolId_Amount(tokenId, i);
+            uint256 amountRequired = IFactory(factory).lvl_Unlock(lvl + 1);
+            toolUpgradeState[i].id = i;
+            toolUpgradeState[i].cost = IFactory(factory).toolId_BaseCost(i) * IFactory(factory).lvl_CostMultiplier(lvl + 1);
+            toolUpgradeState[i].upgradeable = amount < amountRequired || toolUpgradeState[i].cost == 0 ? false : true;
         }
     }
 
-    function getBuildings(uint256 tokenId) external view returns (BuildingState[] memory buildingState) {
-        uint256 buildingCount = IClicker(clicker).buildingIndex();
-        buildingState = new BuildingState[](buildingCount);
-        for (uint256 i = 0; i < buildingCount; i++) {
-            buildingState[i].id = i;
-            buildingState[i].amount = IClicker(clicker).tokenId_buildingId_Amount(tokenId, i);
-            buildingState[i].maxed = IClicker(clicker).amountIndex() == buildingState[i].amount;
-            buildingState[i].cost = buildingState[i].maxed ? 0 : IClicker(clicker).getBuildingCost(i, buildingState[i].amount);
-            uint256 lvl = IClicker(clicker).tokenId_buildingId_Lvl(tokenId, i);
-            buildingState[i].cpsPerUnit = IClicker(clicker).getBuildingCps(i, lvl);
-            buildingState[i].cpsTotal = buildingState[i].cpsPerUnit * buildingState[i].amount;
-            buildingState[i].percentOfProduction = IClicker(clicker).tokenId_Cps(tokenId) == 0 ? 0 : buildingState[i].cpsTotal * 1e18 * 100 / IClicker(clicker).tokenId_Cps(tokenId);
-
+    function getTools(uint256 tokenId) external view returns (ToolState[] memory toolState) {
+        uint256 toolCount = IFactory(factory).toolIndex();
+        toolState = new ToolState[](toolCount);
+        for (uint256 i = 0; i < toolCount; i++) {
+            toolState[i].id = i;
+            toolState[i].amount = IFactory(factory).tokenId_toolId_Amount(tokenId, i);
+            toolState[i].maxed = IFactory(factory).amountIndex() == toolState[i].amount;
+            toolState[i].cost = toolState[i].maxed ? 0 : IFactory(factory).getToolCost(i, toolState[i].amount);
+            uint256 lvl = IFactory(factory).tokenId_toolId_Lvl(tokenId, i);
+            toolState[i].ups = IFactory(factory).getToolUps(i, lvl);
+            toolState[i].upsTotal = toolState[i].ups * toolState[i].amount;
+            toolState[i].percentOfProduction = IFactory(factory).tokenId_Ups(tokenId) == 0 ? 0 : toolState[i].upsTotal * 1e18 * 100 / IFactory(factory).tokenId_Ups(tokenId);
         }
     }
 

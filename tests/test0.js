@@ -7,18 +7,11 @@ const { execPath } = require("process");
 
 const AddressZero = "0x0000000000000000000000000000000000000000";
 const pointZeroOne = convert("0.01", 18);
-const pointOne = convert("0.1", 18);
 const one = convert("1", 18);
-const eight = convert("8", 18);
-const fifteen = convert("15", 18);
-const fourtySeven = convert("47", 18);
-const oneHundred = convert("100", 18);
-const oneThousandOneHundred = convert("1100", 18);
-const twelveThousand = convert("12000", 18);
 
 let owner, treasury, user0, user1, user2;
 let base, voter;
-let cookie, clicker, plugin, multicall;
+let units, key, factory, plugin, multicall;
 
 describe("local: test0", function () {
   before("Initial set up", async function () {
@@ -34,37 +27,43 @@ describe("local: test0", function () {
     voter = await voterArtifact.deploy();
     console.log("- Voter Initialized");
 
-    const cookieArtifact = await ethers.getContractFactory("Cookie");
-    cookie = await cookieArtifact.deploy();
-    console.log("- Cookie Initialized");
+    const keyArtifact = await ethers.getContractFactory("Key");
+    key = await keyArtifact.deploy();
+    console.log("- Key Initialized");
 
-    const clickerArtifact = await ethers.getContractFactory("Clicker");
-    clicker = await clickerArtifact.deploy(cookie.address);
-    console.log("- Clicker Initialized");
+    const unitsArtifact = await ethers.getContractFactory("Units");
+    units = await unitsArtifact.deploy();
+    console.log("- Units Initialized");
 
-    const pluginArtifact = await ethers.getContractFactory("ClickerPlugin");
+    const factoryArtifact = await ethers.getContractFactory("Factory");
+    factory = await factoryArtifact.deploy(units.address, key.address);
+    console.log("- Factory Initialized");
+
+    const pluginArtifact = await ethers.getContractFactory("QueuePlugin");
     plugin = await pluginArtifact.deploy(
       base.address,
       voter.address,
       [base.address],
       [base.address],
       treasury.address,
-      clicker.address,
-      cookie.address
+      factory.address,
+      units.address,
+      key.address
     );
     console.log("- Plugin Initialized");
 
     const multicallArtifact = await ethers.getContractFactory("Multicall");
     multicall = await multicallArtifact.deploy(
-      cookie.address,
-      clicker.address,
+      units.address,
+      factory.address,
+      key.address,
       plugin.address,
       AddressZero
     );
     console.log("- Multicall Initialized");
 
-    await cookie.setMinter(clicker.address, true);
-    await cookie.setMinter(plugin.address, true);
+    await units.setMinter(factory.address, true);
+    await units.setMinter(plugin.address, true);
     console.log("- System set up");
 
     console.log("Initialization Complete");
@@ -73,9 +72,9 @@ describe("local: test0", function () {
 
   it("User0 mints a clicker", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).mint({ value: pointZeroOne });
-    await clicker.connect(user1).mint({ value: pointZeroOne });
-    await clicker.connect(user2).mint({ value: pointZeroOne });
+    await key.connect(user0).mint();
+    await key.connect(user1).mint();
+    await key.connect(user2).mint();
   });
 
   it("User0 clicks cookie", async function () {
@@ -85,11 +84,11 @@ describe("local: test0", function () {
     await plugin.connect(user0).click(1, { value: pointZeroOne });
   });
 
-  it("Owner sets buildings", async function () {
+  it("Owner sets tools", async function () {
     console.log("******************************************************");
-    await clicker
+    await factory
       .connect(owner)
-      .setBuilding(
+      .setTool(
         [
           ethers.utils.parseUnits("0.0000001", 18),
           ethers.utils.parseUnits("0.000001", 18),
@@ -127,11 +126,11 @@ describe("local: test0", function () {
       );
   });
 
-  it("Owner sets building multipliers", async function () {
+  it("Owner sets tool multipliers", async function () {
     console.log("******************************************************");
-    await clicker
+    await factory
       .connect(owner)
-      .setBuildingMultipliers([
+      .setToolMultipliers([
         "1000000000000000000",
         "1150000000000000000",
         "1322500000000000000",
@@ -204,9 +203,9 @@ describe("local: test0", function () {
       ]);
   });
 
-  it("User0 purchases building", async function () {
+  it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 1);
+    await factory.connect(user0).purchaseTool(1, 0, 1);
   });
 
   it("Forward 2 hour", async function () {
@@ -215,19 +214,19 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
-  it("User0 claims cookies", async function () {
+  it("User0 claims units", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).claim(1);
+    await factory.connect(user0).claim(1);
   });
 
-  it("User0 purchases building", async function () {
+  it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 5);
+    await factory.connect(user0).purchaseTool(1, 0, 5);
   });
 
   it("Owner sets levels", async function () {
     console.log("******************************************************");
-    await clicker
+    await factory
       .connect(owner)
       .setLvl(
         [
@@ -250,27 +249,27 @@ describe("local: test0", function () {
   it("User0 building1 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
-    console.log(await multicall.getBakery(1));
+    console.log(await multicall.getFactory(1));
     console.log(await multicall.getUpgrades(1));
-    console.log(await multicall.getBuildings(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("User0 upgrades building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).upgradeBuilding(1, 0);
+    await factory.connect(user0).upgradeTool(1, 0);
   });
 
   it("User0 purchases building", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 4);
+    await factory.connect(user0).purchaseTool(1, 0, 4);
   });
 
   it("User0 building1 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
-    console.log(await multicall.getBakery(1));
+    console.log(await multicall.getFactory(1));
     console.log(await multicall.getUpgrades(1));
-    console.log(await multicall.getBuildings(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("Forward 2 hour", async function () {
@@ -281,20 +280,20 @@ describe("local: test0", function () {
 
   it("User0 upgrades building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).upgradeBuilding(1, 0);
+    await factory.connect(user0).upgradeTool(1, 0);
   });
 
   it("User0 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
-    console.log(await multicall.getBakery(1));
+    console.log(await multicall.getFactory(1));
     console.log(await multicall.getUpgrades(1));
-    console.log(await multicall.getBuildings(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("Get id of owner", async function () {
     console.log("******************************************************");
-    console.log(await clicker.tokenOfOwnerByIndex(user0.address, 0));
+    console.log(await key.tokenOfOwnerByIndex(user0.address, 0));
   });
 
   it("Forward 2 hour", async function () {
@@ -306,22 +305,22 @@ describe("local: test0", function () {
   it("User0 building1 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
-    console.log(await multicall.getBakery(1));
+    console.log(await multicall.getFactory(1));
     console.log(await multicall.getUpgrades(1));
-    console.log(await multicall.getBuildings(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("User0 upgrades building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 3, 1);
+    await factory.connect(user0).purchaseTool(1, 3, 1);
   });
 
   it("User0 building1 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
-    console.log(await multicall.getBakery(1));
+    console.log(await multicall.getFactory(1));
     console.log(await multicall.getUpgrades(1));
-    console.log(await multicall.getBuildings(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("Forward 2 hour", async function () {
@@ -333,17 +332,17 @@ describe("local: test0", function () {
   it("User0 building1 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
-    console.log(await multicall.getBakery(1));
+    console.log(await multicall.getFactory(1));
     console.log(await multicall.getUpgrades(1));
-    console.log(await multicall.getBuildings(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("User0 building id 1 costs", async function () {
     console.log("******************************************************");
-    console.log(await clicker.getMultipleBuildingCost(0, 10, 15));
-    console.log(await multicall.getMultipleBuildingCost(1, 0, 5));
-    console.log(await clicker.getMultipleBuildingCost(0, 10, 27));
-    console.log(await multicall.getMultipleBuildingCost(1, 0, 17));
+    console.log(await factory.getMultipleToolCost(0, 10, 15));
+    console.log(await multicall.getMultipleToolCost(1, 0, 5));
+    console.log(await factory.getMultipleToolCost(0, 10, 27));
+    console.log(await multicall.getMultipleToolCost(1, 0, 17));
   });
 
   it("Forward 8 hour", async function () {
@@ -354,40 +353,40 @@ describe("local: test0", function () {
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 20);
+    await factory.connect(user0).purchaseTool(1, 0, 20);
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 1);
+    await factory.connect(user0).purchaseTool(1, 0, 1);
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 10);
+    await factory.connect(user0).purchaseTool(1, 0, 10);
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 10);
+    await factory.connect(user0).purchaseTool(1, 0, 10);
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 10);
+    await factory.connect(user0).purchaseTool(1, 0, 10);
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).purchaseBuilding(1, 0, 8);
+    await factory.connect(user0).purchaseTool(1, 0, 8);
   });
 
   it("User0 building1 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
-    console.log(await multicall.getBakery(1));
+    console.log(await multicall.getFactory(1));
     console.log(await multicall.getUpgrades(1));
-    console.log(await multicall.getBuildings(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("Forward 8 hour", async function () {
@@ -398,15 +397,15 @@ describe("local: test0", function () {
 
   it("User0 burns cookies for power", async function () {
     console.log("******************************************************");
-    await clicker.connect(user0).burnForPower(1, one);
-    await clicker.connect(user0).burnForPower(1, one);
-    await clicker.connect(user0).burnForPower(1, one);
+    await factory.connect(user0).increasePower(1, one);
+    await factory.connect(user0).increasePower(1, one);
+    await factory.connect(user0).increasePower(1, one);
   });
 
   it("User0 bakery state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
-    console.log(await multicall.getBakery(1));
+    console.log(await multicall.getFactory(1));
   });
 
   it("User0 clicks cookie", async function () {
