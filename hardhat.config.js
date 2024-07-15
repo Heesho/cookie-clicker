@@ -4,7 +4,7 @@ require("@nomiclabs/hardhat-waffle");
 require("@nomicfoundation/hardhat-verify");
 require("solidity-coverage");
 
-const CHAIN_ID = 84532; // Base Sepolia
+const CHAIN_ID = 80084; // Berachain Bartio
 
 config();
 const PRIVATE_KEY = process.env.PRIVATE_KEY || "";
@@ -31,16 +31,16 @@ module.exports = {
   },
   etherscan: {
     apiKey: SCAN_API_KEY,
-    customChains: [
-      {
-        network: "base-sepolia",
-        chainId: 84532,
-        urls: {
-          apiURL: "https://api-sepolia.basescan.org/api",
-          browserURL: "https://sepolia.basescan.org/",
-        },
-      },
-    ],
+    // customChains: [
+    //   {
+    //     network: "base-sepolia",
+    //     chainId: 84532,
+    //     urls: {
+    //       apiURL: "https://api-sepolia.basescan.org/api",
+    //       browserURL: "https://sepolia.basescan.org/",
+    //     },
+    //   },
+    // ],
   },
   paths: {
     sources: "./contracts",

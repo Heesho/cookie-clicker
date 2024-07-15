@@ -7,24 +7,36 @@ const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 const convert = (amount, decimals) => ethers.utils.parseUnits(amount, decimals);
 const divDec = (amount, decimals = 18) => amount / 10 ** decimals;
 
+const VOTER_ADDRESS = "0x580ABF764405aA82dC96788b356435474c5956A7";
+const WBERA_ADDRESS = "0x7507c1dc16935B82698e4C63f2746A2fCf994dF8"; // WBERA address
+const OBERO_ADDRESS = "0x7629668774f918c00Eb4b03AdF5C4e2E53d45f0b";
+
 // Contract Variables
-let cookie, clicker, multicall;
+let units, key, factory, plugin, multicall;
 
 /*===================================================================*/
 /*===========================  CONTRACT DATA  =======================*/
 
 async function getContracts() {
-  cookie = await ethers.getContractAt(
-    "contracts/Cookie.sol:Cookie",
-    "0x0c09B539BBDE11979235F08454D4923B7303C98e"
+  units = await ethers.getContractAt(
+    "contracts/Units.sol:Units",
+    "0x52a7648f60f672B93921504b0A90e3F6Cf8d3EC7"
   );
-  clicker = await ethers.getContractAt(
-    "contracts/Clicker.sol:Clicker",
-    "0xAa69bB1171510F4d006C7ab0A3fBf0dCbb6296A2"
+  key = await ethers.getContractAt(
+    "contracts/Key.sol:Key",
+    "0xe35157B66067018275C64AF7d76BF18263857349"
+  );
+  factory = await ethers.getContractAt(
+    "contracts/Factory.sol:Factory",
+    "0x1AC70c868628c5027D69AF4EE891F549B4F9DD32"
+  );
+  plugin = await ethers.getContractAt(
+    "contracts/QueuePlugin.sol:QueuePlugin",
+    "0x25a12591e63a4367e5fB3Af66cc4CDDB7F02aDec"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x61d0b4fbB9d507F64112e859523524AA2c548A6C"
+    "0x446d53082A967c037189fcf289DC1D87402085eB"
   );
   console.log("Contracts Retrieved");
 }
@@ -32,34 +44,73 @@ async function getContracts() {
 /*===========================  END CONTRACT DATA  ===================*/
 /*===================================================================*/
 
-async function deployCookie() {
-  console.log("Starting Cookie Deployment");
-  const cookieArtifact = await ethers.getContractFactory("Cookie");
-  const cookieContract = await cookieArtifact.deploy({
+async function deployUnits() {
+  console.log("Starting Units Deployment");
+  const unitsArtifact = await ethers.getContractFactory("Units");
+  const unitsContract = await unitsArtifact.deploy({
     gasPrice: ethers.gasPrice,
   });
-  cookie = await cookieContract.deployed();
+  units = await unitsContract.deployed();
   await sleep(5000);
-  console.log("Cookie Deployed at:", cookie.address);
+  console.log("Units Deployed at:", units.address);
 }
 
-async function deployClicker() {
-  console.log("Starting Clicker Deployment");
-  const clickerArtifact = await ethers.getContractFactory("Clicker");
-  const clickerContract = await clickerArtifact.deploy(cookie.address, {
+async function deployKey() {
+  console.log("Starting Key Deployment");
+  const keyArtifact = await ethers.getContractFactory("Key");
+  const keyContract = await keyArtifact.deploy({
     gasPrice: ethers.gasPrice,
   });
-  clicker = await clickerContract.deployed();
+  key = await keyContract.deployed();
   await sleep(5000);
-  console.log("Clicker Deployed at:", clicker.address);
+  console.log("Key Deployed at:", key.address);
+}
+
+async function deployFactory() {
+  console.log("Starting Factory Deployment");
+  const factoryArtifact = await ethers.getContractFactory("Factory");
+  const factoryContract = await factoryArtifact.deploy(
+    units.address,
+    key.address,
+    {
+      gasPrice: ethers.gasPrice,
+    }
+  );
+  factory = await factoryContract.deployed();
+  await sleep(5000);
+  console.log("Factory Deployed at:", factory.address);
+}
+
+async function deployPlugin(wallet) {
+  console.log("Starting Plugin Deployment");
+  const pluginArtifact = await ethers.getContractFactory("QueuePlugin");
+  const pluginContract = await pluginArtifact.deploy(
+    WBERA_ADDRESS,
+    VOTER_ADDRESS,
+    [WBERA_ADDRESS],
+    [WBERA_ADDRESS],
+    wallet.address,
+    factory.address,
+    units.address,
+    key.address,
+    {
+      gasPrice: ethers.gasPrice,
+    }
+  );
+  plugin = await pluginContract.deployed();
+  await sleep(5000);
+  console.log("Plugin Deployed at:", plugin.address);
 }
 
 async function deployMulticall() {
   console.log("Starting Multicall Deployment");
   const multicallArtifact = await ethers.getContractFactory("Multicall");
   const multicallContract = await multicallArtifact.deploy(
-    cookie.address,
-    clicker.address,
+    units.address,
+    factory.address,
+    key.address,
+    plugin.address,
+    OBERO_ADDRESS,
     {
       gasPrice: ethers.gasPrice,
     }
@@ -70,49 +121,24 @@ async function deployMulticall() {
 
 async function printDeployment() {
   console.log("**************************************************************");
-  console.log("Cookie: ", cookie.address);
-  console.log("Clicker: ", clicker.address);
+  console.log("Units: ", units.address);
+  console.log("Key: ", key.address);
+  console.log("Factory: ", factory.address);
+  console.log("Plugin: ", plugin.address);
   console.log("Multicall: ", multicall.address);
   console.log("**************************************************************");
 }
 
-async function verifyCookie() {
-  console.log("Starting Cookie Verification");
-  await hre.run("verify:verify", {
-    address: cookie.address,
-    contract: "contracts/Cookie.sol:Cookie",
-    constructorArguments: [],
-  });
-  console.log("Cookie Verified");
-}
-
-async function verifyClicker() {
-  console.log("Starting Clicker Verification");
-  await hre.run("verify:verify", {
-    address: clicker.address,
-    contract: "contracts/Clicker.sol:Clicker",
-    constructorArguments: [cookie.address],
-  });
-  console.log("Clicker Verified");
-}
-
-async function verifyMulticall() {
-  console.log("Starting Multicall Verification");
-  await hre.run("verify:verify", {
-    address: multicall.address,
-    contract: "contracts/Multicall.sol:Multicall",
-    constructorArguments: [cookie.address, clicker.address],
-  });
-  console.log("Clicker Verified");
-}
-
 async function setUpSystem(wallet) {
   console.log("Starting System Set Up");
-  await cookie.connect(wallet).setMinter(clicker.address, true);
+  await units.connect(wallet).setMinter(factory.address, true);
+  console.log("factory whitelisted to mint units.");
+  await units.connect(wallet).setMinter(plugin.address, true);
+  console.log("plugin whitelisted to mint units.");
   console.log("System Initialized");
 }
 
-async function setBuildings(wallet) {
+async function setTools(wallet) {
   console.log("Starting Building Deployment");
   const buildingCosts = [
     convert("0.0000001", 18),
@@ -148,19 +174,91 @@ async function setBuildings(wallet) {
     convert("1100000", 18),
     convert("7000000", 18),
   ];
-  const buildingAmounts = [
-    1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000,
-    1000, 1000, 1000,
-  ];
-  await clicker
-    .connect(wallet)
-    .setBuilding(buildingCosts, buildingPayouts, buildingAmounts);
+  await factory.connect(wallet).setTool(buildingCosts, buildingPayouts);
   console.log("Buildings set");
+}
+
+async function setToolMultipliers(wallet) {
+  console.log("Starting Multiplier Deployment");
+  await factory
+    .connect(wallet)
+    .setToolMultipliers([
+      "1000000000000000000",
+      "1150000000000000000",
+      "1322500000000000000",
+      "1520875000000000000",
+      "1749006250000000000",
+      "2011357187500000000",
+      "2313060768750000000",
+      "2660019884062500000",
+      "3059022867265625000",
+      "3517876297355468750",
+      "4045557736969289062",
+      "4652391392514672421",
+      "5350250105891873285",
+      "6152787621674654277",
+      "7075705764925852415",
+      "8137061629665738723",
+      "9357620874116591137",
+      "10761264009734079868",
+      "12375453609734181844",
+      "14231771647954150830",
+      "16366537393147273455",
+      "18821517902019348493",
+      "21644745787322255767",
+      "24891457556820594132",
+      "28625176193143683252",
+      "32918952612105216229",
+      "37856795515121028664",
+      "43535314841394182944",
+      "50065612067598320385",
+      "57575453877633198463",
+      "66211771960298198222",
+      "76143537754252997955",
+      "87565068417320947649",
+      "10069982869941708939",
+      "11580480300432965283",
+      "13317552345497960076",
+      "15315185197222654087",
+      "17612462976706053100",
+      "20254332423211961060",
+      "23292482286663755219",
+      "26786354629563386402",
+      "30804307823997894363",
+      "35424953998547578427",
+      "40738697098379715291",
+      "46849501663136672535",
+      "53876926912607173406",
+      "61958465929798249316",
+      "71252235819267986714",
+      "81940071292158184721",
+      "94231081886081832429",
+      "10836574416999335555",
+      "12462060579549233808",
+      "14331369666481623980",
+      "16481075166353877597",
+      "18953236344506959186",
+      "21796221830265903064",
+      "25065655184705788524",
+      "28825503362461656603",
+      "33149328872230990093",
+      "38121728203064738607",
+      "43839987483524387828",
+      "50415985506053045913",
+      "57978383871960902700",
+      "66675140952765438105",
+      "76676412093680261321",
+      "88177873807732200519",
+      "10140455477989193059",
+      "11661523849617504018",
+      "13410752326730129621",
+    ]);
+  console.log("Multipliers set");
 }
 
 async function setLevels(wallet) {
   console.log("Starting Level Deployment");
-  await clicker
+  await factory
     .connect(wallet)
     .setLvl(
       [
@@ -187,17 +285,16 @@ async function main() {
 
   await getContracts();
 
-  // await deployCookie();
-  // await deployClicker();
+  // await deployUnits();
+  // await deployKey();
+  // await deployFactory();
+  // await deployPlugin(wallet);
   // await deployMulticall();
   // await printDeployment();
 
-  // await verifyCookie();
-  // await verifyClicker();
-  // await verifyMulticall();
-
   // await setUpSystem(wallet);
-  // await setBuildings(wallet);
+  // await setTools(wallet);
+  // await setToolMultipliers(wallet);
   // await setLevels(wallet);
 }
 
