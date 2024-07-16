@@ -20,7 +20,7 @@ contract Units is ERC20, Ownable {
         _;
     }
 
-    constructor() ERC20("Units", "UNITS") {}
+    constructor() ERC20("Moola", "MOOLA") {}
 
     function mint(address account, uint256 amount) external onlyMinter {
         _mint(account, amount);

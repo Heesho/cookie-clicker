@@ -16,6 +16,7 @@ contract Factory is Ownable {
 
     uint256 constant PRECISION = 1e18;   
     uint256 constant DURATION = 28800;  // 8 hours
+    uint256 constant MAX_NAME_LENGTH = 32;
 
     /*----------  STATE VARIABLES  --------------------------------------*/
 
@@ -48,6 +49,7 @@ contract Factory is Ownable {
     error Factory__NotAuthorized();
     error Factory__UpgradeLocked();
     error Factory__InvalidTokenId();
+    error Factory__ExceedsMaxLength();
 
     /*----------  EVENTS ------------------------------------------------*/
 
@@ -119,6 +121,7 @@ contract Factory is Ownable {
 
     function setName(uint256 tokenId, string calldata name) external tokenExists(tokenId) {
         if (msg.sender != IERC721(key).ownerOf(tokenId)) revert Factory__NotAuthorized();
+        if (bytes(name).length > MAX_NAME_LENGTH) revert Factory__ExceedsMaxLength();
         tokenId_Name[tokenId] = name;
     }
 

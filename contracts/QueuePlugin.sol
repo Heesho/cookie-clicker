@@ -45,8 +45,8 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     uint256 public constant QUEUE_SIZE = 100;
     uint256 public constant DURATION = 7 days;
     
-    string public constant SYMBOL = "QUEUE";
-    string public constant PROTOCOL = "Queue Game";
+    string public constant SYMBOL = "BULL ISH";
+    string public constant PROTOCOL = "Bullas";
 
     /*----------  STATE VARIABLES  --------------------------------------*/
 

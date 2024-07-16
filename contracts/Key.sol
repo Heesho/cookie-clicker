@@ -7,7 +7,7 @@ contract Key is ERC721Enumerable {
 
     uint256 public currentTokenId;
 
-    constructor() ERC721("KeyNFT", "KEY") {}
+    constructor() ERC721("Bullas", "BULLAS") {}
 
     function mint() external returns (uint256) {
         uint256 newTokenId = ++currentTokenId;
