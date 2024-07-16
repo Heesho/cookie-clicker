@@ -48,7 +48,8 @@ contract Multicall {
         uint256 rewardPerToken;
         uint256 totalSupply;
         uint256 balance;
-        uint256 reward;
+        uint256 earned;
+        uint256 oBeroBalance;
     }
 
     struct FactoryState {
@@ -95,7 +96,8 @@ contract Multicall {
             gaugeState.rewardPerToken = IGauge(gauge).totalSupply() == 0 ? 0 : (IGauge(gauge).getRewardForDuration(oBERO) * 1e18 / IGauge(gauge).totalSupply());
             gaugeState.totalSupply = IGauge(gauge).totalSupply();
             gaugeState.balance = IGauge(gauge).balanceOf(account);
-            gaugeState.reward = IGauge(gauge).earned(account, oBERO);
+            gaugeState.earned = IGauge(gauge).earned(account, oBERO);
+            gaugeState.oBeroBalance = IERC20(oBERO).balanceOf(account);
         }
     }
 

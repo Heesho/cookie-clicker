@@ -20,23 +20,23 @@ let units, key, factory, plugin, multicall;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0x402CB96EE2e0694834d2fE04075BA3618776Fcd1"
+    "0x130A35Fe3A7365c7663A2D1c9D352848444AB1aE"
   );
   key = await ethers.getContractAt(
     "contracts/Key.sol:Key",
-    "0x68ef648a6D346FBC88B86e2795036a53bfA00595"
+    "0x0c09B539BBDE11979235F08454D4923B7303C98e"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x6F67748881DCce8238042370c3f9659379775886"
+    "0xAa69bB1171510F4d006C7ab0A3fBf0dCbb6296A2"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x97C33e753B68EcC7314ea88bF018F9FFa9cbc3Fe"
+    "0x61d0b4fbB9d507F64112e859523524AA2c548A6C"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x03eDf18C2048F3b7612ceD1147100FaBA4f02e25"
+    "0x097a2c62712d15C2d416E498E3266f859fFE94B8"
   );
   console.log("Contracts Retrieved");
 }
