@@ -129,6 +129,55 @@ async function printDeployment() {
   console.log("**************************************************************");
 }
 
+async function verifyUnits() {
+  await hre.run("verify:verify", {
+    address: units.address,
+    constructorArguments: [],
+  });
+}
+
+async function verifyKey() {
+  await hre.run("verify:verify", {
+    address: key.address,
+    constructorArguments: [],
+  });
+}
+
+async function verifyFactory() {
+  await hre.run("verify:verify", {
+    address: factory.address,
+    constructorArguments: [units.address, key.address],
+  });
+}
+
+async function verifyPlugin() {
+  await hre.run("verify:verify", {
+    address: plugin.address,
+    constructorArguments: [
+      WBERA_ADDRESS,
+      VOTER_ADDRESS,
+      [WBERA_ADDRESS],
+      [WBERA_ADDRESS],
+      OBERO_ADDRESS,
+      factory.address,
+      units.address,
+      key.address,
+    ],
+  });
+}
+
+async function verifyMulticall() {
+  await hre.run("verify:verify", {
+    address: multicall.address,
+    constructorArguments: [
+      units.address,
+      factory.address,
+      key.address,
+      plugin.address,
+      OBERO_ADDRESS,
+    ],
+  });
+
 async function setUpSystem(wallet) {
   console.log("Starting System Set Up");
   await units.connect(wallet).setMinter(factory.address, true);
@@ -291,6 +340,12 @@ async function main() {
   // await deployPlugin(wallet);
   // await deployMulticall();
   // await printDeployment();
+
+  // await verifyUnits();
+  // await verifyKey();
+  // await verifyFactory();
+  // await verifyPlugin();
+  // await verifyMulticall();
 
   // await setUpSystem(wallet);
   // await setTools(wallet);

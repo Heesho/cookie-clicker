@@ -30,17 +30,20 @@ module.exports = {
     hardhat: {},
   },
   etherscan: {
-    apiKey: SCAN_API_KEY,
-    // customChains: [
-    //   {
-    //     network: "base-sepolia",
-    //     chainId: 84532,
-    //     urls: {
-    //       apiURL: "https://api-sepolia.basescan.org/api",
-    //       browserURL: "https://sepolia.basescan.org/",
-    //     },
-    //   },
-    // ],
+    apiKey: {
+      bartio_testnet: "bartio_testnet", // apiKey is not required, just set a placeholder
+    },
+    customChains: [
+      {
+        network: "bartio_testnet",
+        chainId: CHAIN_ID,
+        urls: {
+          apiURL:
+            "https://api.routescan.io/v2/network/testnet/evm/80084/etherscan",
+          browserURL: "https://bartio.beratrail.io",
+        },
+      },
+    ],
   },
   paths: {
     sources: "./contracts",
