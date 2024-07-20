@@ -49,7 +49,7 @@ contract Factory is Ownable {
     error Factory__NotAuthorized();
     error Factory__UpgradeLocked();
     error Factory__InvalidTokenId();
-    error Factory__ExceedsMaxLength();
+    error Factory__InvalidLength();
 
     /*----------  EVENTS ------------------------------------------------*/
 
@@ -121,7 +121,8 @@ contract Factory is Ownable {
 
     function setName(uint256 tokenId, string calldata name) external tokenExists(tokenId) {
         if (msg.sender != IERC721(key).ownerOf(tokenId)) revert Factory__NotAuthorized();
-        if (bytes(name).length > MAX_NAME_LENGTH) revert Factory__ExceedsMaxLength();
+        if (bytes(name).length == 0) revert Factory__InvalidLength();
+        if (bytes(name).length > MAX_NAME_LENGTH) revert Factory__InvalidLength();
         tokenId_Name[tokenId] = name;
     }
 
