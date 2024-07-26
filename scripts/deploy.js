@@ -20,23 +20,23 @@ let units, key, factory, plugin, multicall;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0x130A35Fe3A7365c7663A2D1c9D352848444AB1aE"
+    "0xb3aB3C4494a7c3194D5C3F2E8A6766e0FA31BB40"
   );
   key = await ethers.getContractAt(
     "contracts/Key.sol:Key",
-    "0x0c09B539BBDE11979235F08454D4923B7303C98e"
+    "0x1C3DFeA9D752EBb68555B926546Ae8E349Ec9226"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0xAa69bB1171510F4d006C7ab0A3fBf0dCbb6296A2"
+    "0x3Cca4bE40E919934B0Eac987d63D9d1A288e9Bb1"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x61d0b4fbB9d507F64112e859523524AA2c548A6C"
+    "0x9be8e063e9d4fC60819A041420B3a52105673C1a"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x097a2c62712d15C2d416E498E3266f859fFE94B8"
+    "0x8Cca4af21250E86fcb64b9842A454Cf3e36A6695"
   );
   console.log("Contracts Retrieved");
 }
@@ -177,6 +177,7 @@ async function verifyMulticall() {
       OBERO_ADDRESS,
     ],
   });
+}
 
 async function setUpSystem(wallet) {
   console.log("Starting System Set Up");

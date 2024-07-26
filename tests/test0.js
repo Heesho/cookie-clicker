@@ -79,9 +79,15 @@ describe("local: test0", function () {
 
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Owner sets tools", async function () {
@@ -410,279 +416,745 @@ describe("local: test0", function () {
 
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("Everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user1).click(2, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user2).click(3, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
-    await plugin.connect(user0).click(1, { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user1)
+      .click(2, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user2)
+      .click(3, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
+    await plugin
+      .connect(user0)
+      .click(1, "this is a message", { value: pointZeroOne });
   });
 
   it("View Queue", async function () {
