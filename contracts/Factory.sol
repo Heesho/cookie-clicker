@@ -16,7 +16,7 @@ contract Factory is Ownable {
 
     uint256 constant PRECISION = 1e18;   
     uint256 constant DURATION = 28800;  // 8 hours
-    uint256 constant MAX_NAME_LENGTH = 32;
+    uint256 constant MAX_NAME_LENGTH = 9;
 
     /*----------  STATE VARIABLES  --------------------------------------*/
 

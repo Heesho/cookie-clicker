@@ -44,6 +44,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     uint256 public constant BASE_UPC = 0.000005 ether;
     uint256 public constant QUEUE_SIZE = 100;
     uint256 public constant DURATION = 7 days;
+    uint256 public constant MESSAGE_LENGTH = 69;
     
     string public constant SYMBOL = "BULL ISH";
     string public constant PROTOCOL = "Bullas";
@@ -70,6 +71,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         uint256 power;
         address account;
         string name;
+        string message;
     }
 
     mapping(uint256 => Click) public queue;
@@ -81,16 +83,16 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
     error Plugin__InvalidZeroInput();
     error Plugin__NotAuthorizedVoter();
-    error Plugin__InsufficientFunds();
     error Plugin__NotAuthorized();
     error Plugin__InvalidPayment();
     error Plugin__InvalidTokenId();
+    error Plugin__InvalidMessage();
 
     /*----------  EVENTS ------------------------------------------------*/
 
     event Plugin__ClaimedAnDistributed();
-    event Plugin__ClickAdded(uint256 tokenId, address author, uint256 power, string name);
-    event Plugin__ClickRemoved(uint256 tokenId, address author, uint256 power, string name);
+    event Plugin__ClickAdded(uint256 tokenId, address author, uint256 power, string name, string message);
+    event Plugin__ClickRemoved(uint256 tokenId, address author, uint256 power, string name, string message);
     event Plugin__TreasurySet(address treasury);
     event Plugin__FeeSet(uint256 fee);
 
@@ -149,12 +151,14 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         }
     }
 
-    function click(uint256 tokenId)         
+    function click(uint256 tokenId, string calldata message)         
         external
         payable
         nonReentrant 
     {
         if (msg.value != fee) revert Plugin__InvalidPayment();
+        if (bytes(message).length == 0) revert Plugin__InvalidMessage();
+        if (bytes(message).length > MESSAGE_LENGTH) revert Plugin__InvalidMessage();
 
         uint256 currentIndex = tail % QUEUE_SIZE;
         address account = IERC721(key).ownerOf(tokenId);
@@ -163,15 +167,15 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         if (count == QUEUE_SIZE) {
             // If the queue is full, remove the oldest element
             if (gauge != address(0)) IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
-            emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].name);
+            emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].name, queue[head].message);
             head = (head + 1) % QUEUE_SIZE;
         }
 
         uint256 power = getPower(tokenId);
-        queue[currentIndex] = Click(tokenId, power, msg.sender, IFactory(factory).tokenId_Name(tokenId));
+        queue[currentIndex] = Click(tokenId, power, msg.sender, IFactory(factory).tokenId_Name(tokenId), message);
         tail = (tail + 1) % QUEUE_SIZE;
         count = count < QUEUE_SIZE ? count + 1 : count;
-        emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name);
+        emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name, message);
 
         // Transfer the fee to the contract
         payable(address(this)).transfer(fee);
@@ -259,7 +263,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     }
 
     function getPower(uint256 tokenId) public view returns (uint256) {
-        return IFactory(factory).tokenId_Power(tokenId) == 0 ? BASE_UPC : BASE_UPC * IFactory(factory).tokenId_Power(tokenId) / 1e18;
+        return BASE_UPC + IFactory(factory).tokenId_Power(tokenId);
     }
 
     function getQueueSize() public view returns (uint256) {
