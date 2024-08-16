@@ -28,7 +28,7 @@ interface IWBERA {
 }
 
 interface IFactory {
-    function tokenId_Power(uint256 tokenId) external view returns (uint256);
+    function tokenId_Evolution(uint256 tokenId) external view returns (uint256);
     function tokenId_Name(uint256 tokenId) external view returns (string memory);
 }
 
@@ -45,6 +45,11 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     uint256 public constant QUEUE_SIZE = 100;
     uint256 public constant DURATION = 7 days;
     uint256 public constant MESSAGE_LENGTH = 69;
+
+    uint256 constant public PRECISION = 1e18;
+    uint256 public constant AUCTION_DURATION = 600; // 10 minutes
+    uint256 constant public ABS_MAX_INIT_PRICE = type(uint192).max;
+    uint256 constant public PRICE_MULTIPLIER = 2e18;
     
     string public constant SYMBOL = "BULL ISH";
     string public constant PROTOCOL = "Bullas";
@@ -64,7 +69,15 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     address public immutable key;
 
     address public treasury;
-    uint256 public fee = 0.01 ether;
+    uint256 public minInitPrice = 0.01 ether;
+
+    struct Auction {
+        uint256 epochId;
+        uint256 initPrice;
+        uint256 startTime;
+    }
+
+    Auction public auction;
 
     struct Click {
         uint256 tokenId;
@@ -87,6 +100,9 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     error Plugin__InvalidPayment();
     error Plugin__InvalidTokenId();
     error Plugin__InvalidMessage();
+    error Plugin__DeadlinePassed();
+    error Plugin__EpochIdMismatch();
+    error Plugin__ExceedsMaxPayment();
 
     /*----------  EVENTS ------------------------------------------------*/
 
@@ -118,7 +134,8 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         address _treasury,
         address _factory,
         address _units,
-        address _key
+        address _key,
+        uint256 _initPrice
     ) {
         underlying = IERC20Metadata(_underlying);
         voter = _voter;
@@ -129,6 +146,9 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         units = _units;
         key = _key;
         OTOKEN = IVoter(_voter).OTOKEN();
+
+        auction.initPrice = _initPrice;
+        auction.startTime = block.timestamp;
     }
 
     function claimAndDistribute() 
@@ -151,21 +171,40 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         }
     }
 
-    function click(uint256 tokenId, string calldata message)         
+    function click(uint256 tokenId, uint256 epochId, uint256 deadline, uint256 maxPayment, string calldata message)         
         external
         payable
         nonReentrant 
+        returns (uint256 paymentAmount)
     {
-        if (msg.value != fee) revert Plugin__InvalidPayment();
         if (bytes(message).length == 0) revert Plugin__InvalidMessage();
         if (bytes(message).length > MESSAGE_LENGTH) revert Plugin__InvalidMessage();
+
+        if (block.timestamp > deadline) revert Plugin__DeadlinePassed();
+        Auction memory auctionCache = auction;
+        if (epochId != auctionCache.epochId) revert Plugin__EpochIdMismatch();
+        paymentAmount = getPriceFromCache(auctionCache);
+        if (paymentAmount > maxPayment) revert Plugin__ExceedsMaxPayment();
+        if (msg.value < paymentAmount) revert Plugin__InvalidPayment();
+
+        uint256 newInitPrice = paymentAmount * PRICE_MULTIPLIER / PRECISION;
+        if (newInitPrice > ABS_MAX_INIT_PRICE) {
+            newInitPrice = ABS_MAX_INIT_PRICE;
+        } else if (newInitPrice < minInitPrice) {
+            newInitPrice = minInitPrice;
+        }
+
+        auctionCache.epochId++;
+        auctionCache.initPrice = newInitPrice;
+        auctionCache.startTime = block.timestamp;
+
+        auction = auctionCache;
 
         uint256 currentIndex = tail % QUEUE_SIZE;
         address account = IERC721(key).ownerOf(tokenId);
         if (account == address(0)) revert Plugin__InvalidTokenId();
 
         if (count == QUEUE_SIZE) {
-            // If the queue is full, remove the oldest element
             if (gauge != address(0)) IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
             emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].name, queue[head].message);
             head = (head + 1) % QUEUE_SIZE;
@@ -177,10 +216,6 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name, message);
 
-        // Transfer the fee to the contract
-        payable(address(this)).transfer(fee);
-
-        // Handle gauge deposit and cookie minting
         if (gauge != address(0)) IGauge(gauge)._deposit(account, queue[currentIndex].power);
         IUnits(units).mint(account, queue[currentIndex].power);
     }
@@ -199,11 +234,6 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         emit Plugin__TreasurySet(_treasury);
     }
 
-    function setFee(uint256 _fee) external onlyOwner {
-        fee = _fee;
-        emit Plugin__FeeSet(_fee);
-    }
-
     function setGauge(address _gauge) external onlyVoter {
         gauge = _gauge;
     }
@@ -212,7 +242,31 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         bribe = _bribe;
     }
 
+    function getPriceFromCache(Auction memory auctionCache) internal view returns (uint256) {
+        uint256 timeElapsed = block.timestamp - auctionCache.startTime;
+
+        if (timeElapsed > AUCTION_DURATION) {
+            return minInitPrice;
+        }
+
+        uint256 price = auctionCache.initPrice - (auctionCache.initPrice * timeElapsed / AUCTION_DURATION);
+
+        if (price < minInitPrice) {
+            return minInitPrice;
+        }
+
+        return price;
+    }
+
     /*----------  VIEW FUNCTIONS  ---------------------------------------*/
+
+    function getPrice() external view returns (uint256) {
+        return getPriceFromCache(auction);
+    }
+
+    function getAuction() external view returns (Auction memory) {
+        return auction;
+    }
 
     function balanceOf(address account) public view returns (uint256) {
         return IGauge(gauge).balanceOf(account);
@@ -263,7 +317,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     }
 
     function getPower(uint256 tokenId) public view returns (uint256) {
-        return BASE_UPC + IFactory(factory).tokenId_Power(tokenId);
+        return BASE_UPC + (BASE_UPC * IFactory(factory).tokenId_Evolution(tokenId));
     }
 
     function getQueueSize() public view returns (uint256) {

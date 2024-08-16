@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IFactory {
-    function tokenId_Power(uint256 tokenId) external view returns (uint256);
+    function tokenId_Evolution(uint256 tokenId) external view returns (uint256);
     function tokenId_Ups(uint256 tokenId) external view returns (uint256);
     function tokenId_Last(uint256 tokenId) external view returns (uint256);
     function tokenId_toolId_Amount(uint256 tokenId, uint256 toolId) external view returns (uint256);
@@ -14,6 +14,7 @@ interface IFactory {
     function toolId_BaseCost(uint256 toolId) external view returns (uint256);
     function lvl_CostMultiplier(uint256 lvl) external view returns (uint256);
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
+    function evolutionIndex() external view returns (uint256);
     function toolIndex() external view returns (uint256);
     function amountIndex() external view returns (uint256);
 
@@ -53,12 +54,14 @@ contract Multicall {
     }
 
     struct FactoryState {
+        uint256 evolution;
         uint256 unitsBalance;
         uint256 ups;
         uint256 upc;
         uint256 capacity;
         uint256 claimable;
         bool full;
+        bool maxed;
     }
 
     struct ToolUpgradeState {
@@ -102,6 +105,7 @@ contract Multicall {
     }
 
     function getFactory(uint256 tokenId) external view returns (FactoryState memory factoryState) {
+        factoryState.evolution = IFactory(factory).tokenId_Evolution(tokenId);
         factoryState.unitsBalance = IERC20(units).balanceOf(IERC721(key).ownerOf(tokenId));
         factoryState.ups = IFactory(factory).tokenId_Ups(tokenId);
         factoryState.upc = IQueuePlugin(plugin).getPower(tokenId);
@@ -109,6 +113,7 @@ contract Multicall {
         factoryState.capacity = factoryState.ups * DURATION;
         factoryState.claimable = amount >= factoryState.capacity ? factoryState.capacity : amount;
         factoryState.full = amount >= factoryState.capacity;
+        factoryState.maxed = IFactory(factory).tokenId_Evolution(tokenId) == IFactory(factory).evolutionIndex();
     }
 
     function getUpgrades(uint256 tokenId) external view returns (ToolUpgradeState[] memory toolUpgradeState) {

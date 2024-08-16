@@ -48,7 +48,8 @@ describe("local: test0", function () {
       treasury.address,
       factory.address,
       units.address,
-      key.address
+      key.address,
+      pointZeroOne
     );
     console.log("- Plugin Initialized");
 
@@ -79,15 +80,69 @@ describe("local: test0", function () {
 
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+
+    console.log(res);
+    await expect(
+      plugin
+        .connect(user0)
+        .click(1, res.epochId, 1923762447, pointZeroOne, "this is a message", {
+          value: pointZeroOne,
+        })
+    ).to.be.revertedWith("Plugin__ExceedsMaxPayment");
+    console.log(res);
+    await expect(
+      plugin
+        .connect(user0)
+        .click(1, res.epochId, 1923762447, price, "this is a message", {
+          value: pointZeroOne,
+        })
+    ).to.be.revertedWith("Plugin__InvalidPayment");
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+
+    await expect(
+      plugin
+        .connect(user0)
+        .click(1, res.epochId, 1923762447, price, "this is a message", {
+          value: price,
+        })
+    ).to.be.revertedWith("Plugin__EpochIdMismatch");
+
+    res = await plugin.getAuction();
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
   });
 
   it("Owner sets tools", async function () {
@@ -206,6 +261,17 @@ describe("local: test0", function () {
         "10140455477989193059",
         "11661523849617504018",
         "13410752326730129621",
+      ]);
+  });
+
+  it("Owner sets evolution", async function () {
+    console.log("******************************************************");
+    await factory
+      .connect(owner)
+      .setEvolution([
+        "1000000000000000000",
+        "2000000000000000000",
+        "3000000000000000000",
       ]);
   });
 
@@ -401,13 +467,6 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
-  it("User0 burns cookies for power", async function () {
-    console.log("******************************************************");
-    await factory.connect(user0).increasePower(1, one);
-    await factory.connect(user0).increasePower(1, one);
-    await factory.connect(user0).increasePower(1, one);
-  });
-
   it("User0 bakery state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
@@ -416,745 +475,812 @@ describe("local: test0", function () {
 
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("Forward 100 seconds", async function () {
     console.log("******************************************************");
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+    await network.provider.send("evm_increaseTime", [100]);
+    await network.provider.send("evm_mine");
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("Forward 600 seconds", async function () {
     console.log("******************************************************");
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+    await network.provider.send("evm_increaseTime", [100]);
+    await network.provider.send("evm_mine");
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("Forward 100 seconds", async function () {
     console.log("******************************************************");
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+    await network.provider.send("evm_increaseTime", [100]);
+    await network.provider.send("evm_mine");
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("Forward 100 seconds", async function () {
     console.log("******************************************************");
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+    await network.provider.send("evm_increaseTime", [100]);
+    await network.provider.send("evm_mine");
   });
 
-  it("Everyone clicks cookie", async function () {
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 2 hour", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [7200]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 500 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [500]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 500 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [500]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 500 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [500]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
-    await plugin
-      .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 500 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [500]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, "this is a message", { value: pointZeroOne });
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 500 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [500]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 500 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [500]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, "this is a message", { value: pointZeroOne });
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, "this is a message", { value: pointZeroOne });
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+  });
+
+  it("Forward 700 seconds", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [700]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    let res = await plugin.getAuction();
+    await plugin
+      .connect(user0)
+      .click(1, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user1)
+      .click(2, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
+
+    price = await plugin.getPrice();
+    console.log("Click Price: ", divDec(price));
+    res = await plugin.getAuction();
+    await plugin
+      .connect(user2)
+      .click(3, res.epochId, 1923762447, price, "this is a message", {
+        value: price,
+      });
   });
 
   it("View Queue", async function () {
@@ -1184,5 +1310,177 @@ describe("local: test0", function () {
     console.log("Treasury Balance: ", await base.balanceOf(treasury.address));
     await plugin.claimAndDistribute();
     console.log("Treasury Balance: ", await base.balanceOf(treasury.address));
+  });
+
+  it("User0 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+  });
+
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).evolve(1);
+  });
+
+  it("User0 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+    console.log(await multicall.getUpgrades(1));
+    console.log(await multicall.getTools(1));
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 0, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 1, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 2, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 3, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 4, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 5, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 6, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 7, 1);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 7, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 7, 5);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 upgrades building0", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).upgradeTool(1, 0);
+    await factory.connect(user0).upgradeTool(1, 1);
+    await factory.connect(user0).upgradeTool(1, 2);
+    await factory.connect(user0).upgradeTool(1, 3);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 upgrades building0", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).upgradeTool(1, 0);
+    await factory.connect(user0).upgradeTool(1, 1);
+    await factory.connect(user0).upgradeTool(1, 2);
+    await factory.connect(user0).upgradeTool(1, 3);
+  });
+
+  it("User0 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+    console.log(await multicall.getUpgrades(1));
+    console.log(await multicall.getTools(1));
+  });
+
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).evolve(1);
+  });
+
+  it("User0 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+    console.log(await multicall.getUpgrades(1));
+    console.log(await multicall.getTools(1));
   });
 });
