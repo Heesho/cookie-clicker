@@ -6,6 +6,7 @@ const hre = require("hardhat");
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 const convert = (amount, decimals) => ethers.utils.parseUnits(amount, decimals);
 const divDec = (amount, decimals = 18) => amount / 10 ** decimals;
+const pointZeroOne = convert("0.01", 18);
 
 const VOTER_ADDRESS = "0x580ABF764405aA82dC96788b356435474c5956A7";
 const WBERA_ADDRESS = "0x7507c1dc16935B82698e4C63f2746A2fCf994dF8"; // WBERA address
@@ -28,15 +29,15 @@ async function getContracts() {
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x3Cca4bE40E919934B0Eac987d63D9d1A288e9Bb1"
+    "0xFeadC5D86f502A7A6b37Cc4ae9F4AF0B865f68fE"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x9be8e063e9d4fC60819A041420B3a52105673C1a"
+    "0x7920bc4468992454a6c5fe735222e91D146F7179"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x8Cca4af21250E86fcb64b9842A454Cf3e36A6695"
+    "0xC8EF061FC9Ebc9106f5d94dEe550099669a119F4"
   );
   console.log("Contracts Retrieved");
 }
@@ -93,6 +94,7 @@ async function deployPlugin(wallet) {
     factory.address,
     units.address,
     key.address,
+    pointZeroOne,
     {
       gasPrice: ethers.gasPrice,
     }
@@ -162,6 +164,7 @@ async function verifyPlugin() {
       factory.address,
       units.address,
       key.address,
+      pointZeroOne,
     ],
   });
 }
@@ -329,6 +332,25 @@ async function setLevels(wallet) {
   console.log("Levels set");
 }
 
+async function setEvolution(wallet) {
+  console.log("Starting Evolution Deployment");
+  await factory
+    .connect(wallet)
+    .setEvolution([
+      "10000000000000000000",
+      "20000000000000000000",
+      "30000000000000000000",
+      "40000000000000000000",
+      "50000000000000000000",
+      "60000000000000000000",
+      "70000000000000000000",
+      "80000000000000000000",
+      "90000000000000000000",
+      "100000000000000000000",
+    ]);
+  console.log("Evolution set");
+}
+
 async function main() {
   const [wallet] = await ethers.getSigners();
   console.log("Using wallet: ", wallet.address);
@@ -352,6 +374,7 @@ async function main() {
   // await setTools(wallet);
   // await setToolMultipliers(wallet);
   // await setLevels(wallet);
+  await setEvolution(wallet);
 }
 
 main()
