@@ -171,7 +171,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         }
     }
 
-    function click(uint256 tokenId, uint256 epochId, uint256 deadline, uint256 maxPayment, string calldata message)         
+    function click(uint256 tokenId, uint256 deadline, uint256 maxPayment, string calldata message)         
         external
         payable
         nonReentrant 
@@ -182,7 +182,6 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
         if (block.timestamp > deadline) revert Plugin__DeadlinePassed();
         Auction memory auctionCache = auction;
-        if (epochId != auctionCache.epochId) revert Plugin__EpochIdMismatch();
         paymentAmount = getPriceFromCache(auctionCache);
         if (paymentAmount > maxPayment) revert Plugin__ExceedsMaxPayment();
         if (msg.value < paymentAmount) revert Plugin__InvalidPayment();

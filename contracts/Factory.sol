@@ -92,7 +92,7 @@ contract Factory is Ownable {
     function evolve(uint256 tokenId) external tokenExists(tokenId) {
         uint256 evolution = tokenId_Evolution[tokenId];
         if (evolution == evolutionIndex) revert Factory__EvolutionMaxed();
-        uint256 cost = evolution_Cost[evolution];
+        uint256 cost = evolution_Cost[evolution + 1];
         claim(tokenId);
         tokenId_Evolution[tokenId]++;
         tokenId_Ups[tokenId] = 0;

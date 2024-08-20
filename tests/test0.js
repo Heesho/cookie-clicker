@@ -86,7 +86,7 @@ describe("local: test0", function () {
 
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
     price = await plugin.getPrice();
@@ -97,17 +97,15 @@ describe("local: test0", function () {
     await expect(
       plugin
         .connect(user0)
-        .click(1, res.epochId, 1923762447, pointZeroOne, "this is a message", {
+        .click(1, 1923762447, pointZeroOne, "this is a message", {
           value: pointZeroOne,
         })
     ).to.be.revertedWith("Plugin__ExceedsMaxPayment");
     console.log(res);
     await expect(
-      plugin
-        .connect(user0)
-        .click(1, res.epochId, 1923762447, price, "this is a message", {
-          value: pointZeroOne,
-        })
+      plugin.connect(user0).click(1, 1923762447, price, "this is a message", {
+        value: pointZeroOne,
+      })
     ).to.be.revertedWith("Plugin__InvalidPayment");
 
     price = await plugin.getPrice();
@@ -115,20 +113,12 @@ describe("local: test0", function () {
 
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
     price = await plugin.getPrice();
     console.log("Click Price: ", divDec(price));
-
-    await expect(
-      plugin
-        .connect(user0)
-        .click(1, res.epochId, 1923762447, price, "this is a message", {
-          value: price,
-        })
-    ).to.be.revertedWith("Plugin__EpochIdMismatch");
 
     res = await plugin.getAuction();
 
@@ -137,7 +127,7 @@ describe("local: test0", function () {
 
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -269,16 +259,10 @@ describe("local: test0", function () {
     await factory
       .connect(owner)
       .setEvolution([
-        "10000000000000000000",
-        "20000000000000000000",
-        "30000000000000000000",
-        "40000000000000000000",
-        "50000000000000000000",
-        "60000000000000000000",
-        "70000000000000000000",
-        "80000000000000000000",
-        "90000000000000000000",
-        "100000000000000000000",
+        "0",
+        "1000000000000000000",
+        "2000000000000000000",
+        "3000000000000000000",
       ]);
   });
 
@@ -325,6 +309,12 @@ describe("local: test0", function () {
       );
   });
 
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+  });
+  /*
   it("User0 building1 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
@@ -487,7 +477,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -496,7 +486,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -505,7 +495,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -517,7 +507,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -526,7 +516,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -535,7 +525,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -553,7 +543,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -562,7 +552,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -571,7 +561,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -583,7 +573,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -592,7 +582,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -601,7 +591,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -619,7 +609,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -628,7 +618,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -637,7 +627,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -655,7 +645,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -664,7 +654,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -673,7 +663,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -691,7 +681,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -700,7 +690,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -709,7 +699,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -727,7 +717,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -736,7 +726,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -745,7 +735,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -763,7 +753,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -772,7 +762,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -781,7 +771,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -799,7 +789,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -808,7 +798,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -817,7 +807,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -835,7 +825,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -844,7 +834,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -853,7 +843,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -871,7 +861,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -880,7 +870,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -889,7 +879,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -907,7 +897,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -916,7 +906,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -925,7 +915,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -943,7 +933,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -952,7 +942,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -961,7 +951,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -979,7 +969,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -988,7 +978,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -997,7 +987,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1015,7 +1005,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1024,7 +1014,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1033,7 +1023,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1051,7 +1041,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1060,7 +1050,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1069,7 +1059,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1087,7 +1077,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1096,7 +1086,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1105,7 +1095,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1123,7 +1113,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1132,7 +1122,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1141,7 +1131,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1159,7 +1149,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1168,7 +1158,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1177,7 +1167,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1195,7 +1185,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1204,7 +1194,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1213,7 +1203,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1231,7 +1221,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1240,7 +1230,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1249,7 +1239,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1267,7 +1257,7 @@ describe("local: test0", function () {
     let res = await plugin.getAuction();
     await plugin
       .connect(user0)
-      .click(1, res.epochId, 1923762447, price, "this is a message", {
+      .click(1, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1276,7 +1266,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user1)
-      .click(2, res.epochId, 1923762447, price, "this is a message", {
+      .click(2, 1923762447, price, "this is a message", {
         value: price,
       });
 
@@ -1285,7 +1275,7 @@ describe("local: test0", function () {
     res = await plugin.getAuction();
     await plugin
       .connect(user2)
-      .click(3, res.epochId, 1923762447, price, "this is a message", {
+      .click(3, 1923762447, price, "this is a message", {
         value: price,
       });
   });
@@ -1490,4 +1480,11 @@ describe("local: test0", function () {
     console.log(await multicall.getUpgrades(1));
     console.log(await multicall.getTools(1));
   });
+
+  it("User0 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+  });
+  */
 });

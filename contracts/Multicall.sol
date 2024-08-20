@@ -15,6 +15,7 @@ interface IFactory {
     function lvl_CostMultiplier(uint256 lvl) external view returns (uint256);
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
     function evolutionIndex() external view returns (uint256);
+    function evolution_Cost(uint256 evolution) external view returns (uint256);
     function toolIndex() external view returns (uint256);
     function amountIndex() external view returns (uint256);
 
@@ -55,6 +56,7 @@ contract Multicall {
 
     struct FactoryState {
         uint256 evolution;
+        uint256 evolutionCost;
         uint256 unitsBalance;
         uint256 ups;
         uint256 upc;
@@ -106,6 +108,7 @@ contract Multicall {
 
     function getFactory(uint256 tokenId) external view returns (FactoryState memory factoryState) {
         factoryState.evolution = IFactory(factory).tokenId_Evolution(tokenId);
+        factoryState.evolutionCost = IFactory(factory).evolutionIndex() == factoryState.evolution ? 0 : IFactory(factory).evolution_Cost(factoryState.evolution + 1);
         factoryState.unitsBalance = IERC20(units).balanceOf(IERC721(key).ownerOf(tokenId));
         factoryState.ups = IFactory(factory).tokenId_Ups(tokenId);
         factoryState.upc = IQueuePlugin(plugin).getPower(tokenId);
