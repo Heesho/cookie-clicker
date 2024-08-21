@@ -29,15 +29,15 @@ async function getContracts() {
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0xBFdBCA915cDE64d0650419c1bD33198633Fc3826"
+    "0xc89CFF765965C76A9775a44775C3f98e5F035a10"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x9924887720c6265d46385C98AA5A459213bD8b69"
+    "0x0375E50e3a58381b65Ce9D565313FD8f993101c5"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0xcf3632cFA0DbB47d65063eB2Ff0563Ca889a225d"
+    "0x2ac86f64936a999275eE4Cf1979c6626B361175b"
   );
   console.log("Contracts Retrieved");
 }
@@ -336,18 +336,21 @@ async function setEvolution(wallet) {
   console.log("Starting Evolution Deployment");
   await factory
     .connect(wallet)
-    .setEvolution([
-      "0",
-      "10000000000000000000",
-      "100000000000000000000",
-      "1000000000000000000000",
-      "1000000000000000000000",
-      "10000000000000000000000",
-      "100000000000000000000000",
-      "1000000000000000000000000",
-      "10000000000000000000000000",
-      "100000000000000000000000000",
-    ]);
+    .setEvolution(
+      [
+        "0",
+        "10000000000000000000",
+        "100000000000000000000",
+        "1000000000000000000000",
+        "1000000000000000000000",
+        "10000000000000000000000",
+        "100000000000000000000000",
+        "1000000000000000000000000",
+        "10000000000000000000000000",
+        "100000000000000000000000000",
+      ],
+      [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
+    );
   console.log("Evolution set");
 }
 

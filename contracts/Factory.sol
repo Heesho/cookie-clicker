@@ -24,7 +24,8 @@ contract Factory is Ownable {
     address immutable public key;
 
     uint256 public evolutionIndex;
-    mapping(uint256 => uint256) public evolution_Cost;  // evolution => cost to evolve
+    mapping(uint256 => uint256) public evolution_Cost;      // evolution => cost to evolve
+    mapping(uint256 => uint256) public evolution_Amount;    // evolution => amount available to buy
 
     uint256 public lvlIndex;
     mapping(uint256 => uint256) public lvl_Unlock;          // level => amount required to unlock
@@ -61,7 +62,7 @@ contract Factory is Ownable {
     event Factory__ToolPurchased(uint256 indexed tokenId, uint256 toolId, uint256 newAmount, uint256 cost, uint256 ups);
     event Factory__ToolUpgraded(uint256 indexed tokenId, uint256 toolId, uint256 newLevel, uint256 cost, uint256 ups);
     event Factory__Claimed(uint256 indexed tokenId, uint256 amount);
-    event Factory__EvolutionSet(uint256 evolution, uint256 cost);
+    event Factory__EvolutionSet(uint256 evolution, uint256 cost, uint256 amount);
     event Factory__LvlSet(uint256 lvl, uint256 cost, uint256 unlock);
     event Factory__ToolSet(uint256 toolId, uint256 baseUps, uint256 baseCost);
     event Factory__ToolMultiplierSet(uint256 index, uint256 multiplier);
@@ -110,6 +111,7 @@ contract Factory is Ownable {
         for (uint256 i = 0; i < toolAmount; i++) {
             uint256 currentAmount = tokenId_toolId_Amount[tokenId][toolId];
             if (currentAmount == amountIndex) revert Factory__AmountMaxed();
+            if (currentAmount == evolution_Amount[tokenId_Evolution[tokenId]]) revert Factory__AmountMaxed();
             uint256 cost = getToolCost(toolId, currentAmount);
             tokenId_toolId_Amount[tokenId][toolId]++;
             tokenId_Ups[tokenId] += getToolUps(toolId, tokenId_toolId_Lvl[tokenId][toolId]);
@@ -139,11 +141,13 @@ contract Factory is Ownable {
 
     /*----------  RESTRICTED FUNCTIONS  ---------------------------------*/
 
-    function setEvolution(uint256[] calldata cost) external onlyOwner {
+    function setEvolution(uint256[] calldata cost, uint256[] calldata amount) external onlyOwner {
+        if (cost.length != amount.length) revert Factory__InvalidInput();
         for (uint256 i = evolutionIndex; i < evolutionIndex + cost.length; i++) {
             uint256 arrayIndex = i - evolutionIndex;
             evolution_Cost[i] = cost[arrayIndex];
-            emit Factory__EvolutionSet(i, cost[i]);
+            evolution_Amount[i] = amount[arrayIndex];
+            emit Factory__EvolutionSet(i, cost[i], amount[i]);
         }
         evolutionIndex += cost.length;
     }

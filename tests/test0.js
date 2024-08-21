@@ -258,12 +258,15 @@ describe("local: test0", function () {
     console.log("******************************************************");
     await factory
       .connect(owner)
-      .setEvolution([
-        "0",
-        "1000000000000000000",
-        "2000000000000000000",
-        "3000000000000000000",
-      ]);
+      .setEvolution(
+        [
+          "0",
+          "1000000000000000000",
+          "2000000000000000000",
+          "3000000000000000000",
+        ],
+        [10, 20, 30, 40]
+      );
   });
 
   it("User0 purchases tool", async function () {
@@ -314,7 +317,7 @@ describe("local: test0", function () {
     console.log("USER0 STATE");
     console.log(await multicall.getFactory(1));
   });
-  /*
+
   it("User0 building1 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
@@ -420,34 +423,51 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).evolve(1);
+  });
+
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
     await factory.connect(user0).purchaseTool(1, 0, 20);
   });
 
-  it("User0 purchases building0", async function () {
+  it("User0 building1 state", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 0, 1);
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+    console.log(await multicall.getUpgrades(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 0, 10);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 0, 1)
+    ).to.be.revertedWith("Factory__AmountMaxed");
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 0, 10);
+    await factory.connect(user0).purchaseTool(1, 1, 10);
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 0, 10);
+    await factory.connect(user0).purchaseTool(1, 1, 10);
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 0, 8);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 1, 10)
+    ).to.be.revertedWith("Factory__AmountMaxed");
+  });
+
+  it("User0 purchases building0", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 2, 8);
   });
 
   it("User0 building1 state", async function () {
@@ -1324,6 +1344,12 @@ describe("local: test0", function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
     console.log(await multicall.getFactory(1));
+  });
+
+  it("User0 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
     console.log(await multicall.getUpgrades(1));
     console.log(await multicall.getTools(1));
   });
@@ -1486,5 +1512,4 @@ describe("local: test0", function () {
     console.log("USER0 STATE");
     console.log(await multicall.getFactory(1));
   });
-  */
 });

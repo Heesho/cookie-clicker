@@ -16,6 +16,7 @@ interface IFactory {
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
     function evolutionIndex() external view returns (uint256);
     function evolution_Cost(uint256 evolution) external view returns (uint256);
+    function evolution_Amount(uint256 evolution) external view returns (uint256);
     function toolIndex() external view returns (uint256);
     function amountIndex() external view returns (uint256);
 
@@ -57,6 +58,7 @@ contract Multicall {
     struct FactoryState {
         uint256 evolution;
         uint256 evolutionCost;
+        uint256 toolCapacity;
         uint256 unitsBalance;
         uint256 ups;
         uint256 upc;
@@ -109,6 +111,7 @@ contract Multicall {
     function getFactory(uint256 tokenId) external view returns (FactoryState memory factoryState) {
         factoryState.evolution = IFactory(factory).tokenId_Evolution(tokenId);
         factoryState.evolutionCost = IFactory(factory).evolutionIndex() == factoryState.evolution ? 0 : IFactory(factory).evolution_Cost(factoryState.evolution + 1);
+        factoryState.toolCapacity = IFactory(factory).evolution_Amount(factoryState.evolution);
         factoryState.unitsBalance = IERC20(units).balanceOf(IERC721(key).ownerOf(tokenId));
         factoryState.ups = IFactory(factory).tokenId_Ups(tokenId);
         factoryState.upc = IQueuePlugin(plugin).getPower(tokenId);
@@ -138,7 +141,7 @@ contract Multicall {
         for (uint256 i = 0; i < toolCount; i++) {
             toolState[i].id = i;
             toolState[i].amount = IFactory(factory).tokenId_toolId_Amount(tokenId, i);
-            toolState[i].maxed = IFactory(factory).amountIndex() == toolState[i].amount;
+            toolState[i].maxed = IFactory(factory).evolution_Amount(IFactory(factory).tokenId_Evolution(tokenId)) == toolState[i].amount;
             toolState[i].cost = toolState[i].maxed ? 0 : IFactory(factory).getToolCost(i, toolState[i].amount);
             uint256 lvl = IFactory(factory).tokenId_toolId_Lvl(tokenId, i);
             toolState[i].ups = IFactory(factory).getToolUps(i, lvl);
