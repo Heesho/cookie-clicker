@@ -204,7 +204,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         if (account == address(0)) revert Plugin__InvalidTokenId();
 
         if (count == QUEUE_SIZE) {
-            if (gauge != address(0)) IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
+            IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
             emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].name, queue[head].message);
             head = (head + 1) % QUEUE_SIZE;
         }
@@ -215,7 +215,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, queue[currentIndex].name, message);
 
-        if (gauge != address(0)) IGauge(gauge)._deposit(account, queue[currentIndex].power);
+        IGauge(gauge)._deposit(account, queue[currentIndex].power);
         IUnits(units).mint(account, queue[currentIndex].power);
     }
 

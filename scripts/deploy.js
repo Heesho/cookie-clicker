@@ -33,7 +33,7 @@ async function getContracts() {
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x0375E50e3a58381b65Ce9D565313FD8f993101c5"
+    "0x0129689005f800000C12cf3C2CDD3955827F85De"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
@@ -184,8 +184,8 @@ async function verifyMulticall() {
 
 async function setUpSystem(wallet) {
   console.log("Starting System Set Up");
-  await units.connect(wallet).setMinter(factory.address, true);
-  console.log("factory whitelisted to mint units.");
+  // await units.connect(wallet).setMinter(factory.address, true);
+  // console.log("factory whitelisted to mint units.");
   await units.connect(wallet).setMinter(plugin.address, true);
   console.log("plugin whitelisted to mint units.");
   console.log("System Initialized");
