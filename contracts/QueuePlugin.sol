@@ -49,7 +49,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     uint256 constant public PRECISION = 1e18;
     uint256 public constant AUCTION_DURATION = 600; // 10 minutes
     uint256 constant public ABS_MAX_INIT_PRICE = type(uint192).max;
-    uint256 constant public PRICE_MULTIPLIER = 2e18;
+    uint256 constant public PRICE_MULTIPLIER = 1200000000000000000;
     
     string public constant SYMBOL = "BULL ISH";
     string public constant PROTOCOL = "Bullas";
