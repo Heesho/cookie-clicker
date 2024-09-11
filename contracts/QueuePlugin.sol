@@ -41,7 +41,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
-    uint256 public constant BASE_UPC = 0.000005 ether;
+    uint256 public constant BASE_UPC = 0.0000001 ether;
     uint256 public constant QUEUE_SIZE = 100;
     uint256 public constant DURATION = 7 days;
     uint256 public constant MESSAGE_LENGTH = 69;
