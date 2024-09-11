@@ -21,23 +21,23 @@ let units, key, factory, plugin, multicall;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0xC1d11369EEB593f86625f42577F72394c09e3363"
+    "0x97EA60B22b8dCAf937B4d05D30A2B5A564c9A9bc"
   );
   key = await ethers.getContractAt(
     "contracts/Key.sol:Key",
-    "0x53165D99C4F94A05456A2Ce74C7353Fbf79d9796"
+    "0x2eC890b010Fa4E38C80E929B4762EA043818b197"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x7bb0430c583BAa6311aF0c7a3F0c0Cfc64d2C05B"
+    "0x41E01395D12b046652c8E1930A3D400c4C87A914"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0xC81c2E2415702179F78B51CbC5f9A16B957F5333"
+    "0x9C8366e5fb3B818e7C8c04F080f36f56BFf335Ee"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0xA10d9CDeeaBF434a9bdd9049D25189E32bc4220f"
+    "0x5261A38282431b484C8bbCd47Fef3D5E6A3A7605"
   );
   console.log("Contracts Retrieved");
 }
@@ -193,41 +193,41 @@ async function setUpSystem(wallet) {
 
 async function setTools(wallet) {
   console.log("Starting Building Deployment");
-  const buildingCosts = [
-    convert("0.0000001", 18),
-    convert("0.000001", 18),
-    convert("0.000008", 18),
-    convert("0.000047", 18),
-    convert("0.00026", 18),
-    convert("0.0014", 18),
-    convert("0.0078", 18),
-    convert("0.044", 18),
-    convert("0.26", 18),
-    convert("1.6", 18),
-    convert("10", 18),
-    convert("65", 18),
-    convert("430", 18),
-    convert("2900", 18),
-    convert("21000", 18),
+  const buildingUps = [
+    convert("0.000000001", 18),
+    convert("0.00000001", 18),
+    convert("0.00000008", 18),
+    convert("0.00000047", 18),
+    convert("0.0000026", 18),
+    convert("0.000014", 18),
+    convert("0.000078", 18),
+    convert("0.00044", 18),
+    convert("0.0026", 18),
+    convert("0.016", 18),
+    convert("0.10", 18),
+    convert("0.65", 18),
+    convert("4.30", 18),
+    convert("29", 18),
+    convert("210", 18),
   ];
-  const buildingPayouts = [
-    convert("0.00000015", 18),
-    convert("0.000001", 18),
-    convert("0.000011", 18),
-    convert("0.00012", 18),
-    convert("0.0013", 18),
-    convert("0.006", 18),
-    convert("0.032", 18),
-    convert("0.17", 18),
-    convert("1", 18),
-    convert("6", 18),
-    convert("40", 18),
-    convert("260", 18),
-    convert("1700", 18),
-    convert("11000", 18),
-    convert("70000", 18),
+  const buildingCost = [
+    convert("0.000015", 18),
+    convert("0.0001", 18),
+    convert("0.0011", 18),
+    convert("0.012", 18),
+    convert("0.13", 18),
+    convert("0.6", 18),
+    convert("3.2", 18),
+    convert("17", 18),
+    convert("100", 18),
+    convert("600", 18),
+    convert("4000", 18),
+    convert("26000", 18),
+    convert("170000", 18),
+    convert("1100000", 18),
+    convert("7000000", 18),
   ];
-  await factory.connect(wallet).setTool(buildingCosts, buildingPayouts);
+  await factory.connect(wallet).setTool(buildingUps, buildingCost);
   console.log("Buildings set");
 }
 
