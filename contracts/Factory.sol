@@ -16,7 +16,6 @@ contract Factory is Ownable {
 
     uint256 constant PRECISION = 1e18;   
     uint256 constant DURATION = 28800;  // 8 hours
-    uint256 constant MAX_NAME_LENGTH = 9;
 
     /*----------  STATE VARIABLES  --------------------------------------*/
 
@@ -37,7 +36,6 @@ contract Factory is Ownable {
     mapping(uint256 => uint256) public toolId_BaseUps;          // tool id => base units per second
     mapping(uint256 => uint256) public amount_CostMultiplier;   // tool amount => cost multiplier
     
-    mapping(uint256 => string) public tokenId_Name;       // token id => name
     mapping(uint256 => uint256) public tokenId_Ups;       // token id => units per second
     mapping(uint256 => uint256) public tokenId_Last;      // token id => last time claimed
     mapping(uint256 => uint256) public tokenId_Evolution; // token id => evolution
@@ -130,13 +128,6 @@ contract Factory is Ownable {
         tokenId_Ups[tokenId] += (getToolUps(toolId, currentLvl + 1) - getToolUps(toolId, currentLvl)) * tokenId_toolId_Amount[tokenId][toolId];
         emit Factory__ToolUpgraded(tokenId, toolId, tokenId_toolId_Lvl[tokenId][toolId], cost, tokenId_Ups[tokenId]);
         IUnits(units).burn(msg.sender, cost);
-    }
-
-    function setName(uint256 tokenId, string calldata name) external tokenExists(tokenId) {
-        if (msg.sender != IERC721(key).ownerOf(tokenId)) revert Factory__NotAuthorized();
-        if (bytes(name).length == 0) revert Factory__InvalidLength();
-        if (bytes(name).length > MAX_NAME_LENGTH) revert Factory__InvalidLength();
-        tokenId_Name[tokenId] = name;
     }
 
     /*----------  RESTRICTED FUNCTIONS  ---------------------------------*/
