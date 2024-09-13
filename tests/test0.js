@@ -1970,4 +1970,75 @@ describe("local: test0", function () {
     console.log("******************************************************");
     console.log(await plugin.getQueueSize());
   });
+
+  // it("Random Number testing", async function () {
+  //   console.log("******************************************************");
+  //   console.log(await plugin.getRandomMultiplier());
+  // });
+
+  // it("Forward 1 minute", async function () {
+  //   console.log("******************************************************");
+  //   await network.provider.send("evm_increaseTime", [60]);
+  //   await network.provider.send("evm_mine");
+  // });
+
+  // it("Random Number testing", async function () {
+  //   console.log("******************************************************");
+  //   console.log(await plugin.getRandomMultiplier());
+  // });
+
+  // it("Forward 1 minute", async function () {
+  //   console.log("******************************************************");
+  //   await network.provider.send("evm_increaseTime", [60]);
+  //   await network.provider.send("evm_mine");
+  // });
+
+  // it("Random Number testing", async function () {
+  //   console.log("******************************************************");
+  //   console.log(await plugin.getRandomMultiplier());
+  // });
+
+  // it("Forward 1 minute", async function () {
+  //   console.log("******************************************************");
+  //   await network.provider.send("evm_increaseTime", [60]);
+  //   await network.provider.send("evm_mine");
+  // });
+
+  // it("Random Number testing", async function () {
+  //   console.log("******************************************************");
+  //   console.log(await plugin.getRandomMultiplier());
+  // });
+
+  // it("Forward 1 minute", async function () {
+  //   console.log("******************************************************");
+  //   await network.provider.send("evm_increaseTime", [60]);
+  //   await network.provider.send("evm_mine");
+  // });
+
+  // it("Random Number testing", async function () {
+  //   console.log("******************************************************");
+  //   console.log(await plugin.getRandomMultiplier());
+  // });
+
+  // it("Forward 1 minute", async function () {
+  //   console.log("******************************************************");
+  //   await network.provider.send("evm_increaseTime", [60]);
+  //   await network.provider.send("evm_mine");
+  // });
+
+  // it("Random Number testing", async function () {
+  //   console.log("******************************************************");
+  //   console.log(await plugin.getRandomMultiplier());
+  // });
+
+  // it("Forward 1 minute", async function () {
+  //   console.log("******************************************************");
+  //   await network.provider.send("evm_increaseTime", [60]);
+  //   await network.provider.send("evm_mine");
+  // });
+
+  // it("Random Number testing", async function () {
+  //   console.log("******************************************************");
+  //   console.log(await plugin.getRandomMultiplier());
+  // });
 });

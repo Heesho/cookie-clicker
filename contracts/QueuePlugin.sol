@@ -69,6 +69,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
     address public treasury;
     uint256 public minInitPrice = 0.01 ether;
+    bool public randomMint = true;
 
     struct Auction {
         uint256 epochId;
@@ -157,15 +158,11 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         if (balance > DURATION) {
             address token = getUnderlyingAddress();
             IWBERA(token).deposit{value: balance}();
-            if (bribe != address(0)) {
-                uint256 treasuryFee = balance / 5;
-                IERC20(token).safeTransfer(treasury, treasuryFee);
-                IERC20(token).safeApprove(bribe, 0);
-                IERC20(token).safeApprove(bribe, balance - treasuryFee);
-                IBribe(bribe).notifyRewardAmount(token, balance - treasuryFee);
-            } else {
-                IERC20(token).safeTransfer(treasury, balance);
-            }
+            uint256 treasuryFee = balance / 5;
+            IERC20(token).safeTransfer(treasury, treasuryFee);
+            IERC20(token).safeApprove(bribe, 0);
+            IERC20(token).safeApprove(bribe, balance - treasuryFee);
+            IBribe(bribe).notifyRewardAmount(token, balance - treasuryFee);
         }
     }
 
@@ -173,7 +170,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         external
         payable
         nonReentrant 
-        returns (uint256 paymentAmount)
+        returns (uint256 paymentAmount, uint256 mintAmount)
     {
         if (bytes(message).length == 0) revert Plugin__InvalidMessage();
         if (bytes(message).length > MESSAGE_LENGTH) revert Plugin__InvalidMessage();
@@ -208,15 +205,15 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         }
 
         uint256 power = getPower(tokenId);
+        mintAmount = randomMint ? power * getRandomMultiplier() : power;
         queue[currentIndex] = Click(tokenId, power, msg.sender, message);
         tail = (tail + 1) % QUEUE_SIZE;
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, message);
 
         IGauge(gauge)._deposit(account, queue[currentIndex].power);
-        IUnits(units).mint(account, queue[currentIndex].power);
+        IUnits(units).mint(account, mintAmount);
     }
-
 
     // Function to receive Ether. msg.data must be empty
     receive() external payable {}
@@ -229,6 +226,10 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     function setTreasury(address _treasury) external onlyOwner {
         treasury = _treasury;
         emit Plugin__TreasurySet(_treasury);
+    }
+
+    function setRandomMint(bool _randomMint) external onlyOwner {
+        randomMint = _randomMint;
     }
 
     function setGauge(address _gauge) external onlyVoter {
@@ -253,6 +254,25 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         }
 
         return price;
+    }
+
+    function getRandomMultiplier() internal view returns (uint256) {
+        uint256 random = uint256(keccak256(abi.encodePacked(
+            block.timestamp,
+            block.prevrandao,
+            msg.sender
+        ))) % 100; 
+        if (random < 80) {
+            return 1;
+        } else if (random < 90) {
+            return 27;
+        } else if (random < 96) {
+            return 69;
+        } else if (random < 99) {
+            return 420;
+        } else {
+            return 42069;
+        }
     }
 
     /*----------  VIEW FUNCTIONS  ---------------------------------------*/
