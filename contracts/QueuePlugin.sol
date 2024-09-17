@@ -158,11 +158,15 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         if (balance > DURATION) {
             address token = getUnderlyingAddress();
             IWBERA(token).deposit{value: balance}();
-            uint256 treasuryFee = balance / 5;
-            IERC20(token).safeTransfer(treasury, treasuryFee);
-            IERC20(token).safeApprove(bribe, 0);
-            IERC20(token).safeApprove(bribe, balance - treasuryFee);
-            IBribe(bribe).notifyRewardAmount(token, balance - treasuryFee);
+            if (bribe != address(0)) {
+                uint256 treasuryFee = balance / 5;
+                IERC20(token).safeTransfer(treasury, treasuryFee);
+                IERC20(token).safeApprove(bribe, 0);
+                IERC20(token).safeApprove(bribe, balance - treasuryFee);
+                IBribe(bribe).notifyRewardAmount(token, balance - treasuryFee);
+            } else {
+                IERC20(token).safeTransfer(treasury, balance);
+            }
         }
     }
 
@@ -199,7 +203,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         if (account == address(0)) revert Plugin__InvalidTokenId();
 
         if (count == QUEUE_SIZE) {
-            IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
+            if (gauge != address(0)) IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
             emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].message);
             head = (head + 1) % QUEUE_SIZE;
         }
@@ -211,7 +215,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, message);
 
-        IGauge(gauge)._deposit(account, queue[currentIndex].power);
+        if (gauge != address(0)) IGauge(gauge)._deposit(account, queue[currentIndex].power);
         IUnits(units).mint(account, mintAmount);
     }
 

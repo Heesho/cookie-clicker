@@ -147,15 +147,6 @@ describe("local: test0", function () {
           ethers.utils.parseUnits("0.000047", 18),
           ethers.utils.parseUnits("0.00026", 18),
           ethers.utils.parseUnits("0.0014", 18),
-          ethers.utils.parseUnits("0.0078", 18),
-          ethers.utils.parseUnits("0.044", 18),
-          ethers.utils.parseUnits("0.26", 18),
-          ethers.utils.parseUnits("1.6", 18),
-          ethers.utils.parseUnits("10", 18),
-          ethers.utils.parseUnits("65", 18),
-          ethers.utils.parseUnits("430", 18),
-          ethers.utils.parseUnits("2900", 18),
-          ethers.utils.parseUnits("21000", 18),
         ],
         [
           ethers.utils.parseUnits("0.000015", 18),
@@ -164,94 +155,54 @@ describe("local: test0", function () {
           ethers.utils.parseUnits("0.012", 18),
           ethers.utils.parseUnits("0.13", 18),
           ethers.utils.parseUnits("1.4", 18),
-          ethers.utils.parseUnits("20", 18),
-          ethers.utils.parseUnits("330", 18),
-          ethers.utils.parseUnits("5100", 18),
-          ethers.utils.parseUnits("75000", 18),
-          ethers.utils.parseUnits("1000000", 18),
-          ethers.utils.parseUnits("14000000", 18),
-          ethers.utils.parseUnits("170000000", 18),
-          ethers.utils.parseUnits("2100000000", 18),
-          ethers.utils.parseUnits("26000000000", 18),
         ]
       );
   });
 
   it("Owner sets tool multipliers", async function () {
     console.log("******************************************************");
-    await factory
-      .connect(owner)
-      .setToolMultipliers([
-        "1000000000000000000",
-        "1150000000000000000",
-        "1322500000000000000",
-        "1520875000000000000",
-        "1749006250000000000",
-        "2011357187500000000",
-        "2313060768750000000",
-        "2660019884062500000",
-        "3059022867265625000",
-        "3517876297355468750",
-        "4045557736969289062",
-        "4652391392514672421",
-        "5350250105891873285",
-        "6152787621674654277",
-        "7075705764925852415",
-        "8137061629665738723",
-        "9357620874116591137",
-        "10761264009734079868",
-        "12375453609734181844",
-        "14231771647954150830",
-        "16366537393147273455",
-        "18821517902019348493",
-        "21644745787322255767",
-        "24891457556820594132",
-        "28625176193143683252",
-        "32918952612105216229",
-        "37856795515121028664",
-        "43535314841394182944",
-        "50065612067598320385",
-        "57575453877633198463",
-        "66211771960298198222",
-        "76143537754252997955",
-        "87565068417320947649",
-        "10069982869941708939",
-        "11580480300432965283",
-        "13317552345497960076",
-        "15315185197222654087",
-        "17612462976706053100",
-        "20254332423211961060",
-        "23292482286663755219",
-        "26786354629563386402",
-        "30804307823997894363",
-        "35424953998547578427",
-        "40738697098379715291",
-        "46849501663136672535",
-        "53876926912607173406",
-        "61958465929798249316",
-        "71252235819267986714",
-        "81940071292158184721",
-        "94231081886081832429",
-        "10836574416999335555",
-        "12462060579549233808",
-        "14331369666481623980",
-        "16481075166353877597",
-        "18953236344506959186",
-        "21796221830265903064",
-        "25065655184705788524",
-        "28825503362461656603",
-        "33149328872230990093",
-        "38121728203064738607",
-        "43839987483524387828",
-        "50415985506053045913",
-        "57978383871960902700",
-        "66675140952765438105",
-        "76676412093680261321",
-        "88177873807732200519",
-        "10140455477989193059",
-        "11661523849617504018",
-        "13410752326730129621",
-      ]);
+    await factory.connect(owner).setToolMultipliers([
+      "1000000000000000000", // 1
+      "1150000000000000000", // 2
+      "1322500000000000000", // 3
+      "1520875000000000000", // 4
+      "1749006250000000000", // 5
+      "2011357187500000000", // 6
+      "2313060768750000000", // 7
+      "2660019884062500000", // 8
+      "3059022867265625000", // 9
+      "3517876297355468750", // 10
+      "4045557736969289062",
+      "4652391392514672421",
+      "5350250105891873285",
+      "6152787621674654277",
+      "7075705764925852415",
+      "8137061629665738723",
+      "9357620874116591137",
+      "10761264009734079868",
+      "12375453609734181844",
+      "14231771647954150830", // 20
+      "16366537393147273455",
+      "18821517902019348493",
+      "21644745787322255767",
+      "24891457556820594132",
+      "28625176193143683252",
+      "32918952612105216229",
+      "37856795515121028664",
+      "43535314841394182944",
+      "50065612067598320385",
+      "57575453877633198463", // 30
+      "66211771960298198222",
+      "76143537754252997955",
+      "87565068417320947649",
+      "10069982869941708939",
+      "11580480300432965283",
+      "13317552345497960076",
+      "15315185197222654087",
+      "17612462976706053100",
+      "20254332423211961060",
+      "23292482286663755219", // 40
+    ]);
   });
 
   it("Owner sets evolution", async function () {
@@ -294,22 +245,7 @@ describe("local: test0", function () {
     console.log("******************************************************");
     await factory
       .connect(owner)
-      .setLvl(
-        [
-          "0",
-          "10",
-          "50",
-          "500",
-          "50000",
-          "5000000",
-          "500000000",
-          "500000000000",
-          "500000000000000",
-          "500000000000000000",
-          "500000000000000000000",
-        ],
-        [0, 1, 5, 25, 50, 100, 150, 200, 250, 300, 350]
-      );
+      .setLvl(["0", "10", "50", "500"], [0, 1, 5, 25]);
   });
 
   it("User0 building1 state", async function () {
@@ -425,7 +361,88 @@ describe("local: test0", function () {
 
   it("User0 evolves", async function () {
     console.log("******************************************************");
+    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
+      "Factory__CannotEvolve"
+    );
+  });
+
+  it("Forward Time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [4 * 7200]);
+  });
+
+  it("User0 purchases building1", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 1, 10);
+  });
+
+  it("Forward Time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [4 * 7200]);
+  });
+
+  it("User0 purchases building2", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 2, 10);
+  });
+
+  it("Forward Time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [4 * 7200]);
+  });
+
+  it("User0 purchases building3", async function () {
+    console.log("******************************************************");
+    await expect(
+      factory.connect(user0).purchaseTool(1, 3, 10)
+    ).to.be.revertedWith("Factory__AmountMaxed");
+    await factory.connect(user0).purchaseTool(1, 3, 9);
+  });
+
+  it("Forward Time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [4 * 7200]);
+  });
+
+  it("User0 purchases building4", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 4, 10);
+  });
+
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
+    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
+      "Factory__CannotEvolve"
+    );
+  });
+
+  it("Forward Time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [4 * 7200]);
+  });
+
+  it("User0 purchases building5", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 5, 10);
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+    console.log(await multicall.getTools(1));
+  });
+
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
     await factory.connect(user0).evolve(1);
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("User0 purchases building0", async function () {
@@ -446,6 +463,13 @@ describe("local: test0", function () {
     await expect(
       factory.connect(user0).purchaseTool(1, 0, 1)
     ).to.be.revertedWith("Factory__AmountMaxed");
+  });
+
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
+    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
+      "Factory__CannotEvolve"
+    );
   });
 
   it("User0 purchases building0", async function () {
@@ -1337,7 +1361,9 @@ describe("local: test0", function () {
 
   it("User0 evolves", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).evolve(1);
+    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
+      "Factory__CannotEvolve"
+    );
   });
 
   it("User0 state", async function () {
@@ -1356,7 +1382,59 @@ describe("local: test0", function () {
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 0, 5);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 0, 5)
+    ).to.be.revertedWith("Factory__AmountMaxed");
+    await factory.connect(user0).purchaseTool(1, 2, 12);
+    await factory.connect(user0).purchaseTool(1, 3, 20);
+    await factory.connect(user0).purchaseTool(1, 4, 20);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
+    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
+      "Factory__CannotEvolve"
+    );
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 5, 20);
+  });
+
+  it("User0 building1 state", async function () {
+    console.log("******************************************************");
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+    console.log(await multicall.getTools(1));
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("claim", async function () {
+    console.log("******************************************************");
+    await factory.claim(1);
+  });
+
+  it("Forward time 8 hours", async function () {
+    console.log("******************************************************");
+    await network.provider.send("evm_increaseTime", [8 * 3600]);
+    await network.provider.send("evm_mine");
+  });
+
+  it("claim", async function () {
+    console.log("******************************************************");
+    await factory.claim(1);
   });
 
   it("Forward time 8 hours", async function () {
@@ -1367,7 +1445,24 @@ describe("local: test0", function () {
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 1, 5);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 2, 5)
+    ).to.be.revertedWith("Factory__AmountMaxed");
+  });
+
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).evolve(1);
+  });
+
+  it("User0 purchases tool", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).purchaseTool(1, 0, 30);
+    await factory.connect(user0).purchaseTool(1, 1, 30);
+    await factory.connect(user0).purchaseTool(1, 2, 30);
+    await factory.connect(user0).purchaseTool(1, 3, 30);
+    await factory.connect(user0).purchaseTool(1, 4, 30);
+    await factory.connect(user0).purchaseTool(1, 5, 30);
   });
 
   it("Forward time 8 hours", async function () {
@@ -1378,88 +1473,84 @@ describe("local: test0", function () {
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 2, 5);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 4, 5)
+    ).to.be.revertedWith("Factory__AmountMaxed");
   });
 
   it("Forward time 8 hours", async function () {
     console.log("******************************************************");
+    await factory.claim(1);
     await network.provider.send("evm_increaseTime", [8 * 3600]);
     await network.provider.send("evm_mine");
   });
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 3, 5);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 5, 5)
+    ).to.be.revertedWith("Factory__AmountMaxed");
   });
 
   it("Forward time 8 hours", async function () {
     console.log("******************************************************");
+    await factory.claim(1);
     await network.provider.send("evm_increaseTime", [8 * 3600]);
     await network.provider.send("evm_mine");
   });
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 4, 5);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 6, 5)
+    ).to.be.revertedWith("Factory__ToolDoesNotExist");
   });
 
   it("Forward time 8 hours", async function () {
     console.log("******************************************************");
+    await factory.claim(1);
     await network.provider.send("evm_increaseTime", [8 * 3600]);
     await network.provider.send("evm_mine");
   });
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 5, 5);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 7, 1)
+    ).to.be.revertedWith("Factory__ToolDoesNotExist");
   });
 
   it("Forward time 8 hours", async function () {
     console.log("******************************************************");
+    await factory.claim(1);
     await network.provider.send("evm_increaseTime", [8 * 3600]);
     await network.provider.send("evm_mine");
   });
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 6, 5);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 7, 5)
+    ).to.be.revertedWith("Factory__ToolDoesNotExist");
   });
 
   it("Forward time 8 hours", async function () {
     console.log("******************************************************");
+    await factory.claim(1);
     await network.provider.send("evm_increaseTime", [8 * 3600]);
     await network.provider.send("evm_mine");
   });
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 7, 1);
+    await expect(
+      factory.connect(user0).purchaseTool(1, 7, 5)
+    ).to.be.revertedWith("Factory__ToolDoesNotExist");
   });
 
   it("Forward time 8 hours", async function () {
     console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [8 * 3600]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("User0 purchases tool", async function () {
-    console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 7, 5);
-  });
-
-  it("Forward time 8 hours", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [8 * 3600]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("User0 purchases tool", async function () {
-    console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 7, 5);
-  });
-
-  it("Forward time 8 hours", async function () {
-    console.log("******************************************************");
+    await factory.claim(1);
     await network.provider.send("evm_increaseTime", [8 * 3600]);
     await network.provider.send("evm_mine");
   });
@@ -1484,6 +1575,14 @@ describe("local: test0", function () {
     await factory.connect(user0).upgradeTool(1, 1);
     await factory.connect(user0).upgradeTool(1, 2);
     await factory.connect(user0).upgradeTool(1, 3);
+  });
+
+  it("User0 upgrades building0", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).upgradeTool(1, 0);
+    await expect(factory.connect(user0).upgradeTool(1, 0)).to.be.revertedWith(
+      "Factory__LevelMaxed"
+    );
   });
 
   it("User0 state", async function () {
@@ -1969,6 +2068,13 @@ describe("local: test0", function () {
   it("Queue Data 2", async function () {
     console.log("******************************************************");
     console.log(await plugin.getQueueSize());
+  });
+
+  it("User0 evolves", async function () {
+    console.log("******************************************************");
+    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
+      "Factory__CannotEvolve"
+    );
   });
 
   // it("Random Number testing", async function () {

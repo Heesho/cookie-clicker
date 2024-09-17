@@ -53,6 +53,8 @@ contract Factory is Ownable {
     error Factory__UpgradeLocked();
     error Factory__InvalidTokenId();
     error Factory__InvalidLength();
+    error Factory__CannotEvolve();
+    error Factory__ToolDoesNotExist();
 
     /*----------  EVENTS ------------------------------------------------*/
 
@@ -93,12 +95,13 @@ contract Factory is Ownable {
         if (evolution == evolutionIndex) revert Factory__EvolutionMaxed();
         uint256 cost = evolution_Cost[evolution + 1];
         claim(tokenId);
-        tokenId_Evolution[tokenId]++;
-        tokenId_Ups[tokenId] = 0;
         for (uint256 i = 0; i < toolIndex; i++) {
+            if (tokenId_toolId_Amount[tokenId][i] != evolution_Amount[tokenId_Evolution[tokenId]]) revert Factory__CannotEvolve();
             tokenId_toolId_Amount[tokenId][i] = 0;
             tokenId_toolId_Lvl[tokenId][i] = 0;
         }
+        tokenId_Evolution[tokenId]++;
+        tokenId_Ups[tokenId] = 0;
         emit Factory__Evolved(tokenId, evolution, cost);
         IUnits(units).burn(msg.sender, cost);
     }
@@ -111,6 +114,7 @@ contract Factory is Ownable {
             if (currentAmount == amountIndex) revert Factory__AmountMaxed();
             if (currentAmount == evolution_Amount[tokenId_Evolution[tokenId]]) revert Factory__AmountMaxed();
             uint256 cost = getToolCost(toolId, currentAmount);
+            if (cost == 0) revert Factory__ToolDoesNotExist();
             tokenId_toolId_Amount[tokenId][toolId]++;
             tokenId_Ups[tokenId] += getToolUps(toolId, tokenId_toolId_Lvl[tokenId][toolId]);
             emit Factory__ToolPurchased(tokenId, toolId, tokenId_toolId_Amount[tokenId][toolId], cost, tokenId_Ups[tokenId]);
