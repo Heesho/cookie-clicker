@@ -21,23 +21,23 @@ let units, key, factory, plugin, multicall;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0x97EA60B22b8dCAf937B4d05D30A2B5A564c9A9bc"
+    "0xa51deBeAA1CEf11f28bc80E2Df4DD1665dD2D460"
   );
   key = await ethers.getContractAt(
     "contracts/Key.sol:Key",
-    "0x2eC890b010Fa4E38C80E929B4762EA043818b197"
+    "0x6679732D6C09c56faB4cBf589E01F5e41A2d9e67"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x04D4f28A27683efb2641aa60D7707EE9650E8eb4"
+    "0x12cF1dC4A8d66187202511a706E90Dfb7BE8a80C"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x655eD5c2d96519C094929345B729Ed8c1D1e514e"
+    "0xa1b0D1CC5Ca0F68Fa70B0575c9782e7B5b02859c"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x07b4aA89f1ca11175dd1cD0898d8Fa5A53014E9a "
+    "0x2E31E161EC6F03895C68121e834C133862ddbD2d"
   );
   console.log("Contracts Retrieved");
 }
@@ -398,8 +398,6 @@ async function main() {
   // await setToolMultipliers(wallet);
   // await setLevels(wallet);
   // await setEvolution(wallet);
-
-  console.log(await plugin.getQueue());
 }
 
 main()
