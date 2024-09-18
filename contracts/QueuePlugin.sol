@@ -269,13 +269,13 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         if (random < 80) {
             return 1;
         } else if (random < 90) {
-            return 27;
+            return 2;
         } else if (random < 96) {
-            return 69;
+            return 3;
         } else if (random < 99) {
-            return 420;
+            return 5;
         } else {
-            return 42069;
+            return 10;
         }
     }
 

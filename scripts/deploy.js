@@ -29,15 +29,15 @@ async function getContracts() {
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x41E01395D12b046652c8E1930A3D400c4C87A914"
+    "0x04D4f28A27683efb2641aa60D7707EE9650E8eb4"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x9C8366e5fb3B818e7C8c04F080f36f56BFf335Ee"
+    "0x655eD5c2d96519C094929345B729Ed8c1D1e514e"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x5261A38282431b484C8bbCd47Fef3D5E6A3A7605"
+    "0x07b4aA89f1ca11175dd1cD0898d8Fa5A53014E9a "
   );
   console.log("Contracts Retrieved");
 }
@@ -398,6 +398,8 @@ async function main() {
   // await setToolMultipliers(wallet);
   // await setLevels(wallet);
   // await setEvolution(wallet);
+
+  console.log(await plugin.getQueue());
 }
 
 main()
