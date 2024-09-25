@@ -206,10 +206,10 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
         uint256 power = getPower(tokenId);
         mintAmount = randomMint ? power * getRandomMultiplier() : power;
-        queue[currentIndex] = Click(tokenId, power, msg.sender, message);
+        queue[currentIndex] = Click(tokenId, power, account, message);
         tail = (tail + 1) % QUEUE_SIZE;
         count = count < QUEUE_SIZE ? count + 1 : count;
-        emit Plugin__ClickAdded(tokenId, msg.sender, queue[currentIndex].power, message);
+        emit Plugin__ClickAdded(tokenId, account, queue[currentIndex].power, message);
 
         IGauge(gauge)._deposit(account, queue[currentIndex].power);
         IUnits(units).mint(account, mintAmount);
