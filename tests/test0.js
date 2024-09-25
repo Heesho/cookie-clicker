@@ -48,8 +48,7 @@ describe("local: test0", function () {
       treasury.address,
       factory.address,
       units.address,
-      key.address,
-      pointZeroOne
+      key.address
     );
     console.log("- Plugin Initialized");
 
@@ -83,58 +82,25 @@ describe("local: test0", function () {
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
 
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
 
-    console.log(res);
     await expect(
-      plugin
-        .connect(user0)
-        .click(1, 1923762447, pointZeroOne, "this is a message", {
-          value: pointZeroOne,
-        })
-    ).to.be.revertedWith("Plugin__ExceedsMaxPayment");
-    console.log(res);
-    await expect(
-      plugin.connect(user0).click(1, 1923762447, price, "this is a message", {
+      plugin.connect(user0).click(1, "this is a message", {
         value: pointZeroOne,
       })
     ).to.be.revertedWith("Plugin__InvalidPayment");
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-
-    res = await plugin.getAuction();
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("Owner sets tools", async function () {
@@ -519,61 +485,35 @@ describe("local: test0", function () {
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 100 seconds", async function () {
@@ -588,61 +528,34 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user3)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user3).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 600 seconds", async function () {
@@ -654,31 +567,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 100 seconds", async function () {
@@ -690,31 +590,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 100 seconds", async function () {
@@ -726,31 +613,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 2 hour", async function () {
@@ -762,31 +636,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 500 seconds", async function () {
@@ -798,31 +659,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 500 seconds", async function () {
@@ -834,31 +682,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 500 seconds", async function () {
@@ -870,31 +705,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 500 seconds", async function () {
@@ -906,31 +728,16 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 500 seconds", async function () {
@@ -942,31 +749,17 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 500 seconds", async function () {
@@ -978,31 +771,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1014,31 +794,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1050,31 +817,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1086,31 +840,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1122,31 +863,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1158,31 +886,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1194,31 +909,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1230,31 +932,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1266,31 +955,18 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1302,31 +978,22 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("View Queue", async function () {
@@ -1626,31 +1293,22 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1662,31 +1320,123 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1698,31 +1448,22 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1734,31 +1475,43 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
+  });
+
+  it("everyone clicks cookie", async function () {
+    console.log("******************************************************");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
+
+    price = await plugin.getPrice();
+
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("Forward 700 seconds", async function () {
@@ -1770,304 +1523,52 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
-  });
 
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
+
+    await plugin.connect(user1).click(2, "this is a message", {
+      value: price,
+    });
 
     price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
-  });
 
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user2).click(3, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user1)
-      .click(2, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    res = await plugin.getAuction();
-    await plugin
-      .connect(user2)
-      .click(3, 1923762447, price, "this is a message", {
-        value: price,
-      });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("Queue Data 2", async function () {
@@ -2088,25 +1589,13 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("Queue Data", async function () {
@@ -2116,403 +1605,175 @@ describe("local: test0", function () {
     console.log("Size: ", await plugin.count());
   });
 
-  it("Forward 700 seconds", async function () {
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("Queue Data", async function () {
@@ -2522,403 +1783,175 @@ describe("local: test0", function () {
     console.log("Size: ", await plugin.count());
   });
 
-  it("Forward 700 seconds", async function () {
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   // queue data
@@ -2928,403 +1961,176 @@ describe("local: test0", function () {
     console.log("Tail: ", await plugin.tail());
     console.log("Size: ", await plugin.count());
   });
-  it("Forward 700 seconds", async function () {
+
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("Queue Data", async function () {
@@ -3333,403 +2139,176 @@ describe("local: test0", function () {
     console.log("Tail: ", await plugin.tail());
     console.log("Size: ", await plugin.count());
   });
-  it("Forward 700 seconds", async function () {
+
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("Queue Data", async function () {
@@ -3738,340 +2317,149 @@ describe("local: test0", function () {
     console.log("Tail: ", await plugin.tail());
     console.log("Size: ", await plugin.count());
   });
-  it("Forward 700 seconds", async function () {
+
+  it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    let price = await plugin.getPrice();
+
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
 
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
-    let res = await plugin.getAuction();
-    await plugin
-      .connect(user0)
-      .click(1, 1923762447, price, "this is a message", {
-        value: price,
-      });
-
-    price = await plugin.getPrice();
-    console.log("Click Price: ", divDec(price));
+    await plugin.connect(user0).click(1, "this is a message", {
+      value: price,
+    });
   });
 
   it("Queue Data", async function () {

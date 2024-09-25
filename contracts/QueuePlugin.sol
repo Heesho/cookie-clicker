@@ -44,11 +44,6 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     uint256 public constant QUEUE_SIZE = 100;
     uint256 public constant DURATION = 7 days;
     uint256 public constant MESSAGE_LENGTH = 69;
-
-    uint256 constant public PRECISION = 1e18;
-    uint256 public constant AUCTION_DURATION = 600; // 10 minutes
-    uint256 constant public ABS_MAX_INIT_PRICE = type(uint192).max;
-    uint256 constant public PRICE_MULTIPLIER = 1200000000000000000;
     
     string public constant SYMBOL = "BULL ISH";
     string public constant PROTOCOL = "Bullas";
@@ -67,17 +62,9 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     address public immutable factory;
     address public immutable key;
 
+    uint256 public entryFee = 0.4269 ether;
     address public treasury;
-    uint256 public minInitPrice = 0.01 ether;
     bool public randomMint = true;
-
-    struct Auction {
-        uint256 epochId;
-        uint256 initPrice;
-        uint256 startTime;
-    }
-
-    Auction public auction;
 
     struct Click {
         uint256 tokenId;
@@ -109,7 +96,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     event Plugin__ClickAdded(uint256 tokenId, address author, uint256 power, string message);
     event Plugin__ClickRemoved(uint256 tokenId, address author, uint256 power, string message);
     event Plugin__TreasurySet(address treasury);
-    event Plugin__FeeSet(uint256 fee);
+    event Plugin__EntryFeeSet(uint256 fee);
 
     /*----------  MODIFIERS  --------------------------------------------*/
 
@@ -133,8 +120,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         address _treasury,
         address _factory,
         address _units,
-        address _key,
-        uint256 _initPrice
+        address _key
     ) {
         underlying = IERC20Metadata(_underlying);
         voter = _voter;
@@ -145,9 +131,6 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         units = _units;
         key = _key;
         OTOKEN = IVoter(_voter).OTOKEN();
-
-        auction.initPrice = _initPrice;
-        auction.startTime = block.timestamp;
     }
 
     function claimAndDistribute() 
@@ -166,33 +149,16 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         }
     }
 
-    function click(uint256 tokenId, uint256 deadline, uint256 maxPayment, string calldata message)         
+    function click(uint256 tokenId, string calldata message)         
         external
         payable
         nonReentrant 
-        returns (uint256 paymentAmount, uint256 mintAmount)
+        returns (uint256 mintAmount)
     {
         if (bytes(message).length == 0) revert Plugin__InvalidMessage();
         if (bytes(message).length > MESSAGE_LENGTH) revert Plugin__InvalidMessage();
 
-        if (block.timestamp > deadline) revert Plugin__DeadlinePassed();
-        Auction memory auctionCache = auction;
-        paymentAmount = getPriceFromCache(auctionCache);
-        if (paymentAmount > maxPayment) revert Plugin__ExceedsMaxPayment();
-        if (msg.value < paymentAmount) revert Plugin__InvalidPayment();
-
-        uint256 newInitPrice = paymentAmount * PRICE_MULTIPLIER / PRECISION;
-        if (newInitPrice > ABS_MAX_INIT_PRICE) {
-            newInitPrice = ABS_MAX_INIT_PRICE;
-        } else if (newInitPrice < minInitPrice) {
-            newInitPrice = minInitPrice;
-        }
-
-        auctionCache.epochId++;
-        auctionCache.initPrice = newInitPrice;
-        auctionCache.startTime = block.timestamp;
-
-        auction = auctionCache;
+        if (msg.value < entryFee) revert Plugin__InvalidPayment();
 
         uint256 currentIndex = tail % QUEUE_SIZE;
         address account = IERC721(key).ownerOf(tokenId);
@@ -228,6 +194,11 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         emit Plugin__TreasurySet(_treasury);
     }
 
+    function setEntryFee(uint256 _entryFee) external onlyOwner {
+        entryFee = _entryFee;
+        emit Plugin__EntryFeeSet(_entryFee);
+    }
+
     function setRandomMint(bool _randomMint) external onlyOwner {
         randomMint = _randomMint;
     }
@@ -238,22 +209,6 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
     function setBribe(address _bribe) external onlyVoter {
         bribe = _bribe;
-    }
-
-    function getPriceFromCache(Auction memory auctionCache) internal view returns (uint256) {
-        uint256 timeElapsed = block.timestamp - auctionCache.startTime;
-
-        if (timeElapsed > AUCTION_DURATION) {
-            return minInitPrice;
-        }
-
-        uint256 price = auctionCache.initPrice - (auctionCache.initPrice * timeElapsed / AUCTION_DURATION);
-
-        if (price < minInitPrice) {
-            return minInitPrice;
-        }
-
-        return price;
     }
 
     function getRandomMultiplier() internal view returns (uint256) {
@@ -278,11 +233,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     /*----------  VIEW FUNCTIONS  ---------------------------------------*/
 
     function getPrice() external view returns (uint256) {
-        return getPriceFromCache(auction);
-    }
-
-    function getAuction() external view returns (Auction memory) {
-        return auction;
+        return entryFee;
     }
 
     function balanceOf(address account) public view returns (uint256) {
