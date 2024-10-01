@@ -399,20 +399,7 @@ async function main() {
   // await setLevels(wallet);
   // await setEvolution(wallet);
 
-  // await plugin.connect(wallet).setRandomMint(true);
-  // console.log(
-  //   await multicall
-  //     .connect(wallet)
-  //     .getGauge("0x1A96Db12AD7f0c9f91C538d16c39C360b5E8Fb21")
-  // );
-
-  // let price = await plugin.getPrice();
-  // console.log("Price: ", price);
-  // await plugin
-  //   .connect(wallet)
-  //   .click(1, 1923762447, price, "this is a message", {
-  //     value: price,
-  //   });
+  // await plugin.setEntryFee("42690000000000000");
 
   console.log();
 }
