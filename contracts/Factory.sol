@@ -22,7 +22,7 @@ contract Factory is Ownable {
     address immutable public units;
     address immutable public key;
 
-    uint256 powerIndex;
+    uint256 public powerIndex;
     mapping(uint256 => uint256) public power_Cost;         // power => cost to buy
 
     uint256 public lvlIndex;
@@ -117,7 +117,7 @@ contract Factory is Ownable {
     }
 
     function upgradePower(uint256 tokenId) external tokenExists(tokenId) {
-        uint256 cost = power_Cost[tokenId_Power[tokenId]];
+        uint256 cost = power_Cost[tokenId_Power[tokenId] + 1];
         if (cost == 0) revert Factory__PowerMaxed();
         claim(tokenId);
         tokenId_Power[tokenId]++;

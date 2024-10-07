@@ -173,19 +173,16 @@ describe("local: test0", function () {
     ]);
   });
 
-  it("Owner sets evolution", async function () {
+  it("Owner sets power", async function () {
     console.log("******************************************************");
     await factory
       .connect(owner)
-      .setEvolution(
-        [
-          "0",
-          "1000000000000000000",
-          "2000000000000000000",
-          "3000000000000000000",
-        ],
-        [10, 20, 30, 40]
-      );
+      .setPower([
+        "0",
+        "1000000000000000000",
+        "2000000000000000000",
+        "3000000000000000000",
+      ]);
   });
 
   it("User0 purchases tool", async function () {
@@ -327,13 +324,6 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
-  it("User0 evolves", async function () {
-    console.log("******************************************************");
-    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
-      "Factory__CannotEvolve"
-    );
-  });
-
   it("Forward Time 8 hours", async function () {
     console.log("******************************************************");
     await network.provider.send("evm_increaseTime", [4 * 7200]);
@@ -361,9 +351,6 @@ describe("local: test0", function () {
 
   it("User0 purchases building3", async function () {
     console.log("******************************************************");
-    await expect(
-      factory.connect(user0).purchaseTool(1, 3, 10)
-    ).to.be.revertedWith("Factory__AmountMaxed");
     await factory.connect(user0).purchaseTool(1, 3, 9);
   });
 
@@ -375,13 +362,6 @@ describe("local: test0", function () {
   it("User0 purchases building4", async function () {
     console.log("******************************************************");
     await factory.connect(user0).purchaseTool(1, 4, 10);
-  });
-
-  it("User0 evolves", async function () {
-    console.log("******************************************************");
-    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
-      "Factory__CannotEvolve"
-    );
   });
 
   it("Forward Time 8 hours", async function () {
@@ -399,11 +379,6 @@ describe("local: test0", function () {
     console.log("USER0 STATE");
     console.log(await multicall.getFactory(1));
     console.log(await multicall.getTools(1));
-  });
-
-  it("User0 evolves", async function () {
-    console.log("******************************************************");
-    await factory.connect(user0).evolve(1);
   });
 
   it("User0 building1 state", async function () {
@@ -428,33 +403,12 @@ describe("local: test0", function () {
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
-    await expect(
-      factory.connect(user0).purchaseTool(1, 0, 1)
-    ).to.be.revertedWith("Factory__AmountMaxed");
-  });
-
-  it("User0 evolves", async function () {
-    console.log("******************************************************");
-    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
-      "Factory__CannotEvolve"
-    );
-  });
-
-  it("User0 purchases building0", async function () {
-    console.log("******************************************************");
     await factory.connect(user0).purchaseTool(1, 1, 10);
   });
 
   it("User0 purchases building0", async function () {
     console.log("******************************************************");
     await factory.connect(user0).purchaseTool(1, 1, 10);
-  });
-
-  it("User0 purchases building0", async function () {
-    console.log("******************************************************");
-    await expect(
-      factory.connect(user0).purchaseTool(1, 1, 10)
-    ).to.be.revertedWith("Factory__AmountMaxed");
   });
 
   it("User0 purchases building0", async function () {
@@ -1031,13 +985,6 @@ describe("local: test0", function () {
     console.log(await multicall.getFactory(1));
   });
 
-  it("User0 evolves", async function () {
-    console.log("******************************************************");
-    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
-      "Factory__CannotEvolve"
-    );
-  });
-
   it("User0 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
@@ -1054,9 +1001,6 @@ describe("local: test0", function () {
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await expect(
-      factory.connect(user0).purchaseTool(1, 0, 5)
-    ).to.be.revertedWith("Factory__AmountMaxed");
     await factory.connect(user0).purchaseTool(1, 2, 12);
     await factory.connect(user0).purchaseTool(1, 3, 20);
     await factory.connect(user0).purchaseTool(1, 4, 20);
@@ -1066,13 +1010,6 @@ describe("local: test0", function () {
     console.log("******************************************************");
     await network.provider.send("evm_increaseTime", [8 * 3600]);
     await network.provider.send("evm_mine");
-  });
-
-  it("User0 evolves", async function () {
-    console.log("******************************************************");
-    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
-      "Factory__CannotEvolve"
-    );
   });
 
   it("User0 purchases tool", async function () {
@@ -1115,26 +1052,21 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
-  it("User0 purchases tool", async function () {
+  it("User0 building1 state", async function () {
     console.log("******************************************************");
-    await expect(
-      factory.connect(user0).purchaseTool(1, 2, 5)
-    ).to.be.revertedWith("Factory__AmountMaxed");
-  });
-
-  it("User0 evolves", async function () {
-    console.log("******************************************************");
-    await factory.connect(user0).evolve(1);
+    console.log("USER0 STATE");
+    console.log(await multicall.getFactory(1));
+    console.log(await multicall.getTools(1));
   });
 
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).purchaseTool(1, 0, 30);
-    await factory.connect(user0).purchaseTool(1, 1, 30);
-    await factory.connect(user0).purchaseTool(1, 2, 30);
-    await factory.connect(user0).purchaseTool(1, 3, 30);
-    await factory.connect(user0).purchaseTool(1, 4, 30);
-    await factory.connect(user0).purchaseTool(1, 5, 30);
+    await factory.connect(user0).purchaseTool(1, 0, 10);
+    await factory.connect(user0).purchaseTool(1, 1, 10);
+    await factory.connect(user0).purchaseTool(1, 2, 10);
+    await factory.connect(user0).purchaseTool(1, 3, 10);
+    await factory.connect(user0).purchaseTool(1, 4, 10);
+    await factory.connect(user0).purchaseTool(1, 5, 10);
   });
 
   it("Forward time 8 hours", async function () {
@@ -1243,7 +1175,9 @@ describe("local: test0", function () {
 
   it("User0 upgrades building0", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).upgradeTool(1, 0);
+    await expect(factory.connect(user0).upgradeTool(1, 0)).to.be.revertedWith(
+      "Factory__LevelMaxed"
+    );
     await factory.connect(user0).upgradeTool(1, 1);
     await factory.connect(user0).upgradeTool(1, 2);
     await factory.connect(user0).upgradeTool(1, 3);
@@ -1251,7 +1185,6 @@ describe("local: test0", function () {
 
   it("User0 upgrades building0", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).upgradeTool(1, 0);
     await expect(factory.connect(user0).upgradeTool(1, 0)).to.be.revertedWith(
       "Factory__LevelMaxed"
     );
@@ -1265,9 +1198,9 @@ describe("local: test0", function () {
     console.log(await multicall.getTools(1));
   });
 
-  it("User0 evolves", async function () {
+  it("User0 upgrades power", async function () {
     console.log("******************************************************");
-    await factory.connect(user0).evolve(1);
+    await factory.connect(user0).upgradePower(1);
   });
 
   it("User0 state", async function () {
@@ -1574,13 +1507,6 @@ describe("local: test0", function () {
   it("Queue Data 2", async function () {
     console.log("******************************************************");
     console.log(await plugin.getQueueSize());
-  });
-
-  it("User0 evolves", async function () {
-    console.log("******************************************************");
-    await expect(factory.connect(user0).evolve(1)).to.be.revertedWith(
-      "Factory__CannotEvolve"
-    );
   });
 
   it("Forward 5 hours", async function () {
@@ -1934,6 +1860,23 @@ describe("local: test0", function () {
     await plugin.connect(user0).click(1, "this is a message", {
       value: price,
     });
+  });
+
+  it("User0 upgrades power", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).upgradePower(1);
+  });
+
+  it("User0 upgrades power", async function () {
+    console.log("******************************************************");
+    await factory.connect(user0).upgradePower(1);
+  });
+
+  it("User0 upgrades power", async function () {
+    console.log("******************************************************");
+    await expect(factory.connect(user0).upgradePower(1)).to.be.revertedWith(
+      "Factory__PowerMaxed"
+    );
   });
 
   it("everyone clicks cookie", async function () {
