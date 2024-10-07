@@ -22,9 +22,8 @@ contract Factory is Ownable {
     address immutable public units;
     address immutable public key;
 
-    uint256 public evolutionIndex;
-    mapping(uint256 => uint256) public evolution_Cost;      // evolution => cost to evolve
-    mapping(uint256 => uint256) public evolution_Amount;    // evolution => amount available to buy
+    uint256 powerIndex;
+    mapping(uint256 => uint256) public power_Cost;         // power => cost to buy
 
     uint256 public lvlIndex;
     mapping(uint256 => uint256) public lvl_Unlock;          // level => amount required to unlock
@@ -36,18 +35,18 @@ contract Factory is Ownable {
     mapping(uint256 => uint256) public toolId_BaseUps;          // tool id => base units per second
     mapping(uint256 => uint256) public amount_CostMultiplier;   // tool amount => cost multiplier
     
-    mapping(uint256 => uint256) public tokenId_Ups;       // token id => units per second
-    mapping(uint256 => uint256) public tokenId_Last;      // token id => last time claimed
-    mapping(uint256 => uint256) public tokenId_Evolution; // token id => evolution
+    mapping(uint256 => uint256) public tokenId_Ups;         // token id => units per second
+    mapping(uint256 => uint256) public tokenId_Last;        // token id => last time claimed
+    mapping(uint256 => uint256) public tokenId_Power;       // token id => power
 
     mapping(uint256 => mapping(uint256 => uint256)) public tokenId_toolId_Amount; // token id => tool id => amount
     mapping(uint256 => mapping(uint256 => uint256)) public tokenId_toolId_Lvl;    // token id => tool id => level
 
     /*----------  ERRORS ------------------------------------------------*/
 
-    error Factory__EvolutionMaxed();
     error Factory__AmountMaxed();
     error Factory__LevelMaxed();
+    error Factory__PowerMaxed();
     error Factory__InvalidInput();
     error Factory__NotAuthorized();
     error Factory__UpgradeLocked();
@@ -58,11 +57,11 @@ contract Factory is Ownable {
 
     /*----------  EVENTS ------------------------------------------------*/
 
-    event Factory__Evolved(uint256 indexed tokenId, uint256 evolution, uint256 cost);
+    event Factory__PowerUpgraded(uint256 indexed tokenId, uint256 power, uint256 newPower, uint256 cost, uint256 ups);
     event Factory__ToolPurchased(uint256 indexed tokenId, uint256 toolId, uint256 newAmount, uint256 cost, uint256 ups);
     event Factory__ToolUpgraded(uint256 indexed tokenId, uint256 toolId, uint256 newLevel, uint256 cost, uint256 ups);
     event Factory__Claimed(uint256 indexed tokenId, uint256 amount);
-    event Factory__EvolutionSet(uint256 evolution, uint256 cost, uint256 amount);
+    event Factory__PowerSet(uint256 power, uint256 cost);
     event Factory__LvlSet(uint256 lvl, uint256 cost, uint256 unlock);
     event Factory__ToolSet(uint256 toolId, uint256 baseUps, uint256 baseCost);
     event Factory__ToolMultiplierSet(uint256 index, uint256 multiplier);
@@ -90,29 +89,12 @@ contract Factory is Ownable {
         IUnits(units).mint(IERC721(key).ownerOf(tokenId), amount);
     }
 
-    function evolve(uint256 tokenId) external tokenExists(tokenId) {
-        uint256 evolution = tokenId_Evolution[tokenId];
-        if (evolution == evolutionIndex) revert Factory__EvolutionMaxed();
-        uint256 cost = evolution_Cost[evolution + 1];
-        claim(tokenId);
-        for (uint256 i = 0; i < toolIndex; i++) {
-            if (tokenId_toolId_Amount[tokenId][i] != evolution_Amount[tokenId_Evolution[tokenId]]) revert Factory__CannotEvolve();
-            tokenId_toolId_Amount[tokenId][i] = 0;
-            tokenId_toolId_Lvl[tokenId][i] = 0;
-        }
-        tokenId_Evolution[tokenId]++;
-        tokenId_Ups[tokenId] = 0;
-        emit Factory__Evolved(tokenId, evolution, cost);
-        IUnits(units).burn(msg.sender, cost);
-    }
-
     function purchaseTool(uint256 tokenId, uint256 toolId, uint256 toolAmount) external tokenExists(tokenId) {
         if (toolAmount == 0) revert Factory__InvalidInput();
         claim(tokenId);
         for (uint256 i = 0; i < toolAmount; i++) {
             uint256 currentAmount = tokenId_toolId_Amount[tokenId][toolId];
             if (currentAmount == amountIndex) revert Factory__AmountMaxed();
-            if (currentAmount == evolution_Amount[tokenId_Evolution[tokenId]]) revert Factory__AmountMaxed();
             uint256 cost = getToolCost(toolId, currentAmount);
             if (cost == 0) revert Factory__ToolDoesNotExist();
             tokenId_toolId_Amount[tokenId][toolId]++;
@@ -134,17 +116,23 @@ contract Factory is Ownable {
         IUnits(units).burn(msg.sender, cost);
     }
 
+    function upgradePower(uint256 tokenId) external tokenExists(tokenId) {
+        uint256 cost = power_Cost[tokenId_Power[tokenId]];
+        if (cost == 0) revert Factory__PowerMaxed();
+        claim(tokenId);
+        tokenId_Power[tokenId]++;
+        emit Factory__PowerUpgraded(tokenId, tokenId_Power[tokenId], tokenId_Power[tokenId], cost, tokenId_Ups[tokenId]);
+        IUnits(units).burn(msg.sender, cost);
+    }
+
     /*----------  RESTRICTED FUNCTIONS  ---------------------------------*/
 
-    function setEvolution(uint256[] calldata cost, uint256[] calldata amount) external onlyOwner {
-        if (cost.length != amount.length) revert Factory__InvalidInput();
-        for (uint256 i = evolutionIndex; i < evolutionIndex + cost.length; i++) {
-            uint256 arrayIndex = i - evolutionIndex;
-            evolution_Cost[i] = cost[arrayIndex];
-            evolution_Amount[i] = amount[arrayIndex];
-            emit Factory__EvolutionSet(i, cost[i], amount[i]);
+    function setPower(uint256[] calldata cost) external onlyOwner {
+        for (uint256 i = powerIndex; i < powerIndex + cost.length; i++) {
+            power_Cost[i] = cost[i - powerIndex];
+            emit Factory__PowerSet(i, cost[i - powerIndex]);
         }
-        evolutionIndex += cost.length;
+        powerIndex += cost.length;
     }
 
     function setLvl(uint256[] calldata cost, uint256[] calldata unlock) external onlyOwner {

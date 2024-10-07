@@ -28,7 +28,7 @@ interface IWBERA {
 }
 
 interface IFactory {
-    function tokenId_Evolution(uint256 tokenId) external view returns (uint256);
+    function tokenId_Power(uint256 tokenId) external view returns (uint256);
 }
 
 interface IUnits {
@@ -285,7 +285,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     }
 
     function getPower(uint256 tokenId) public view returns (uint256) {
-        return BASE_UPC + (BASE_UPC * IFactory(factory).tokenId_Evolution(tokenId));
+        return BASE_UPC + (BASE_UPC * IFactory(factory).tokenId_Power(tokenId));
     }
 
     function getQueueSize() public view returns (uint256) {

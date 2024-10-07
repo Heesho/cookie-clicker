@@ -5,7 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 interface IFactory {
-    function tokenId_Evolution(uint256 tokenId) external view returns (uint256);
+    function tokenId_Power(uint256 tokenId) external view returns (uint256);
     function tokenId_Ups(uint256 tokenId) external view returns (uint256);
     function tokenId_Last(uint256 tokenId) external view returns (uint256);
     function tokenId_toolId_Amount(uint256 tokenId, uint256 toolId) external view returns (uint256);
@@ -14,9 +14,8 @@ interface IFactory {
     function toolId_BaseCost(uint256 toolId) external view returns (uint256);
     function lvl_CostMultiplier(uint256 lvl) external view returns (uint256);
     function lvl_Unlock(uint256 lvl) external view returns (uint256);
-    function evolutionIndex() external view returns (uint256);
-    function evolution_Cost(uint256 evolution) external view returns (uint256);
-    function evolution_Amount(uint256 evolution) external view returns (uint256);
+    function powerIndex() external view returns (uint256);
+    function power_Cost(uint256 power) external view returns (uint256);
     function toolIndex() external view returns (uint256);
     function amountIndex() external view returns (uint256);
 
@@ -56,9 +55,8 @@ contract Multicall {
     }
 
     struct FactoryState {
-        uint256 evolution;
-        uint256 evolutionCost;
-        uint256 toolCapacity;
+        uint256 power;
+        uint256 powerCost;
         uint256 unitsBalance;
         uint256 ups;
         uint256 upc;
@@ -109,9 +107,8 @@ contract Multicall {
     }
 
     function getFactory(uint256 tokenId) external view returns (FactoryState memory factoryState) {
-        factoryState.evolution = IFactory(factory).tokenId_Evolution(tokenId);
-        factoryState.evolutionCost = IFactory(factory).evolutionIndex() == factoryState.evolution ? 0 : IFactory(factory).evolution_Cost(factoryState.evolution + 1);
-        factoryState.toolCapacity = IFactory(factory).evolution_Amount(factoryState.evolution);
+        factoryState.power = IFactory(factory).tokenId_Power(tokenId);
+        factoryState.powerCost = IFactory(factory).powerIndex() == factoryState.power ? 0 : IFactory(factory).power_Cost(factoryState.power + 1);
         factoryState.unitsBalance = IERC20(units).balanceOf(IERC721(key).ownerOf(tokenId));
         factoryState.ups = IFactory(factory).tokenId_Ups(tokenId);
         factoryState.upc = IQueuePlugin(plugin).getPower(tokenId);
@@ -119,7 +116,7 @@ contract Multicall {
         factoryState.capacity = factoryState.ups * DURATION;
         factoryState.claimable = amount >= factoryState.capacity ? factoryState.capacity : amount;
         factoryState.full = amount >= factoryState.capacity;
-        factoryState.maxed = IFactory(factory).tokenId_Evolution(tokenId) == IFactory(factory).evolutionIndex();
+        factoryState.maxed = IFactory(factory).tokenId_Power(tokenId) == IFactory(factory).powerIndex();
     }
 
     function getUpgrades(uint256 tokenId) external view returns (ToolUpgradeState[] memory toolUpgradeState) {
@@ -141,7 +138,7 @@ contract Multicall {
         for (uint256 i = 0; i < toolCount; i++) {
             toolState[i].id = i;
             toolState[i].amount = IFactory(factory).tokenId_toolId_Amount(tokenId, i);
-            toolState[i].maxed = IFactory(factory).evolution_Amount(IFactory(factory).tokenId_Evolution(tokenId)) == toolState[i].amount;
+            toolState[i].maxed = IFactory(factory).tokenId_toolId_Amount(tokenId, i) == IFactory(factory).amountIndex();
             toolState[i].cost = toolState[i].maxed ? 0 : IFactory(factory).getToolCost(i, toolState[i].amount);
             uint256 lvl = IFactory(factory).tokenId_toolId_Lvl(tokenId, i);
             toolState[i].ups = IFactory(factory).getToolUps(i, lvl);
