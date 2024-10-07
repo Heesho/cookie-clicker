@@ -11,13 +11,19 @@ const one = convert("1", 18);
 
 let owner, treasury, user0, user1, user2, user3;
 let base, voter;
-let units, key, factory, plugin, multicall;
+let units, key, factory, plugin, multicall, vaultFactory;
 
 describe("local: test0", function () {
   before("Initial set up", async function () {
     console.log("Begin Initialization");
 
     [owner, treasury, user0, user1, user2, user3] = await ethers.getSigners();
+
+    const vaultFactoryArtifact = await ethers.getContractFactory(
+      "BerachainRewardsVaultFactory"
+    );
+    vaultFactory = await vaultFactoryArtifact.deploy();
+    console.log("- Vault Factory Initialized");
 
     const baseArtifact = await ethers.getContractFactory("Base");
     base = await baseArtifact.deploy();
@@ -48,7 +54,8 @@ describe("local: test0", function () {
       treasury.address,
       factory.address,
       units.address,
-      key.address
+      key.address,
+      vaultFactory.address
     );
     console.log("- Plugin Initialized");
 

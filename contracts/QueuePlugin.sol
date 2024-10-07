@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
+import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
@@ -35,6 +36,27 @@ interface IUnits {
     function mint(address account, uint256 amount) external;
 }
 
+interface IBerachainRewardsVaultFactory {
+    function createRewardsVault(address _vaultToken) external returns (address);
+}
+
+interface IRewardVault {
+    function delegateStake(address account, uint256 amount) external;
+    function delegateWithdraw(address account, uint256 amount) external;
+}
+
+contract VaultToken is ERC20, Ownable {
+    constructor() ERC20("Bull Ish Vault Token", "BIVT") {}
+
+    function mint(address to, uint256 amount) external onlyOwner {
+        _mint(to, amount);
+    }
+
+    function burn(address from, uint256 amount) external onlyOwner {
+        _burn(from, amount);
+    }
+}
+
 contract QueuePlugin is ReentrancyGuard, Ownable {
     using SafeERC20 for IERC20;
 
@@ -61,6 +83,9 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     address public immutable units;
     address public immutable factory;
     address public immutable key;
+
+    address public immutable vaultToken;  // staking token address for Berachain Rewards Vault Delegate Stake
+    address public immutable rewardVault;   // reward vault address for Berachain Rewards Vault Delegate Stake
 
     uint256 public entryFee = 0.4269 ether;
     address public treasury;
@@ -120,7 +145,8 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         address _treasury,
         address _factory,
         address _units,
-        address _key
+        address _key,
+        address _vaultFactory
     ) {
         underlying = IERC20Metadata(_underlying);
         voter = _voter;
@@ -131,6 +157,9 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         units = _units;
         key = _key;
         OTOKEN = IVoter(_voter).OTOKEN();
+        
+        vaultToken = address(new VaultToken());
+        rewardVault = IBerachainRewardsVaultFactory(_vaultFactory).createRewardsVault(address(vaultToken));
     }
 
     function claimAndDistribute() 
@@ -166,6 +195,11 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
         if (count == QUEUE_SIZE) {
             IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
+
+            // Berachain Rewards Vault Delegate Stake
+            IRewardVault(rewardVault).delegateWithdraw(account, queue[head].power);
+            VaultToken(vaultToken).burn(address(this), queue[head].power);
+
             emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].message);
             head = (head + 1) % QUEUE_SIZE;
         }
@@ -178,6 +212,13 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         emit Plugin__ClickAdded(tokenId, account, queue[currentIndex].power, message);
 
         IGauge(gauge)._deposit(account, queue[currentIndex].power);
+
+        // Berachain Rewards Vault Delegate Stake
+        VaultToken(vaultToken).mint(address(this), queue[currentIndex].power);
+        IERC20(vaultToken).safeApprove(rewardVault, 0);
+        IERC20(vaultToken).safeApprove(rewardVault, queue[currentIndex].power);
+        IRewardVault(rewardVault).delegateStake(account, queue[currentIndex].power);
+
         IUnits(units).mint(account, mintAmount);
     }
 
