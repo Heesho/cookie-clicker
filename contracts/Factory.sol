@@ -22,9 +22,6 @@ contract Factory is Ownable {
     address immutable public units;
     address immutable public key;
 
-    uint256 public powerIndex;
-    mapping(uint256 => uint256) public power_Cost;         // power => cost to buy
-
     uint256 public lvlIndex;
     mapping(uint256 => uint256) public lvl_Unlock;          // level => amount required to unlock
     mapping(uint256 => uint256) public lvl_CostMultiplier;  // level => cost multiplier
@@ -37,7 +34,6 @@ contract Factory is Ownable {
     
     mapping(uint256 => uint256) public tokenId_Ups;         // token id => units per second
     mapping(uint256 => uint256) public tokenId_Last;        // token id => last time claimed
-    mapping(uint256 => uint256) public tokenId_Power;       // token id => power
 
     mapping(uint256 => mapping(uint256 => uint256)) public tokenId_toolId_Amount; // token id => tool id => amount
     mapping(uint256 => mapping(uint256 => uint256)) public tokenId_toolId_Lvl;    // token id => tool id => level
@@ -46,7 +42,6 @@ contract Factory is Ownable {
 
     error Factory__AmountMaxed();
     error Factory__LevelMaxed();
-    error Factory__PowerMaxed();
     error Factory__InvalidInput();
     error Factory__NotAuthorized();
     error Factory__UpgradeLocked();
@@ -57,11 +52,9 @@ contract Factory is Ownable {
 
     /*----------  EVENTS ------------------------------------------------*/
 
-    event Factory__PowerUpgraded(uint256 indexed tokenId, uint256 power, uint256 newPower, uint256 cost, uint256 ups);
     event Factory__ToolPurchased(uint256 indexed tokenId, uint256 toolId, uint256 newAmount, uint256 cost, uint256 ups);
     event Factory__ToolUpgraded(uint256 indexed tokenId, uint256 toolId, uint256 newLevel, uint256 cost, uint256 ups);
     event Factory__Claimed(uint256 indexed tokenId, uint256 amount);
-    event Factory__PowerSet(uint256 power, uint256 cost);
     event Factory__LvlSet(uint256 lvl, uint256 cost, uint256 unlock);
     event Factory__ToolSet(uint256 toolId, uint256 baseUps, uint256 baseCost);
     event Factory__ToolMultiplierSet(uint256 index, uint256 multiplier);
@@ -116,24 +109,7 @@ contract Factory is Ownable {
         IUnits(units).burn(msg.sender, cost);
     }
 
-    function upgradePower(uint256 tokenId) external tokenExists(tokenId) {
-        uint256 cost = power_Cost[tokenId_Power[tokenId] + 1];
-        if (cost == 0) revert Factory__PowerMaxed();
-        claim(tokenId);
-        tokenId_Power[tokenId]++;
-        emit Factory__PowerUpgraded(tokenId, tokenId_Power[tokenId], tokenId_Power[tokenId], cost, tokenId_Ups[tokenId]);
-        IUnits(units).burn(msg.sender, cost);
-    }
-
     /*----------  RESTRICTED FUNCTIONS  ---------------------------------*/
-
-    function setPower(uint256[] calldata cost) external onlyOwner {
-        for (uint256 i = powerIndex; i < powerIndex + cost.length; i++) {
-            power_Cost[i] = cost[i - powerIndex];
-            emit Factory__PowerSet(i, cost[i - powerIndex]);
-        }
-        powerIndex += cost.length;
-    }
 
     function setLvl(uint256[] calldata cost, uint256[] calldata unlock) external onlyOwner {
         if (cost.length != unlock.length) revert Factory__InvalidInput();

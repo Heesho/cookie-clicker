@@ -180,18 +180,6 @@ describe("local: test0", function () {
     ]);
   });
 
-  it("Owner sets power", async function () {
-    console.log("******************************************************");
-    await factory
-      .connect(owner)
-      .setPower([
-        "0",
-        "1000000000000000000",
-        "2000000000000000000",
-        "3000000000000000000",
-      ]);
-  });
-
   it("User0 purchases tool", async function () {
     console.log("******************************************************");
     await factory.connect(user0).purchaseTool(1, 0, 1);
@@ -1205,11 +1193,6 @@ describe("local: test0", function () {
     console.log(await multicall.getTools(1));
   });
 
-  it("User0 upgrades power", async function () {
-    console.log("******************************************************");
-    await factory.connect(user0).upgradePower(1);
-  });
-
   it("User0 state", async function () {
     console.log("******************************************************");
     console.log("USER0 STATE");
@@ -1867,23 +1850,6 @@ describe("local: test0", function () {
     await plugin.connect(user0).click(1, "this is a message", {
       value: price,
     });
-  });
-
-  it("User0 upgrades power", async function () {
-    console.log("******************************************************");
-    await factory.connect(user0).upgradePower(1);
-  });
-
-  it("User0 upgrades power", async function () {
-    console.log("******************************************************");
-    await factory.connect(user0).upgradePower(1);
-  });
-
-  it("User0 upgrades power", async function () {
-    console.log("******************************************************");
-    await expect(factory.connect(user0).upgradePower(1)).to.be.revertedWith(
-      "Factory__PowerMaxed"
-    );
   });
 
   it("everyone clicks cookie", async function () {

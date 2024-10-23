@@ -2,7 +2,6 @@
 pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
-import "@openzeppelin/contracts/token/ERC20/extensions/IERC20Metadata.sol";
 import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
@@ -29,7 +28,7 @@ interface IWBERA {
 }
 
 interface IFactory {
-    function tokenId_Power(uint256 tokenId) external view returns (uint256);
+    function tokenId_Ups(uint256 tokenId) external view returns (uint256);
 }
 
 interface IUnits {
@@ -46,7 +45,7 @@ interface IRewardVault {
 }
 
 contract VaultToken is ERC20, Ownable {
-    constructor() ERC20("Bull Ish Vault Token", "BIVT") {}
+    constructor() ERC20("Bull Ish Plugin Vault Token", "Bull Ish Plugin Vault Token") {}
 
     function mint(address to, uint256 amount) external onlyOwner {
         _mint(to, amount);
@@ -62,22 +61,22 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
-    uint256 public constant BASE_UPC = 0.000005 ether;
+    uint256 public constant BASE_UPC = 1 ether;
     uint256 public constant QUEUE_SIZE = 100;
     uint256 public constant DURATION = 7 days;
     uint256 public constant MESSAGE_LENGTH = 69;
     
-    string public constant SYMBOL = "BULL ISH";
+    string public constant NAME = "BULL ISH";
     string public constant PROTOCOL = "Bullas";
 
     /*----------  STATE VARIABLES  --------------------------------------*/
 
-    IERC20Metadata private immutable underlying;
+    IERC20 private immutable token;
     address private immutable OTOKEN;
     address private immutable voter;
     address private gauge;
     address private bribe;
-    address[] private tokensInUnderlying;
+    address[] private assetTokens;
     address[] private bribeTokens;
 
     address public immutable units;
@@ -138,9 +137,9 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     /*----------  FUNCTIONS  --------------------------------------------*/
 
     constructor(
-        address _underlying,                    // WBERA
+        address _token,                    // WBERA
         address _voter, 
-        address[] memory _tokensInUnderlying,   // [WBERA]
+        address[] memory _assetTokens,          // [WBERA]
         address[] memory _bribeTokens,          // [WBERA]
         address _treasury,
         address _factory,
@@ -148,9 +147,9 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         address _key,
         address _vaultFactory
     ) {
-        underlying = IERC20Metadata(_underlying);
+        token = IERC20Metadata(_token);
         voter = _voter;
-        tokensInUnderlying = _tokensInUnderlying;
+        assetTokens = _assetTokens;
         bribeTokens = _bribeTokens;
         treasury = _treasury;
         factory = _factory;
@@ -168,13 +167,12 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     {
         uint256 balance = address(this).balance;
         if (balance > DURATION) {
-            address token = getUnderlyingAddress();
-            IWBERA(token).deposit{value: balance}();
+            IWBERA(address(token)).deposit{value: balance}();
             uint256 treasuryFee = balance / 5;
-            IERC20(token).safeTransfer(treasury, treasuryFee);
-            IERC20(token).safeApprove(bribe, 0);
-            IERC20(token).safeApprove(bribe, balance - treasuryFee);
-            IBribe(bribe).notifyRewardAmount(token, balance - treasuryFee);
+            token.safeTransfer(treasury, treasuryFee);
+            token.safeApprove(bribe, 0);
+            token.safeApprove(bribe, balance - treasuryFee);
+            IBribe(bribe).notifyRewardAmount(address(token), balance - treasuryFee);
         }
     }
 
@@ -285,24 +283,16 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         return IGauge(gauge).totalSupply();
     }
 
-    function getUnderlyingName() public view virtual returns (string memory) {
-        return SYMBOL;
-    }
-
-    function getUnderlyingSymbol() public view virtual returns (string memory) {
-        return SYMBOL;
-    }
-
-    function getUnderlyingAddress() public view virtual returns (address) {
-        return address(underlying);
-    }
-
-    function getUnderlyingDecimals() public view virtual returns (uint8) {
-        return underlying.decimals();
+    function getToken() public view virtual returns (address) {
+        return address(token);
     }
 
     function getProtocol() public view virtual returns (string memory) {
         return PROTOCOL;
+    }
+
+    function getName() public view virtual returns (string memory) {
+        return NAME;
     }
 
     function getVoter() public view returns (address) {
@@ -317,16 +307,24 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         return bribe;
     }
 
-    function getTokensInUnderlying() public view virtual returns (address[] memory) {
-        return tokensInUnderlying;
+    function getAssetTokens() public view virtual returns (address[] memory) {
+        return assetTokens;
     }
 
     function getBribeTokens() public view returns (address[] memory) {
         return bribeTokens;
     }
 
+    function getVaultToken() public view returns (address) {
+        return vaultToken;
+    }
+
+    function getRewardVault() public view returns (address) {
+        return rewardVault;
+    }
+
     function getPower(uint256 tokenId) public view returns (uint256) {
-        return BASE_UPC + (BASE_UPC * IFactory(factory).tokenId_Power(tokenId));
+        return BASE_UPC + IFactory(factory).tokenId_Ups(tokenId);
     }
 
     function getQueueSize() public view returns (uint256) {
