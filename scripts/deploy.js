@@ -152,7 +152,7 @@ async function verifyFactory() {
   });
 }
 
-async function verifyPlugin() {
+async function verifyPlugin(wallet) {
   await hre.run("verify:verify", {
     address: plugin.address,
     constructorArguments: [
@@ -160,7 +160,7 @@ async function verifyPlugin() {
       VOTER_ADDRESS,
       [WBERA_ADDRESS],
       [WBERA_ADDRESS],
-      OBERO_ADDRESS,
+      wallet.address,
       factory.address,
       units.address,
       key.address,

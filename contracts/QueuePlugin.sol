@@ -62,7 +62,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     /*----------  CONSTANTS  --------------------------------------------*/
 
     uint256 public constant BASE_UPC = 1 ether;
-    uint256 public constant QUEUE_SIZE = 100;
+    uint256 public constant QUEUE_SIZE = 300;
     uint256 public constant DURATION = 7 days;
     uint256 public constant MESSAGE_LENGTH = 69;
     
@@ -86,7 +86,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     address public immutable vaultToken;  // staking token address for Berachain Rewards Vault Delegate Stake
     address public immutable rewardVault;   // reward vault address for Berachain Rewards Vault Delegate Stake
 
-    uint256 public entryFee = 0.4269 ether;
+    uint256 public entryFee = 0.04269 ether;
     address public treasury;
     bool public randomMint = true;
 
