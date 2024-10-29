@@ -23,10 +23,6 @@ interface IVoter {
     function OTOKEN() external view returns (address);
 }
 
-interface IWBERA {
-    function deposit() external payable;
-}
-
 interface IFactory {
     function tokenId_Ups(uint256 tokenId) external view returns (uint256);
 }
@@ -167,7 +163,6 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     {
         uint256 balance = address(this).balance;
         if (balance > DURATION) {
-            IWBERA(address(token)).deposit{value: balance}();
             uint256 treasuryFee = balance / 5;
             token.safeTransfer(treasury, treasuryFee);
             token.safeApprove(bribe, 0);
@@ -177,15 +172,12 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     }
 
     function click(uint256 tokenId, string calldata message)         
-        external
-        payable
+        public
         nonReentrant 
         returns (uint256 mintAmount)
     {
         if (bytes(message).length == 0) revert Plugin__InvalidMessage();
         if (bytes(message).length > MESSAGE_LENGTH) revert Plugin__InvalidMessage();
-
-        if (msg.value < entryFee) revert Plugin__InvalidPayment();
 
         uint256 currentIndex = tail % QUEUE_SIZE;
         address account = IERC721(key).ownerOf(tokenId);
@@ -195,7 +187,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
             IGauge(gauge)._withdraw(queue[head].account, queue[head].power);
 
             // Berachain Rewards Vault Delegate Stake
-            IRewardVault(rewardVault).delegateWithdraw(account, queue[head].power);
+            IRewardVault(rewardVault).delegateWithdraw(queue[head].account, queue[head].power);
             VaultToken(vaultToken).burn(address(this), queue[head].power);
 
             emit Plugin__ClickRemoved(queue[head].tokenId, queue[head].account, queue[head].power, queue[head].message);
@@ -209,6 +201,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__ClickAdded(tokenId, account, queue[currentIndex].power, message);
 
+        IERC20(token).safeTransferFrom(msg.sender, address(this), entryFee);
         IGauge(gauge)._deposit(account, queue[currentIndex].power);
 
         // Berachain Rewards Vault Delegate Stake
@@ -219,12 +212,6 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
         IUnits(units).mint(account, mintAmount);
     }
-
-    // Function to receive Ether. msg.data must be empty
-    receive() external payable {}
-
-    // Fallback function is called when msg.data is not empty
-    fallback() external payable {}
 
     /*----------  RESTRICTED FUNCTIONS  ---------------------------------*/
 

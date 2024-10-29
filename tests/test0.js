@@ -7,7 +7,10 @@ const { execPath } = require("process");
 
 const AddressZero = "0x0000000000000000000000000000000000000000";
 const pointZeroOne = convert("0.01", 18);
-const one = convert("1", 18);
+const price = convert("0.04269", 18);
+const price2 = convert("0.08538", 18);
+const price10 = convert("0.4269", 18);
+const price100 = convert("4.269", 18);
 
 let owner, treasury, user0, user1, user2, user3;
 let base, voter;
@@ -61,6 +64,7 @@ describe("local: test0", function () {
 
     const multicallArtifact = await ethers.getContractFactory("Multicall");
     multicall = await multicallArtifact.deploy(
+      base.address,
       units.address,
       factory.address,
       key.address,
@@ -88,25 +92,23 @@ describe("local: test0", function () {
 
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
+    await multicall.connect(user0).click(1, 1, "this is a message", {
       value: price,
     });
-    price = await plugin.getPrice();
 
     await expect(
-      plugin.connect(user0).click(1, "this is a message", {
+      multicall.connect(user0).click(1, 1, "this is a message", {
         value: pointZeroOne,
       })
-    ).to.be.revertedWith("Plugin__InvalidPayment");
+    ).to.be.reverted;
 
-    await plugin.connect(user0).click(1, "this is a message", {
+    await multicall.connect(user0).click(1, 1, "this is a message", {
       value: price,
     });
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 2, "this is a message", {
+      value: price2,
     });
   });
 
@@ -433,100 +435,33 @@ describe("local: test0", function () {
 
   it("User0 clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
+    await multicall.connect(user0).click(1, 1, "this is a message", {
       value: price,
     });
 
-    await plugin.connect(user0).click(1, "this is a message", {
+    await multicall.connect(user0).click(1, 1, "this is a message", {
       value: price,
     });
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
+    await multicall.connect(user0).click(1, 1, "this is a message", {
       value: price,
     });
   });
 
-  it("Forward 100 seconds", async function () {
+  it("User0 clicks cookie", async function () {
     console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [100]);
-    await network.provider.send("evm_mine");
-  });
 
-  // im going to make user3 click with user1's key (id = 0)
-  // this should increment user3's balance then try to decrement it later
-  // it should cause a failure
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    await plugin.connect(user3).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 2, "this is a message", {
+      value: price2,
     });
 
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 2, "this is a message", {
+      value: price2,
     });
 
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 600 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [100]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 2, "this is a message", {
+      value: price2,
     });
   });
 
@@ -539,409 +474,16 @@ describe("local: test0", function () {
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
     let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user3).click(1, 10, "this is a message", {
+      value: price10,
     });
 
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
     });
 
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 100 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [100]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 2 hour", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [7200]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 500 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [500]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 500 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [500]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 500 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [500]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 500 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [500]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 500 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [500]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 500 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [500]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
     });
   });
 
@@ -1213,284 +755,19 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
-  it("everyone clicks cookie", async function () {
+  it("User0 clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 100, "this is a message", {
+      value: price100,
     });
 
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 100, "this is a message", {
+      value: price100,
     });
 
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("Forward 700 seconds", async function () {
-    console.log("******************************************************");
-    await network.provider.send("evm_increaseTime", [700]);
-    await network.provider.send("evm_mine");
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user1).click(2, "this is a message", {
-      value: price,
-    });
-
-    price = await plugin.getPrice();
-
-    await plugin.connect(user2).click(3, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 100, "this is a message", {
+      value: price100,
     });
   });
 
@@ -1507,10 +784,9 @@ describe("local: test0", function () {
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 100, "this is a message", {
+      value: price100,
     });
   });
 
@@ -1523,172 +799,9 @@ describe("local: test0", function () {
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user1).click(2, 100, "this is a message", {
+      value: price100,
     });
   });
 
@@ -1701,172 +814,17 @@ describe("local: test0", function () {
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user2).click(3, 100, "this is a message", {
+      value: price100,
     });
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 100, "this is a message", {
+      value: price100,
     });
   });
 
@@ -1880,171 +838,49 @@ describe("local: test0", function () {
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user1).click(2, 100, "this is a message", {
+      value: price100,
     });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user2).click(3, 100, "this is a message", {
+      value: price100,
     });
+  });
+
+  it("Queue Data 2", async function () {
+    console.log("******************************************************");
+    console.log(await plugin.getQueueSize());
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
+    await multicall.connect(user0).click(1, 1, "this is a message", {
       value: price,
     });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
+    await multicall.connect(user1).click(2, 1, "this is a message", {
       value: price,
     });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
+    await multicall.connect(user2).click(3, 1, "this is a message", {
       value: price,
     });
   });
@@ -2058,172 +894,15 @@ describe("local: test0", function () {
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
     });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
     });
   });
 
@@ -2236,145 +915,183 @@ describe("local: test0", function () {
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
+    });
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
+    });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
+    });
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
+    });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
+    });
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
+    });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
+    });
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
+    });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
+    });
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
+    });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
+    });
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
+    });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
+    });
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
+    });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
+    });
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
+    });
+  });
+
+  it("Queue Data", async function () {
+    console.log("******************************************************");
+    console.log("Head: ", await plugin.head());
+    console.log("Tail: ", await plugin.tail());
+    console.log("Size: ", await plugin.count());
   });
 
   it("everyone clicks cookie", async function () {
     console.log("******************************************************");
-    let price = await plugin.getPrice();
 
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user0).click(1, 10, "this is a message", {
+      value: price10,
     });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user1).click(2, 10, "this is a message", {
+      value: price10,
     });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
-    });
-  });
-
-  it("everyone clicks cookie", async function () {
-    console.log("******************************************************");
-    let price = await plugin.getPrice();
-
-    await plugin.connect(user0).click(1, "this is a message", {
-      value: price,
+    await multicall.connect(user2).click(3, 10, "this is a message", {
+      value: price10,
     });
   });
 

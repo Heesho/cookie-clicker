@@ -1,8 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity 0.8.19;
 
-import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+
+interface IWBERA {
+    function deposit() external payable;
+}
 
 interface IFactory {
     function tokenId_Ups(uint256 tokenId) external view returns (uint256);
@@ -22,6 +26,8 @@ interface IFactory {
 }
 
 interface IQueuePlugin {
+    function click(uint256 tokenId, string calldata message) external returns (uint256 mintAmount);
+    function getPrice() external view returns (uint256);
     function getPower(uint256 tokenId) external view returns (uint256);
     function getGauge() external view returns (address);
 }
@@ -34,9 +40,11 @@ interface IGauge {
 }
 
 contract Multicall {
+    using SafeERC20 for IERC20;
 
     uint256 constant DURATION = 28800; // 8 hours
 
+    address public immutable base;
     address public immutable units;
     address public immutable factory;
     address public immutable key;
@@ -76,12 +84,24 @@ contract Multicall {
         bool maxed;
     }
 
-    constructor(address _units, address _factory, address _key, address _plugin, address _oBERO) {
+    constructor(address _base, address _units, address _factory, address _key, address _plugin, address _oBERO) {
+        base = _base;
         units = _units;
         factory = _factory;
         key = _key;
         plugin = _plugin;
         oBERO = _oBERO;
+    }
+
+    function click(uint256 tokenId, uint256 amount, string calldata message) external payable returns (uint256 mintAmount) {
+        uint256 price = IQueuePlugin(plugin).getPrice() * amount;
+        IWBERA(base).deposit{value: price}();
+        IERC20(base).safeApprove(plugin, 0);
+        IERC20(base).safeApprove(plugin, price);
+
+        for (uint256 i = 0; i < amount; i++) {
+            mintAmount += IQueuePlugin(plugin).click(tokenId, message);
+        }
     }
 
     function getMultipleToolCost(uint256 tokenId, uint256 toolId, uint256 purchaseAmount) external view returns (uint256) {
