@@ -6,11 +6,11 @@ const hre = require("hardhat");
 const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 const convert = (amount, decimals) => ethers.utils.parseUnits(amount, decimals);
 const divDec = (amount, decimals = 18) => amount / 10 ** decimals;
-const pointZeroOne = convert("0.01", 18);
 
-const VOTER_ADDRESS = "0x580ABF764405aA82dC96788b356435474c5956A7";
+const VOTER_ADDRESS = "0xCb31ac33f2fa669FD043fA5539f5b28a0Bd21339";
 const WBERA_ADDRESS = "0x7507c1dc16935B82698e4C63f2746A2fCf994dF8"; // WBERA address
 const OBERO_ADDRESS = "0x7629668774f918c00Eb4b03AdF5C4e2E53d45f0b";
+const VAULT_FACTORY_ADDRESS = "0x2B6e40f65D82A0cB98795bC7587a71bfa49fBB2B";
 
 // Contract Variables
 let units, key, factory, plugin, multicall;
@@ -21,23 +21,23 @@ let units, key, factory, plugin, multicall;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0xa51deBeAA1CEf11f28bc80E2Df4DD1665dD2D460"
+    "0xf8e40de95633161684e10BE82d0A89574C1f17cB"
   );
   key = await ethers.getContractAt(
     "contracts/Key.sol:Key",
-    "0x6679732D6C09c56faB4cBf589E01F5e41A2d9e67"
+    "0x85eF4604b509283f36f066c40799264810d81238"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x12cF1dC4A8d66187202511a706E90Dfb7BE8a80C"
+    "0x648f35c8381e85EEf6ae44c8c29eF59a0eeD3a3e"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0xa1b0D1CC5Ca0F68Fa70B0575c9782e7B5b02859c"
+    "0x87C0b8B3E86a46081872A78d0D91F9A73568c03d"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x2E31E161EC6F03895C68121e834C133862ddbD2d"
+    "0xA447Ab7feCeBcD38Fb9ff7f096D8d4C4C0EcAa1c"
   );
   console.log("Contracts Retrieved");
 }
@@ -94,7 +94,7 @@ async function deployPlugin(wallet) {
     factory.address,
     units.address,
     key.address,
-    pointZeroOne,
+    VAULT_FACTORY_ADDRESS,
     {
       gasPrice: ethers.gasPrice,
     }
@@ -108,6 +108,7 @@ async function deployMulticall() {
   console.log("Starting Multicall Deployment");
   const multicallArtifact = await ethers.getContractFactory("Multicall");
   const multicallContract = await multicallArtifact.deploy(
+    WBERA_ADDRESS,
     units.address,
     factory.address,
     key.address,
@@ -128,6 +129,8 @@ async function printDeployment() {
   console.log("Factory: ", factory.address);
   console.log("Plugin: ", plugin.address);
   console.log("Multicall: ", multicall.address);
+  console.log("Reward Vault: ", await plugin.getRewardVault());
+  console.log("Vault Token: ", await plugin.getVaultToken());
   console.log("**************************************************************");
 }
 
@@ -164,7 +167,7 @@ async function verifyPlugin(wallet) {
       factory.address,
       units.address,
       key.address,
-      pointZeroOne,
+      VAULT_FACTORY_ADDRESS,
     ],
   });
 }
@@ -173,6 +176,7 @@ async function verifyMulticall() {
   await hre.run("verify:verify", {
     address: multicall.address,
     constructorArguments: [
+      WBERA_ADDRESS,
       units.address,
       factory.address,
       key.address,
@@ -194,38 +198,48 @@ async function setUpSystem(wallet) {
 async function setTools(wallet) {
   console.log("Starting Building Deployment");
   const buildingUps = [
-    convert("0.000000002", 18),
-    convert("0.00000002", 18),
-    convert("0.00000016", 18),
-    convert("0.00000094", 18),
-    convert("0.0000052", 18),
-    convert("0.000028", 18),
-    convert("0.000156", 18),
-    convert("0.00088", 18),
-    convert("0.0052", 18),
-    convert("0.032", 18),
-    convert("0.20", 18),
-    convert("1.30", 18),
-    convert("8.60", 18),
-    convert("58", 18),
-    convert("420", 18),
+    convert("0.0001", 18),
+    convert("0.0002", 18),
+    convert("0.0003", 18),
+    convert("0.0004", 18),
+    convert("0.0005", 18),
+    convert("0.0006", 18),
+    convert("0.0007", 18),
+    convert("0.0008", 18),
+    convert("0.001", 18),
+    convert("0.0027", 18),
+    convert("0.005", 18),
+    convert("0.0075", 18),
+    convert("0.015", 18),
+    convert("0.025", 18),
+    convert("0.1", 18),
+    convert("0.2", 18),
+    convert("0.3", 18),
+    convert("0.4", 18),
+    convert("0.5", 18),
+    convert("1", 18),
   ];
   const buildingCost = [
-    convert("0.000015", 18),
-    convert("0.0001", 18),
-    convert("0.0011", 18),
-    convert("0.012", 18),
-    convert("0.13", 18),
-    convert("0.6", 18),
-    convert("3.2", 18),
-    convert("17", 18),
+    convert("1", 18),
+    convert("2", 18),
+    convert("3", 18),
+    convert("4", 18),
+    convert("5", 18),
+    convert("8", 18),
+    convert("11", 18),
+    convert("15", 18),
+    convert("20", 18),
+    convert("50", 18),
     convert("100", 18),
-    convert("600", 18),
-    convert("4000", 18),
-    convert("26000", 18),
-    convert("170000", 18),
-    convert("1100000", 18),
-    convert("7000000", 18),
+    convert("150", 18),
+    convert("300", 18),
+    convert("500", 18),
+    convert("1500", 18),
+    convert("5000", 18),
+    convert("15000", 18),
+    convert("60000", 18),
+    convert("250000", 18),
+    convert("1000000", 18),
   ];
   await factory.connect(wallet).setTool(buildingUps, buildingCost);
   console.log("Buildings set");
@@ -233,111 +247,109 @@ async function setTools(wallet) {
 
 async function setToolMultipliers(wallet) {
   console.log("Starting Multiplier Deployment");
-  await factory
-    .connect(wallet)
-    .setToolMultipliers([
-      "1000000000000000000",
-      "1150000000000000000",
-      "1322500000000000000",
-      "1520875000000000000",
-      "1749006250000000000",
-      "2011357187500000000",
-      "2313060768750000000",
-      "2660019884062500000",
-      "3059022867265625000",
-      "3517876297355468750",
-      "4045557736969289062",
-      "4652391392514672421",
-      "5350250105891873285",
-      "6152787621674654277",
-      "7075705764925852415",
-      "8137061629665738723",
-      "9357620874116591137",
-      "10761264009734079868",
-      "12375453609734181844",
-      "14231771647954150830",
-      "16366537393147273455",
-      "18821517902019348493",
-      "21644745787322255767",
-      "24891457556820594132",
-      "28625176193143683252",
-      "32918952612105216229",
-      "37856795515121028664",
-      "43535314841394182944",
-      "50065612067598320385",
-      "57575453877633198463",
-      "66211771960298198222",
-      "76143537754252997955",
-      "87565068417320947649",
-      "10069982869941708939",
-      "11580480300432965283",
-      "13317552345497960076",
-      "15315185197222654087",
-      "17612462976706053100",
-      "20254332423211961060",
-      "23292482286663755219",
-      "26786354629563386402",
-      "30804307823997894363",
-      "35424953998547578427",
-      "40738697098379715291",
-      "46849501663136672535",
-      "53876926912607173406",
-      "61958465929798249316",
-      "71252235819267986714",
-      "81940071292158184721",
-      "94231081886081832429",
-      "10836574416999335555",
-      "12462060579549233808",
-      "14331369666481623980",
-      "16481075166353877597",
-      "18953236344506959186",
-      "21796221830265903064",
-      "25065655184705788524",
-      "28825503362461656603",
-      "33149328872230990093",
-      "38121728203064738607",
-      "43839987483524387828",
-      "50415985506053045913",
-      "57978383871960902700",
-      "66675140952765438105",
-      "76676412093680261321",
-      "88177873807732200519",
-      "10140455477989193059",
-      "11661523849617504018",
-      "13410752326730129621",
-      "15422365251154839863296",
-      "17735720038828064374784",
-      "20396078044652272353280",
-      "23455489751350111109120",
-      "26973813214052626726912",
-      "31019885196160517799936",
-      "35672867975584597147648",
-      "41023798171922283364352",
-      "47177367897710616641536",
-      "54253973082367204524032",
-      "62392069044722280169472",
-      "71750879401430621356032",
-      "82513511311645194846208",
-      "94890538008391970717696",
-      "109124118709650768003072",
-      "125492736516098353004544",
-      "144316646993513104277504",
-      "165964144042540085018624",
-      "190858765648921054150656",
-      "219487580496259213950976",
-      "252410717570698047389696",
-      "290272325206302756175872",
-      "333813173987248147791872",
-      "383885150085335322984448",
-      "441467922598135601299456",
-      "507688110987855884451840",
-      "583841327636034200010752",
-      "671417526781439249481728",
-      "772130155798655083216896",
-      "887949679168453372542976",
-      "1021142131043721304604672",
-      "1174313450700279386210304",
-    ]);
+  const buildingMultipliers = [
+    convert("1", 18),
+    convert("1.15", 18),
+    convert("1.3225", 18),
+    convert("1.520875", 18),
+    convert("1.74900625", 18),
+    convert("2.011357188", 18),
+    convert("2.313060766", 18),
+    convert("2.66001988", 18),
+    convert("3.059022863", 18),
+    convert("3.517876292", 18),
+    convert("4.045557736", 18),
+    convert("4.652391396", 18),
+    convert("5.350250105", 18),
+    convert("6.152787621", 18),
+    convert("7.075705764", 18),
+    convert("8.137061629", 18),
+    convert("9.357620874", 18),
+    convert("10.761264", 18),
+    convert("12.37545361", 18),
+    convert("14.23177165", 18),
+    convert("16.36653739", 18),
+    convert("18.821518", 18),
+    convert("21.6447457", 18),
+    convert("24.89145756", 18),
+    convert("28.62517619", 18),
+    convert("32.91895262", 18),
+    convert("37.85679551", 18),
+    convert("43.53531484", 18),
+    convert("50.06561207", 18),
+    convert("57.57545388", 18),
+    convert("66.21177196", 18),
+    convert("76.14353775", 18),
+    convert("87.56506841", 18),
+    convert("100.6998287", 18),
+    convert("115.804803", 18),
+    convert("133.1755234", 18),
+    convert("153.1518519", 18),
+    convert("176.1246297", 18),
+    convert("202.5433242", 18),
+    convert("232.9248228", 18),
+    convert("267.8635462", 18),
+    convert("308.0430782", 18),
+    convert("354.2495399", 18),
+    convert("407.3869709", 18),
+    convert("468.4950165", 18),
+    convert("538.769269", 18),
+    convert("619.5846593", 18),
+    convert("712.5223582", 18),
+    convert("819.400712", 18),
+    convert("942.3108188", 18),
+    convert("1083.657442", 18),
+    convert("1246.206058", 18),
+    convert("1433.136966", 18),
+    convert("1648.107511", 18),
+    convert("1895.323638", 18),
+    convert("2179.622184", 18),
+    convert("2506.565512", 18),
+    convert("2882.550338", 18),
+    convert("3314.932889", 18),
+    convert("3812.172822", 18),
+    convert("4383.998746", 18),
+    convert("5041.598558", 18),
+    convert("5797.838341", 18),
+    convert("6667.514092", 18),
+    convert("7667.641206", 18),
+    convert("8817.787387", 18),
+    convert("10140.4555", 18),
+    convert("11661.52382", 18),
+    convert("13410.75239", 18),
+    convert("15422.36525", 18),
+    convert("17735.72004", 18),
+    convert("20396.07804", 18),
+    convert("23455.48975", 18),
+    convert("26973.81321", 18),
+    convert("31019.8852", 18),
+    convert("35672.86798", 18),
+    convert("41023.79817", 18),
+    convert("47177.3679", 18),
+    convert("54253.97308", 18),
+    convert("62392.06904", 18),
+    convert("71750.8794", 18),
+    convert("82513.51131", 18),
+    convert("94890.53801", 18),
+    convert("109124.1187", 18),
+    convert("125492.7365", 18),
+    convert("144316.647", 18),
+    convert("165964.144", 18),
+    convert("190858.7656", 18),
+    convert("219487.5805", 18),
+    convert("252410.7176", 18),
+    convert("290272.3252", 18),
+    convert("333813.174", 18),
+    convert("383885.1501", 18),
+    convert("441467.9226", 18),
+    convert("507688.111", 18),
+    convert("583841.3276", 18),
+    convert("671417.5268", 18),
+    convert("772130.1558", 18),
+    convert("887949.6792", 18),
+    convert("1021142.131", 18),
+  ];
+  await factory.connect(wallet).setToolMultipliers(buildingMultipliers);
   console.log("Multipliers set");
 }
 
@@ -350,28 +362,6 @@ async function setLevels(wallet) {
       [0, 1, 5, 25, 50, 100]
     );
   console.log("Levels set");
-}
-
-async function setEvolution(wallet) {
-  console.log("Starting Evolution Deployment");
-  await factory
-    .connect(wallet)
-    .setEvolution(
-      [
-        "0",
-        "10000000000000000000",
-        "100000000000000000000",
-        "1000000000000000000000",
-        "1000000000000000000000",
-        "10000000000000000000000",
-        "100000000000000000000000",
-        "1000000000000000000000000",
-        "10000000000000000000000000",
-        "100000000000000000000000000",
-      ],
-      [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
-    );
-  console.log("Evolution set");
 }
 
 async function main() {
@@ -390,14 +380,13 @@ async function main() {
   // await verifyUnits();
   // await verifyKey();
   // await verifyFactory();
-  // await verifyPlugin();
+  // await verifyPlugin(wallet);
   // await verifyMulticall();
 
   // await setUpSystem(wallet);
   // await setTools(wallet);
   // await setToolMultipliers(wallet);
   // await setLevels(wallet);
-  // await setEvolution(wallet);
 
   // await plugin.setEntryFee("42690000000000000");
 

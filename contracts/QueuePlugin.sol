@@ -161,7 +161,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         external 
         nonReentrant
     {
-        uint256 balance = address(this).balance;
+        uint256 balance = IERC20(token).balanceOf(address(this));
         if (balance > DURATION) {
             uint256 treasuryFee = balance / 5;
             token.safeTransfer(treasury, treasuryFee);
