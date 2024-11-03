@@ -79,8 +79,8 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     address public immutable factory;
     address public immutable key;
 
-    address public immutable vaultToken;  // staking token address for Berachain Rewards Vault Delegate Stake
-    address public immutable rewardVault;   // reward vault address for Berachain Rewards Vault Delegate Stake
+    address public immutable vaultToken;
+    address public immutable rewardVault;
 
     uint256 public entryFee = 0.04269 ether;
     address public treasury;
@@ -143,7 +143,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         address _key,
         address _vaultFactory
     ) {
-        token = IERC20Metadata(_token);
+        token = IERC20(_token);
         voter = _voter;
         assetTokens = _assetTokens;
         bribeTokens = _bribeTokens;
@@ -161,7 +161,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         external 
         nonReentrant
     {
-        uint256 balance = IERC20(token).balanceOf(address(this));
+        uint256 balance = token.balanceOf(address(this));
         if (balance > DURATION) {
             uint256 treasuryFee = balance / 5;
             token.safeTransfer(treasury, treasuryFee);
@@ -201,7 +201,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         count = count < QUEUE_SIZE ? count + 1 : count;
         emit Plugin__ClickAdded(tokenId, account, queue[currentIndex].power, message);
 
-        IERC20(token).safeTransferFrom(msg.sender, address(this), entryFee);
+        token.safeTransferFrom(msg.sender, address(this), entryFee);
         
         IGauge(gauge)._deposit(account, queue[currentIndex].power);
 
