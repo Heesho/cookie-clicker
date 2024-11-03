@@ -202,9 +202,9 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         emit Plugin__ClickAdded(tokenId, account, queue[currentIndex].power, message);
 
         IERC20(token).safeTransferFrom(msg.sender, address(this), entryFee);
+        
         IGauge(gauge)._deposit(account, queue[currentIndex].power);
 
-        // Berachain Rewards Vault Delegate Stake
         VaultToken(vaultToken).mint(address(this), queue[currentIndex].power);
         IERC20(vaultToken).safeApprove(rewardVault, 0);
         IERC20(vaultToken).safeApprove(rewardVault, queue[currentIndex].power);

@@ -7,7 +7,7 @@ const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 const convert = (amount, decimals) => ethers.utils.parseUnits(amount, decimals);
 const divDec = (amount, decimals = 18) => amount / 10 ** decimals;
 
-const VOTER_ADDRESS = "0xCb31ac33f2fa669FD043fA5539f5b28a0Bd21339";
+const VOTER_ADDRESS = "0x1f9505Ae18755915DcD2a95f38c7560Cab149d9C";
 const WBERA_ADDRESS = "0x7507c1dc16935B82698e4C63f2746A2fCf994dF8"; // WBERA address
 const OBERO_ADDRESS = "0x7629668774f918c00Eb4b03AdF5C4e2E53d45f0b";
 const VAULT_FACTORY_ADDRESS = "0x2B6e40f65D82A0cB98795bC7587a71bfa49fBB2B";
@@ -21,23 +21,23 @@ let units, key, factory, plugin, multicall;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0xf8e40de95633161684e10BE82d0A89574C1f17cB"
+    "0x93336B0B9f71C7df707476Bf02368600dE45e262"
   );
   key = await ethers.getContractAt(
     "contracts/Key.sol:Key",
-    "0x85eF4604b509283f36f066c40799264810d81238"
+    "0x6f34B8f64b5272E9CAdfa7B63dE2168D24d4c10E"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x648f35c8381e85EEf6ae44c8c29eF59a0eeD3a3e"
+    "0xc7A1013f84028Df2579af5a53C3A5C4c295C2Ae4"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x87C0b8B3E86a46081872A78d0D91F9A73568c03d"
+    "0x0226cacE81532EB8f0E3CF1078c30b3d29b93E0b"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0xA447Ab7feCeBcD38Fb9ff7f096D8d4C4C0EcAa1c"
+    "0xfe5e250C8E3d86780B0Ce994075DF51d33E2111A"
   );
   console.log("Contracts Retrieved");
 }
@@ -383,10 +383,10 @@ async function main() {
   // await verifyPlugin(wallet);
   // await verifyMulticall();
 
-  // await setUpSystem(wallet);
-  // await setTools(wallet);
-  // await setToolMultipliers(wallet);
-  // await setLevels(wallet);
+  await setUpSystem(wallet);
+  await setTools(wallet);
+  await setToolMultipliers(wallet);
+  await setLevels(wallet);
 
   // await plugin.setEntryFee("42690000000000000");
 
