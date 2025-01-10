@@ -84,6 +84,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
 
     uint256 public entryFee = 0.04269 ether;
     address public treasury;
+    address public developer;
     bool public randomMint = true;
 
     struct Click {
@@ -116,6 +117,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     event Plugin__ClickAdded(uint256 tokenId, address author, uint256 power, string message);
     event Plugin__ClickRemoved(uint256 tokenId, address author, uint256 power, string message);
     event Plugin__TreasurySet(address treasury);
+    event Plugin__DeveloperSet(address developer);
     event Plugin__EntryFeeSet(uint256 fee);
 
     /*----------  MODIFIERS  --------------------------------------------*/
@@ -138,6 +140,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         address[] memory _assetTokens,          // [WBERA]
         address[] memory _bribeTokens,          // [WBERA]
         address _treasury,
+        address _developer,
         address _factory,
         address _units,
         address _key,
@@ -148,6 +151,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         assetTokens = _assetTokens;
         bribeTokens = _bribeTokens;
         treasury = _treasury;
+        developer = _developer;
         factory = _factory;
         units = _units;
         key = _key;
@@ -164,7 +168,8 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         uint256 balance = token.balanceOf(address(this));
         if (balance > DURATION) {
             uint256 treasuryFee = balance / 5;
-            token.safeTransfer(treasury, treasuryFee);
+            token.safeTransfer(treasury, treasuryFee * 3 / 5);
+            token.safeTransfer(developer, treasuryFee * 2 / 5);
             token.safeApprove(bribe, 0);
             token.safeApprove(bribe, balance - treasuryFee);
             IBribe(bribe).notifyRewardAmount(address(token), balance - treasuryFee);
@@ -218,6 +223,12 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     function setTreasury(address _treasury) external onlyOwner {
         treasury = _treasury;
         emit Plugin__TreasurySet(_treasury);
+    }
+
+    function setDeveloper(address _developer) external {
+        if (msg.sender != developer) revert Plugin__NotAuthorized();
+        developer = _developer;
+        emit Plugin__DeveloperSet(_developer);
     }
 
     function setEntryFee(uint256 _entryFee) external onlyOwner {

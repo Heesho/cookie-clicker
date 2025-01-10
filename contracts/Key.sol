@@ -3,11 +3,15 @@ pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 
+// ToDo: 
+// - make contract ownable
+// - make mint payable and users should pay to mint
+// - make mint price settable by owner
 contract Key is ERC721Enumerable {
 
     uint256 public currentTokenId;
 
-    constructor() ERC721("Bullas", "BULLAS") {}
+    constructor() ERC721("Bull Ish Game", "BULLISH") {}
 
     function mint() external returns (uint256) {
         uint256 newTokenId = ++currentTokenId;

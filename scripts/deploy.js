@@ -21,23 +21,23 @@ let units, key, factory, plugin, multicall;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0x93336B0B9f71C7df707476Bf02368600dE45e262"
+    "0x9bf1D2E6bebE562b6029184D3A7B5B57771b2CC5"
   );
   key = await ethers.getContractAt(
     "contracts/Key.sol:Key",
-    "0x6f34B8f64b5272E9CAdfa7B63dE2168D24d4c10E"
+    "0x0E65eb38C95E664c202C0d194bf6Bd8a586BB1f0"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0xc7A1013f84028Df2579af5a53C3A5C4c295C2Ae4"
+    "0x3a6e2a00AAa63306a2FC187ab1E0e4ECE19BFF0e"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x0226cacE81532EB8f0E3CF1078c30b3d29b93E0b"
+    "0xb488543f69a9462F62b2E944C81CFd16Cf0237c0"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0xfe5e250C8E3d86780B0Ce994075DF51d33E2111A"
+    "0xd2fe6dc3fae1d60a20AeB4E8509FDF4740393150"
   );
   console.log("Contracts Retrieved");
 }
@@ -383,10 +383,10 @@ async function main() {
   // await verifyPlugin(wallet);
   // await verifyMulticall();
 
-  await setUpSystem(wallet);
-  await setTools(wallet);
-  await setToolMultipliers(wallet);
-  await setLevels(wallet);
+  // await setUpSystem(wallet);
+  // await setTools(wallet);
+  // await setToolMultipliers(wallet);
+  // await setLevels(wallet);
 
   // await plugin.setEntryFee("42690000000000000");
 
