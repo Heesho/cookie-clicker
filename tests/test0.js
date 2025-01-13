@@ -11,6 +11,7 @@ const price = convert("0.04269", 18);
 const price2 = convert("0.08538", 18);
 const price10 = convert("0.4269", 18);
 const price100 = convert("4.269", 18);
+const gamePrice = convert("6.9", 18);
 
 let owner, treasury, user0, user1, user2, user3, developer;
 let base, voter;
@@ -37,8 +38,8 @@ describe("local: test0", function () {
     voter = await voterArtifact.deploy();
     console.log("- Voter Initialized");
 
-    const keyArtifact = await ethers.getContractFactory("Key");
-    key = await keyArtifact.deploy();
+    const keyArtifact = await ethers.getContractFactory("GamePass");
+    key = await keyArtifact.deploy(treasury.address, developer.address);
     console.log("- Key Initialized");
 
     const unitsArtifact = await ethers.getContractFactory("Units");
@@ -86,10 +87,19 @@ describe("local: test0", function () {
 
   it("User0 mints a clicker", async function () {
     console.log("******************************************************");
-    await key.connect(user0).mint();
-    await key.connect(user1).mint();
-    await key.connect(user2).mint();
-    await key.connect(user3).mint();
+    console.log(
+      "GamePass Balance: ",
+      await ethers.provider.getBalance(key.address)
+    );
+    await key.connect(user0).mint({ value: gamePrice });
+    await key.connect(user1).mint({ value: gamePrice });
+    await key.connect(owner).mintBatch(owner.address, 2);
+    await key.connect(owner).transferFrom(owner.address, user2.address, 3);
+    await key.connect(owner).transferFrom(owner.address, user3.address, 4);
+    console.log(
+      "GamePass Balance: ",
+      await ethers.provider.getBalance(key.address)
+    );
   });
 
   it("User0 clicks cookie", async function () {
@@ -1102,5 +1112,65 @@ describe("local: test0", function () {
     console.log("Head: ", await plugin.head());
     console.log("Tail: ", await plugin.tail());
     console.log("Size: ", await plugin.count());
+  });
+
+  it("GamePass Testing", async function () {
+    console.log("******************************************************");
+    await expect(key.connect(user0).setTreasury(user0.address)).to.be.reverted;
+    await key.connect(owner).setTreasury(user0.address);
+    await key.connect(owner).setTreasury(treasury.address);
+    await expect(
+      key.connect(owner).setDeveloper(user0.address)
+    ).to.be.revertedWith("GamePass__NotAuthorized");
+    await key.connect(developer).setDeveloper(user0.address);
+    await expect(
+      key.connect(developer).setDeveloper(developer.address)
+    ).to.be.revertedWith("GamePass__NotAuthorized");
+    await key.connect(user0).setDeveloper(developer.address);
+    await expect(key.connect(developer).setPrice(0)).to.be.reverted;
+    await key.connect(owner).setPrice(price);
+    console.log(
+      "GamePass Balance: ",
+      await ethers.provider.getBalance(key.address)
+    );
+    await key.connect(user0).mint({ value: price });
+    await key.connect(user1).mint({ value: price });
+    await key.connect(user2).mint({ value: price });
+    console.log(
+      "GamePass Balance: ",
+      await ethers.provider.getBalance(key.address)
+    );
+    await key.connect(owner).setBaseTokenURI("https://www.google.com");
+    console.log(await key.tokenURI(1));
+    console.log(await key.tokenURI(2));
+    console.log(await key.tokenURI(3));
+    await expect(key.connect(developer).mintBatch(user0.address, 10)).to.be
+      .reverted;
+    await key.connect(owner).mintBatch(user0.address, 10);
+    console.log(
+      "GamePass Balance: ",
+      await ethers.provider.getBalance(key.address)
+    );
+    console.log(
+      "Treasury Balance: ",
+      await ethers.provider.getBalance(treasury.address)
+    );
+    console.log(
+      "Developer Balance: ",
+      await ethers.provider.getBalance(developer.address)
+    );
+    await key.connect(owner).withdraw();
+    console.log(
+      "GamePass Balance: ",
+      await ethers.provider.getBalance(key.address)
+    );
+    console.log(
+      "Treasury Balance: ",
+      await ethers.provider.getBalance(treasury.address)
+    );
+    console.log(
+      "Developer Balance: ",
+      await ethers.provider.getBalance(developer.address)
+    );
   });
 });
