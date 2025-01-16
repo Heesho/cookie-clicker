@@ -20,31 +20,31 @@ let voter, rewardsVaultFactory;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0x6EC4465A7fB0c49475f95D307DEcaF864De91891"
+    "0xD24c6a5a4C747BEe05a8a1C9149c67fd0D9a2416"
   );
   key = await ethers.getContractAt(
-    "contracts/Key.sol:Key",
-    "0x71dEe03d64DDcFeEFb16B7521eE4De912a52c48a"
+    "contracts/GamePass.sol:GamePass",
+    "0x8A6e7E02D3Af63A7B6a2022bf235dEE39911d250"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x708339A12A5da736B9713e799d17B2Bd4ce26f7F"
+    "0x38EE72e2cc4E9690e988d9557F95943a0d4578e5"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x0F61492EA1F82908514d4Fcea4A00aAA4B080EE6"
+    "0x956Ca4f11496DF1DEDd141e77C2d8b83FfCB8B99"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x5E9090FDb3afFddd64801E73edaEd0C050B81660"
+    "0x4d3D2d89bBdcb7207bE1bbbbf2c0b33F970De179"
   );
   voter = await ethers.getContractAt(
     "contracts/Voter.sol:Voter",
-    "0x59C6388B4953482195B396a391012b5D398CB0bc"
+    "0x82D5b065dbc1856E555a33F3DDFF86EbBf0b072F"
   );
   rewardsVaultFactory = await ethers.getContractAt(
     "contracts/BerachainRewardsVaultFactory.sol:BerachainRewardsVaultFactory",
-    "0xC970DEFA7F2fF2a294880f0eF0D6862303397Da5"
+    "0xDbb0e4Ea77E182b914CD356e65a43d319b67Ccb4"
   );
   console.log("Contracts Retrieved");
 }
@@ -85,10 +85,10 @@ async function deployUnits() {
   console.log("Units Deployed at:", units.address);
 }
 
-async function deployKey() {
+async function deployKey(wallet) {
   console.log("Starting Key Deployment");
-  const keyArtifact = await ethers.getContractFactory("Key");
-  const keyContract = await keyArtifact.deploy({
+  const keyArtifact = await ethers.getContractFactory("GamePass");
+  const keyContract = await keyArtifact.deploy(wallet.address, wallet.address, {
     gasPrice: ethers.gasPrice,
   });
   key = await keyContract.deployed();
@@ -120,6 +120,7 @@ async function deployPlugin(wallet) {
     [WBERA_ADDRESS],
     [WBERA_ADDRESS],
     wallet.address,
+    wallet.address,
     factory.address,
     units.address,
     key.address,
@@ -137,6 +138,7 @@ async function deployMulticall() {
   console.log("Starting Multicall Deployment");
   const multicallArtifact = await ethers.getContractFactory("Multicall");
   const multicallContract = await multicallArtifact.deploy(
+    WBERA_ADDRESS,
     units.address,
     factory.address,
     key.address,
@@ -169,10 +171,10 @@ async function verifyUnits() {
   });
 }
 
-async function verifyKey() {
+async function verifyKey(wallet) {
   await hre.run("verify:verify", {
     address: key.address,
-    constructorArguments: [],
+    constructorArguments: [wallet.address, wallet.address],
   });
 }
 
@@ -191,6 +193,7 @@ async function verifyPlugin(wallet) {
       voter.address,
       [WBERA_ADDRESS],
       [WBERA_ADDRESS],
+      wallet.address,
       wallet.address,
       factory.address,
       units.address,
@@ -399,17 +402,17 @@ async function main() {
 
   await getContracts();
 
-  //   await deployRewardsVaultFactory();
-  //   await deployVoter();
-  //   await deployUnits();
-  //   await deployKey();
-  //   await deployFactory();
-  //   await deployPlugin(wallet);
-  //   await deployMulticall();
-  //   await printDeployment();
+  // await deployRewardsVaultFactory();
+  // await deployVoter();
+  // await deployUnits();
+  // await deployKey(wallet);
+  // await deployFactory();
+  // await deployPlugin(wallet);
+  await deployMulticall();
+  await printDeployment();
 
   //   await verifyUnits();
-  //   await verifyKey();
+  //   await verifyKey(wallet);
   //   await verifyFactory();
   //   await verifyPlugin(wallet);
   //   await verifyMulticall();

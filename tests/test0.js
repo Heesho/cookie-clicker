@@ -1127,11 +1127,17 @@ describe("local: test0", function () {
       key.connect(developer).setDeveloper(developer.address)
     ).to.be.revertedWith("GamePass__NotAuthorized");
     await key.connect(user0).setDeveloper(developer.address);
+    await expect(key.connect(user0).mint({ value: price2 })).to.be.revertedWith(
+      "GamePass__InsufficientFunds"
+    );
     await expect(key.connect(developer).setPrice(0)).to.be.reverted;
     await key.connect(owner).setPrice(price);
     console.log(
       "GamePass Balance: ",
       await ethers.provider.getBalance(key.address)
+    );
+    await expect(key.connect(user0).mint({ value: price2 })).to.be.revertedWith(
+      "GamePass__InsufficientFunds"
     );
     await key.connect(user0).mint({ value: price });
     await key.connect(user1).mint({ value: price });

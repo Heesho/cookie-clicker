@@ -24,7 +24,7 @@ async function getContracts() {
     "0x9bf1D2E6bebE562b6029184D3A7B5B57771b2CC5"
   );
   key = await ethers.getContractAt(
-    "contracts/Key.sol:Key",
+    "contracts/GamePass.sol:GamePass",
     "0x0E65eb38C95E664c202C0d194bf6Bd8a586BB1f0"
   );
   factory = await ethers.getContractAt(
@@ -56,10 +56,10 @@ async function deployUnits() {
   console.log("Units Deployed at:", units.address);
 }
 
-async function deployKey() {
+async function deployKey(wallet) {
   console.log("Starting Key Deployment");
-  const keyArtifact = await ethers.getContractFactory("Key");
-  const keyContract = await keyArtifact.deploy({
+  const keyArtifact = await ethers.getContractFactory("GamePass");
+  const keyContract = await keyArtifact.deploy(wallet.address, wallet.address, {
     gasPrice: ethers.gasPrice,
   });
   key = await keyContract.deployed();
@@ -90,6 +90,7 @@ async function deployPlugin(wallet) {
     VOTER_ADDRESS,
     [WBERA_ADDRESS],
     [WBERA_ADDRESS],
+    wallet.address,
     wallet.address,
     factory.address,
     units.address,
@@ -163,6 +164,7 @@ async function verifyPlugin(wallet) {
       VOTER_ADDRESS,
       [WBERA_ADDRESS],
       [WBERA_ADDRESS],
+      wallet.address,
       wallet.address,
       factory.address,
       units.address,

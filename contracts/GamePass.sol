@@ -4,8 +4,10 @@ pragma solidity 0.8.19;
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract GamePass is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
+
+contract GamePass is ERC721, ERC721Enumerable, ERC721URIStorage, ReentrancyGuard, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
@@ -40,14 +42,14 @@ contract GamePass is ERC721, ERC721Enumerable, ERC721URIStorage, Ownable {
         developer = _developer;
     }
 
-    function mint() external payable {
+    function mint() external payable nonReentrant {
         if (msg.value != price) revert GamePass__InsufficientFunds();
         _mintGamePass(msg.sender);
     }
 
-    function withdraw() external {
+    function withdraw() external nonReentrant {
         uint256 balance = address(this).balance;
-        uint256 amountTreasury = balance * 3 / 5;
+        uint256 amountTreasury = balance * 92 / 100;
         uint256 amountDeveloper = balance - amountTreasury;
 
         payable(treasury).transfer(amountTreasury);

@@ -4,13 +4,14 @@ pragma solidity 0.8.19;
 import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/utils/Strings.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 interface IUnits {
     function mint(address account, uint256 amount) external;
     function burn(address account, uint256 amount) external;
 }
 
-contract Factory is Ownable {
+contract Factory is ReentrancyGuard, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
@@ -82,7 +83,7 @@ contract Factory is Ownable {
         IUnits(units).mint(IERC721(key).ownerOf(tokenId), amount);
     }
 
-    function purchaseTool(uint256 tokenId, uint256 toolId, uint256 toolAmount) external tokenExists(tokenId) {
+    function purchaseTool(uint256 tokenId, uint256 toolId, uint256 toolAmount) external nonReentrant tokenExists(tokenId) {
         if (toolAmount == 0) revert Factory__InvalidInput();
         claim(tokenId);
         for (uint256 i = 0; i < toolAmount; i++) {
@@ -97,7 +98,7 @@ contract Factory is Ownable {
         }
     }
 
-    function upgradeTool(uint256 tokenId, uint256 toolId) external tokenExists(tokenId) {
+    function upgradeTool(uint256 tokenId, uint256 toolId) external nonReentrant tokenExists(tokenId) {
         uint256 currentLvl = tokenId_toolId_Lvl[tokenId][toolId];
         uint256 cost = toolId_BaseCost[toolId] * lvl_CostMultiplier[currentLvl + 1];
         if (cost == 0) revert Factory__LevelMaxed();
