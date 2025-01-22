@@ -11,7 +11,7 @@ const price = convert("0.04269", 18);
 const price2 = convert("0.08538", 18);
 const price10 = convert("0.4269", 18);
 const price100 = convert("4.269", 18);
-const gamePrice = convert("6.9", 18);
+const gamePrice = convert("0.69", 18);
 
 let owner, treasury, user0, user1, user2, user3, developer;
 let base, voter;

@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-
 contract GamePass is ERC721, ERC721Enumerable, ERC721URIStorage, ReentrancyGuard, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
@@ -18,7 +17,7 @@ contract GamePass is ERC721, ERC721Enumerable, ERC721URIStorage, ReentrancyGuard
 
     string public baseTokenURI;
     uint256 public currentTokenId;
-    uint256 public price = 6.9 ether;
+    uint256 public price = 0.69 ether;
     address public treasury;
     address public developer;
 
@@ -42,9 +41,10 @@ contract GamePass is ERC721, ERC721Enumerable, ERC721URIStorage, ReentrancyGuard
         developer = _developer;
     }
 
-    function mint() external payable nonReentrant {
+    function mint() external payable nonReentrant returns (uint256) {
         if (msg.value != price) revert GamePass__InsufficientFunds();
         _mintGamePass(msg.sender);
+        return currentTokenId;
     }
 
     function withdraw() external nonReentrant {

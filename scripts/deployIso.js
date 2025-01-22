@@ -20,31 +20,31 @@ let voter, rewardsVaultFactory;
 async function getContracts() {
   units = await ethers.getContractAt(
     "contracts/Units.sol:Units",
-    "0xD24c6a5a4C747BEe05a8a1C9149c67fd0D9a2416"
+    "0xC1e993A8769c4812D41Eccd40ba8D27375b8E856"
   );
   key = await ethers.getContractAt(
     "contracts/GamePass.sol:GamePass",
-    "0x8A6e7E02D3Af63A7B6a2022bf235dEE39911d250"
+    "0x7a2939712E10D992669d9dAf18f6439E6928CCFe"
   );
   factory = await ethers.getContractAt(
     "contracts/Factory.sol:Factory",
-    "0x38EE72e2cc4E9690e988d9557F95943a0d4578e5"
+    "0x6412c231C67d4e33b896b09de0350394f4FB8dC8"
   );
   plugin = await ethers.getContractAt(
     "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x956Ca4f11496DF1DEDd141e77C2d8b83FfCB8B99"
+    "0x171780b458B3c6080579CFB1c88Ff829f4E85327"
   );
   multicall = await ethers.getContractAt(
     "contracts/Multicall.sol:Multicall",
-    "0x4d3D2d89bBdcb7207bE1bbbbf2c0b33F970De179"
+    "0x10Fe98626B5918be0A75e25F8fb33A18e4a803De"
   );
   voter = await ethers.getContractAt(
     "contracts/Voter.sol:Voter",
-    "0x82D5b065dbc1856E555a33F3DDFF86EbBf0b072F"
+    "0x37bCEFA8DF86F046D91EE02510b118eEabF76816"
   );
   rewardsVaultFactory = await ethers.getContractAt(
     "contracts/BerachainRewardsVaultFactory.sol:BerachainRewardsVaultFactory",
-    "0xDbb0e4Ea77E182b914CD356e65a43d319b67Ccb4"
+    "0xDE0Dd69520DED525C4Be9c1a288Db6D0f5EB2a90"
   );
   console.log("Contracts Retrieved");
 }
@@ -408,19 +408,19 @@ async function main() {
   // await deployKey(wallet);
   // await deployFactory();
   // await deployPlugin(wallet);
-  await deployMulticall();
-  await printDeployment();
+  // await deployMulticall();
+  // await printDeployment();
 
-  //   await verifyUnits();
-  //   await verifyKey(wallet);
-  //   await verifyFactory();
-  //   await verifyPlugin(wallet);
-  //   await verifyMulticall();
+  // await verifyUnits();
+  // await verifyKey(wallet);
+  // await verifyFactory();
+  // await verifyPlugin(wallet);
+  // await verifyMulticall();
 
-  //   await setUpSystem(wallet);
-  //   await setTools(wallet);
-  //   await setToolMultipliers(wallet);
-  //   await setLevels(wallet);
+  await setUpSystem(wallet);
+  await setTools(wallet);
+  await setToolMultipliers(wallet);
+  await setLevels(wallet);
 
   // await plugin.setEntryFee("42690000000000000");
 
