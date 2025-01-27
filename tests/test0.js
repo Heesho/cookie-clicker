@@ -15,7 +15,7 @@ const gamePrice = convert("0.69", 18);
 
 let owner, treasury, user0, user1, user2, user3, developer;
 let base, voter;
-let units, key, factory, plugin, multicall, vaultFactory;
+let moola, bullas, bullish, factory, plugin, multicall, vaultFactory;
 
 describe("local: test0", function () {
   before("Initial set up", async function () {
@@ -38,16 +38,24 @@ describe("local: test0", function () {
     voter = await voterArtifact.deploy();
     console.log("- Voter Initialized");
 
-    const keyArtifact = await ethers.getContractFactory("GamePass");
-    key = await keyArtifact.deploy(treasury.address, developer.address);
-    console.log("- Key Initialized");
+    const bullasArtifact = await ethers.getContractFactory("Bullas");
+    bullas = await bullasArtifact.deploy();
+    console.log("- Bullas Initialized");
 
-    const unitsArtifact = await ethers.getContractFactory("Units");
-    units = await unitsArtifact.deploy();
-    console.log("- Units Initialized");
+    const bullishArtifact = await ethers.getContractFactory("Bullish");
+    bullish = await bullishArtifact.deploy(
+      bullas.address,
+      treasury.address,
+      developer.address
+    );
+    console.log("- Bullish Initialized");
+
+    const moolaArtifact = await ethers.getContractFactory("Moola");
+    moola = await moolaArtifact.deploy();
+    console.log("- Moola Initialized");
 
     const factoryArtifact = await ethers.getContractFactory("Factory");
-    factory = await factoryArtifact.deploy(units.address, key.address);
+    factory = await factoryArtifact.deploy(moola.address, bullish.address);
     console.log("- Factory Initialized");
 
     const pluginArtifact = await ethers.getContractFactory("QueuePlugin");
@@ -59,8 +67,8 @@ describe("local: test0", function () {
       treasury.address,
       developer.address,
       factory.address,
-      units.address,
-      key.address,
+      moola.address,
+      bullish.address,
       vaultFactory.address
     );
     console.log("- Plugin Initialized");
@@ -68,16 +76,16 @@ describe("local: test0", function () {
     const multicallArtifact = await ethers.getContractFactory("Multicall");
     multicall = await multicallArtifact.deploy(
       base.address,
-      units.address,
+      moola.address,
       factory.address,
-      key.address,
+      bullish.address,
       plugin.address,
       AddressZero
     );
     console.log("- Multicall Initialized");
 
-    await units.setMinter(factory.address, true);
-    await units.setMinter(plugin.address, true);
+    await moola.setMinter(factory.address, true);
+    await moola.setMinter(plugin.address, true);
     await voter.setPlugin(plugin.address);
     console.log("- System set up");
 
@@ -87,18 +95,34 @@ describe("local: test0", function () {
 
   it("User0 mints a clicker", async function () {
     console.log("******************************************************");
-    console.log(
-      "GamePass Balance: ",
-      await ethers.provider.getBalance(key.address)
+    await expect(bullish.connect(user0).claim(1)).to.be.reverted;
+    await bullas.connect(user1).mint();
+    await expect(bullish.connect(user0).claim(1)).to.be.revertedWith(
+      "Bullish__NotBullasOwner"
     );
-    await key.connect(user0).mint({ value: gamePrice });
-    await key.connect(user1).mint({ value: gamePrice });
-    await key.connect(owner).mintBatch(owner.address, 2);
-    await key.connect(owner).transferFrom(owner.address, user2.address, 3);
-    await key.connect(owner).transferFrom(owner.address, user3.address, 4);
+    await bullas.connect(user0).mint();
+    await expect(bullish.connect(user0).claim(1)).to.be.revertedWith(
+      "Bullish__NotBullasOwner"
+    );
+    await bullish.connect(user0).claim(2);
+    await expect(bullish.connect(user0).claim(2)).to.be.revertedWith(
+      "Bullish__AlreadyClaimed"
+    );
+  });
+
+  it("User0 mints a clicker", async function () {
+    console.log("******************************************************");
     console.log(
-      "GamePass Balance: ",
-      await ethers.provider.getBalance(key.address)
+      "Bullish Balance: ",
+      await ethers.provider.getBalance(bullish.address)
+    );
+    await bullish.connect(user1).mint({ value: gamePrice });
+    await bullish.connect(owner).mintBatch(owner.address, 2);
+    await bullish.connect(owner).transferFrom(owner.address, user2.address, 3);
+    await bullish.connect(owner).transferFrom(owner.address, user3.address, 4);
+    console.log(
+      "Bullish Balance: ",
+      await ethers.provider.getBalance(bullish.address)
     );
   });
 
@@ -205,7 +229,7 @@ describe("local: test0", function () {
     await network.provider.send("evm_mine");
   });
 
-  it("User0 claims units", async function () {
+  it("User0 claims moola", async function () {
     console.log("******************************************************");
     await factory.connect(user0).claim(1);
   });
@@ -275,7 +299,7 @@ describe("local: test0", function () {
 
   it("Get id of owner", async function () {
     console.log("******************************************************");
-    console.log(await key.tokenOfOwnerByIndex(user0.address, 0));
+    console.log(await bullish.tokenOfOwnerByIndex(user0.address, 0));
   });
 
   it("Forward 2 hour", async function () {
@@ -1114,48 +1138,49 @@ describe("local: test0", function () {
     console.log("Size: ", await plugin.count());
   });
 
-  it("GamePass Testing", async function () {
+  it("Bullish Testing", async function () {
     console.log("******************************************************");
-    await expect(key.connect(user0).setTreasury(user0.address)).to.be.reverted;
-    await key.connect(owner).setTreasury(user0.address);
-    await key.connect(owner).setTreasury(treasury.address);
-    await expect(
-      key.connect(owner).setDeveloper(user0.address)
-    ).to.be.revertedWith("GamePass__NotAuthorized");
-    await key.connect(developer).setDeveloper(user0.address);
-    await expect(
-      key.connect(developer).setDeveloper(developer.address)
-    ).to.be.revertedWith("GamePass__NotAuthorized");
-    await key.connect(user0).setDeveloper(developer.address);
-    await expect(key.connect(user0).mint({ value: price2 })).to.be.revertedWith(
-      "GamePass__InsufficientFunds"
-    );
-    await expect(key.connect(developer).setPrice(0)).to.be.reverted;
-    await key.connect(owner).setPrice(price);
-    console.log(
-      "GamePass Balance: ",
-      await ethers.provider.getBalance(key.address)
-    );
-    await expect(key.connect(user0).mint({ value: price2 })).to.be.revertedWith(
-      "GamePass__InsufficientFunds"
-    );
-    await key.connect(user0).mint({ value: price });
-    await key.connect(user1).mint({ value: price });
-    await key.connect(user2).mint({ value: price });
-    console.log(
-      "GamePass Balance: ",
-      await ethers.provider.getBalance(key.address)
-    );
-    await key.connect(owner).setBaseTokenURI("https://www.google.com");
-    console.log(await key.tokenURI(1));
-    console.log(await key.tokenURI(2));
-    console.log(await key.tokenURI(3));
-    await expect(key.connect(developer).mintBatch(user0.address, 10)).to.be
+    await expect(bullish.connect(user0).setTreasury(user0.address)).to.be
       .reverted;
-    await key.connect(owner).mintBatch(user0.address, 10);
+    await bullish.connect(owner).setTreasury(user0.address);
+    await bullish.connect(owner).setTreasury(treasury.address);
+    await expect(
+      bullish.connect(owner).setDeveloper(user0.address)
+    ).to.be.revertedWith("Bullish__NotAuthorized");
+    await bullish.connect(developer).setDeveloper(user0.address);
+    await expect(
+      bullish.connect(developer).setDeveloper(developer.address)
+    ).to.be.revertedWith("Bullish__NotAuthorized");
+    await bullish.connect(user0).setDeveloper(developer.address);
+    await expect(
+      bullish.connect(user0).mint({ value: price2 })
+    ).to.be.revertedWith("Bullish__InsufficientFunds");
+    await expect(bullish.connect(developer).setPrice(0)).to.be.reverted;
+    await bullish.connect(owner).setPrice(price);
     console.log(
-      "GamePass Balance: ",
-      await ethers.provider.getBalance(key.address)
+      "Bullish Balance: ",
+      await ethers.provider.getBalance(bullish.address)
+    );
+    await expect(
+      bullish.connect(user0).mint({ value: price2 })
+    ).to.be.revertedWith("Bullish__InsufficientFunds");
+    await bullish.connect(user0).mint({ value: price });
+    await bullish.connect(user1).mint({ value: price });
+    await bullish.connect(user2).mint({ value: price });
+    console.log(
+      "Bullish Balance: ",
+      await ethers.provider.getBalance(bullish.address)
+    );
+    await bullish.connect(owner).setBaseTokenURI("https://www.google.com");
+    console.log(await bullish.tokenURI(1));
+    console.log(await bullish.tokenURI(2));
+    console.log(await bullish.tokenURI(3));
+    await expect(bullish.connect(developer).mintBatch(user0.address, 10)).to.be
+      .reverted;
+    await bullish.connect(owner).mintBatch(user0.address, 10);
+    console.log(
+      "Bullish Balance: ",
+      await ethers.provider.getBalance(bullish.address)
     );
     console.log(
       "Treasury Balance: ",
@@ -1165,10 +1190,10 @@ describe("local: test0", function () {
       "Developer Balance: ",
       await ethers.provider.getBalance(developer.address)
     );
-    await key.connect(owner).withdraw();
+    await bullish.connect(owner).withdraw();
     console.log(
-      "GamePass Balance: ",
-      await ethers.provider.getBalance(key.address)
+      "Bullish Balance: ",
+      await ethers.provider.getBalance(bullish.address)
     );
     console.log(
       "Treasury Balance: ",

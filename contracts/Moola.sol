@@ -7,7 +7,7 @@ import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Votes.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract Units is ERC20, Ownable {
+contract Moola is ERC20, Ownable {
 
     mapping(address => bool) public minters;
 

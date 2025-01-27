@@ -6,44 +6,57 @@ import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-contract GamePass is ERC721, ERC721Enumerable, ERC721URIStorage, ReentrancyGuard, Ownable {
+contract Bullish is ERC721, ERC721Enumerable, ERC721URIStorage, ReentrancyGuard, Ownable {
 
     /*----------  CONSTANTS  --------------------------------------------*/
 
-    string public constant NAME = "Bull Ish Game";
-    string public constant SYMBOL = "BULL ISH";
-    
+    string public constant NAME = "Bull Ish";
+
     /*----------  STATE VARIABLES  --------------------------------------*/
 
     string public baseTokenURI;
     uint256 public currentTokenId;
     uint256 public price = 0.69 ether;
+    address public immutable bullas;
     address public treasury;
     address public developer;
 
+    mapping(uint256 => bool) public bullas_Claimed;
+
     /*----------  ERRORS ------------------------------------------------*/
 
-    error GamePass__InsufficientFunds();
-    error GamePass__NotAuthorized();
+    error Bullish__InsufficientFunds();
+    error Bullish__NotAuthorized();
+    error Bullish__NotBullasOwner();
+    error Bullish__AlreadyClaimed();
 
     /*----------  EVENTS ------------------------------------------------*/
 
-    event GamePass__Minted(address indexed _to, uint256 _tokenId);
-    event GamePass__PriceSet(uint256 _price);
-    event GamePass__BaseTokenURIUpdated(string _newBaseTokenURI);
-    event GamePass__TreasurySet(address _treasury);
-    event GamePass__DeveloperSet(address _developer);
+    event Bullish__Minted(address indexed _to, uint256 _tokenId);
+    event Bullish__PriceSet(uint256 _price);
+    event Bullish__BaseTokenURIUpdated(string _newBaseTokenURI);
+    event Bullish__TreasurySet(address _treasury);
+    event Bullish__DeveloperSet(address _developer);
 
     /*----------  FUNCTIONS  --------------------------------------------*/
 
-    constructor(address _treasury, address _developer) ERC721(NAME, SYMBOL) {
+    constructor(address _bullas, address _treasury, address _developer) ERC721(NAME, NAME) {
+        bullas = _bullas;
         treasury = _treasury;
         developer = _developer;
     }
 
     function mint() external payable nonReentrant returns (uint256) {
-        if (msg.value != price) revert GamePass__InsufficientFunds();
-        _mintGamePass(msg.sender);
+        if (msg.value != price) revert Bullish__InsufficientFunds();
+        _mintBullish(msg.sender);
+        return currentTokenId;
+    }
+
+    function claim(uint256 tokenId) external nonReentrant returns (uint256) {
+        if (IERC721(bullas).ownerOf(tokenId) != msg.sender) revert Bullish__NotBullasOwner();
+        if (bullas_Claimed[tokenId]) revert Bullish__AlreadyClaimed();
+        bullas_Claimed[tokenId] = true;
+        _mintBullish(msg.sender);
         return currentTokenId;
     }
 
@@ -60,35 +73,35 @@ contract GamePass is ERC721, ERC721Enumerable, ERC721URIStorage, ReentrancyGuard
 
     function mintBatch(address _to, uint256 _amount) external onlyOwner {
         for (uint256 i = 0; i < _amount; i++) {
-            _mintGamePass(_to);
+            _mintBullish(_to);
         }
     }
 
     function setBaseTokenURI(string memory _baseTokenURI) external onlyOwner {
         baseTokenURI = _baseTokenURI;
-        emit GamePass__BaseTokenURIUpdated(_baseTokenURI);
+        emit Bullish__BaseTokenURIUpdated(_baseTokenURI);
     }
 
     function setPrice(uint256 _price) external onlyOwner {
         price = _price;
-        emit GamePass__PriceSet(_price);
+        emit Bullish__PriceSet(_price);
     }
 
     function setTreasury(address _treasury) external onlyOwner {
         treasury = _treasury;
-        emit GamePass__TreasurySet(_treasury);
+        emit Bullish__TreasurySet(_treasury);
     }
 
     function setDeveloper(address _developer) external {
-        if (msg.sender != developer) revert GamePass__NotAuthorized();
+        if (msg.sender != developer) revert Bullish__NotAuthorized();
         developer = _developer;
-        emit GamePass__DeveloperSet(_developer);
+        emit Bullish__DeveloperSet(_developer);
     }
 
-    function _mintGamePass(address _to) internal {
+    function _mintBullish(address _to) internal {
         uint256 newTokenId = ++currentTokenId;
         _safeMint(_to, newTokenId);
-        emit GamePass__Minted(_to, newTokenId);
+        emit Bullish__Minted(_to, newTokenId);
     }
 
     /*----------  OVERRIDE FUNCTIONS  ------------------------------------*/
