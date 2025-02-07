@@ -22,26 +22,26 @@ let moola, bullish, factory, plugin, multicall;
 /*===========================  CONTRACT DATA  =======================*/
 
 async function getContracts() {
-  // moola = await ethers.getContractAt(
-  //   "contracts/Moola.sol:Moola",
-  //   ""
-  // );
-  // bullish = await ethers.getContractAt(
-  //   "contracts/Bullish.sol:Bullish",
-  //   ""
-  // );
-  // factory = await ethers.getContractAt(
-  //   "contracts/Factory.sol:Factory",
-  //   ""
-  // );
-  // plugin = await ethers.getContractAt(
-  //   "contracts/QueuePlugin.sol:QueuePlugin",
-  //   ""
-  // );
-  // multicall = await ethers.getContractAt(
-  //   "contracts/Multicall.sol:Multicall",
-  //   ""
-  // );
+  moola = await ethers.getContractAt(
+    "contracts/Moola.sol:Moola",
+    "0x331865bF2eA19E94bBF438Cf4ee590cB6392E5A9"
+  );
+  bullish = await ethers.getContractAt(
+    "contracts/Bullish.sol:Bullish",
+    "0xe1d8215F710Da00d9918ebB649DDF1928Ad55896"
+  );
+  factory = await ethers.getContractAt(
+    "contracts/Factory.sol:Factory",
+    "0x8d15Db9CeE68beF3beb65c576180e6D83F5c431D"
+  );
+  plugin = await ethers.getContractAt(
+    "contracts/QueuePlugin.sol:QueuePlugin",
+    "0xE259A689D13139F413eE693BE27181192319a629"
+  );
+  multicall = await ethers.getContractAt(
+    "contracts/Multicall.sol:Multicall",
+    "0x2972e38A38956148AA93801A8A78459020a34523"
+  );
   console.log("Contracts Retrieved");
 }
 
@@ -63,7 +63,7 @@ async function deployBullish() {
   console.log("Starting Bullish Deployment");
   const bullishArtifact = await ethers.getContractFactory("Bullish");
   const bullishContract = await bullishArtifact.deploy(
-    bullas.address,
+    BULLAS_ADDRESS,
     MULTISIG_ADDRESS,
     DEVELOPER_ADDRESS,
     {
@@ -134,7 +134,6 @@ async function deployMulticall() {
 async function printDeployment() {
   console.log("**************************************************************");
   console.log("Moola: ", moola.address);
-  console.log("Bullas: ", bullas.address);
   console.log("Bullish: ", bullish.address);
   console.log("Factory: ", factory.address);
   console.log("Plugin: ", plugin.address);
@@ -154,7 +153,7 @@ async function verifyMoola() {
 async function verifyBullish() {
   await hre.run("verify:verify", {
     address: bullish.address,
-    constructorArguments: [bullas.address, MULTISIG_ADDRESS, DEVELOPER_ADDRESS],
+    constructorArguments: [BULLAS_ADDRESS, MULTISIG_ADDRESS, DEVELOPER_ADDRESS],
   });
 }
 
@@ -375,8 +374,23 @@ async function setLevels(wallet) {
   console.log("Levels set");
 }
 
+async function transferOwnership(wallet) {
+  await moola.connect(wallet).transferOwnership(MULTISIG_ADDRESS);
+  console.log("Moola ownership transferred to multisig");
+  await sleep(5000);
+  await bullish.connect(wallet).transferOwnership(MULTISIG_ADDRESS);
+  console.log("Bullish ownership transferred to multisig");
+  await sleep(5000);
+  await factory.connect(wallet).transferOwnership(MULTISIG_ADDRESS);
+  console.log("Factory ownership transferred to multisig");
+  await sleep(5000);
+  await plugin.connect(wallet).transferOwnership(MULTISIG_ADDRESS);
+  console.log("Plugin ownership transferred to multisig");
+}
+
 async function main() {
   const [wallet] = await ethers.getSigners();
+
   console.log("Using wallet: ", wallet.address);
 
   await getContracts();
@@ -398,6 +412,8 @@ async function main() {
   // await setTools(wallet);
   // await setToolMultipliers(wallet);
   // await setLevels(wallet);
+
+  await transferOwnership(wallet);
 
   // await plugin.setEntryFee("42690000000000000");
 
