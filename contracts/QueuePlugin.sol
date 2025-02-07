@@ -31,8 +31,8 @@ interface IUnits {
     function mint(address account, uint256 amount) external;
 }
 
-interface IBerachainRewardsVaultFactory {
-    function createRewardsVault(address _vaultToken) external returns (address);
+interface IBerachainRewardVaultFactory {
+    function createRewardVault(address _vaultToken) external returns (address);
 }
 
 interface IRewardVault {
@@ -41,7 +41,7 @@ interface IRewardVault {
 }
 
 contract VaultToken is ERC20, Ownable {
-    constructor() ERC20("Bull Ish Plugin Vault Token", "Bull Ish Plugin Vault Token") {}
+    constructor() ERC20("BULL ISH", "BULL ISH") {}
 
     function mint(address to, uint256 amount) external onlyOwner {
         _mint(to, amount);
@@ -135,7 +135,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
     /*----------  FUNCTIONS  --------------------------------------------*/
 
     constructor(
-        address _token,                    // WBERA
+        address _token,                         // WBERA
         address _voter, 
         address[] memory _assetTokens,          // [WBERA]
         address[] memory _bribeTokens,          // [WBERA]
@@ -158,7 +158,7 @@ contract QueuePlugin is ReentrancyGuard, Ownable {
         OTOKEN = IVoter(_voter).OTOKEN();
         
         vaultToken = address(new VaultToken());
-        rewardVault = IBerachainRewardsVaultFactory(_vaultFactory).createRewardsVault(address(vaultToken));
+        rewardVault = IBerachainRewardVaultFactory(_vaultFactory).createRewardVault(address(vaultToken));
     }
 
     function claimAndDistribute() 

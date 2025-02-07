@@ -7,42 +7,41 @@ const sleep = (delay) => new Promise((resolve) => setTimeout(resolve, delay));
 const convert = (amount, decimals) => ethers.utils.parseUnits(amount, decimals);
 const divDec = (amount, decimals = 18) => amount / 10 ** decimals;
 
-const VOTER_ADDRESS = "0x8D3629b91Dfc11B438CE728f945F9FCfc90e2231";
-const WBERA_ADDRESS = "0x7507c1dc16935B82698e4C63f2746A2fCf994dF8"; // WBERA address
-const OBERO_ADDRESS = "0x2F85c00073487101FB8C9C7120fDbaB66eb99182";
-const VAULT_FACTORY_ADDRESS = "0x2B6e40f65D82A0cB98795bC7587a71bfa49fBB2B";
+const VOTER_ADDRESS = "0xd7ea36ECA1cA3E73bC262A6D05DB01E60AE4AD47";
+const OBERO_ADDRESS = "0x40A8d9efE6A2C6C9D193Cc0A4476767748E68133";
+const WBERA_ADDRESS = "0x6969696969696969696969696969696969696969";
+const VAULT_FACTORY_ADDRESS = "0x94Ad6Ac84f6C6FbA8b8CCbD71d9f4f101def52a8";
+const BULLAS_ADDRESS = "0x333814f5E16EEE61d0c0B03a5b6ABbD424B381c2";
+const DEVELOPER_ADDRESS = "0x2e4c3da66Da4100185Ed0Afdd059865aC1e787C3";
+const MULTISIG_ADDRESS = "0x83C0d763Ea742166485688BdC06fd155cba29075";
 
 // Contract Variables
-let moola, bullas, bullish, factory, plugin, multicall;
+let moola, bullish, factory, plugin, multicall;
 
 /*===================================================================*/
 /*===========================  CONTRACT DATA  =======================*/
 
 async function getContracts() {
-  moola = await ethers.getContractAt(
-    "contracts/Moola.sol:Moola",
-    "0x487BD0C535C5DaC1D629Acaae2f1F4Ea3E9bDeAF"
-  );
-  bullas = await ethers.getContractAt(
-    "contracts/Bullas.sol:Bullas",
-    "0xfBA12EDB9a3c7aBBD43410241382E8860b39D712"
-  );
-  bullish = await ethers.getContractAt(
-    "contracts/Bullish.sol:Bullish",
-    "0x32986D36ccCec9A8B2F906C439A89C870614c2CA"
-  );
-  factory = await ethers.getContractAt(
-    "contracts/Factory.sol:Factory",
-    "0x1582DcB2bB44D8Db1D2936d08dBfFfeBB2C87f82"
-  );
-  plugin = await ethers.getContractAt(
-    "contracts/QueuePlugin.sol:QueuePlugin",
-    "0x421317ac0217D62ccD8e6d958775Dd472Cf0e2Ba"
-  );
-  multicall = await ethers.getContractAt(
-    "contracts/Multicall.sol:Multicall",
-    "0x5BB4eB5dBEeBa2C365A370C14D09e141AF782dfd"
-  );
+  // moola = await ethers.getContractAt(
+  //   "contracts/Moola.sol:Moola",
+  //   ""
+  // );
+  // bullish = await ethers.getContractAt(
+  //   "contracts/Bullish.sol:Bullish",
+  //   ""
+  // );
+  // factory = await ethers.getContractAt(
+  //   "contracts/Factory.sol:Factory",
+  //   ""
+  // );
+  // plugin = await ethers.getContractAt(
+  //   "contracts/QueuePlugin.sol:QueuePlugin",
+  //   ""
+  // );
+  // multicall = await ethers.getContractAt(
+  //   "contracts/Multicall.sol:Multicall",
+  //   ""
+  // );
   console.log("Contracts Retrieved");
 }
 
@@ -60,24 +59,13 @@ async function deployMoola() {
   console.log("Moola Deployed at:", moola.address);
 }
 
-async function deployBullas() {
-  console.log("Starting Bullas Deployment");
-  const bullasArtifact = await ethers.getContractFactory("Bullas");
-  const bullasContract = await bullasArtifact.deploy({
-    gasPrice: ethers.gasPrice,
-  });
-  bullas = await bullasContract.deployed();
-  await sleep(5000);
-  console.log("Bullas Deployed at:", bullas.address);
-}
-
-async function deployBullish(wallet) {
+async function deployBullish() {
   console.log("Starting Bullish Deployment");
   const bullishArtifact = await ethers.getContractFactory("Bullish");
   const bullishContract = await bullishArtifact.deploy(
     bullas.address,
-    wallet.address,
-    wallet.address,
+    MULTISIG_ADDRESS,
+    DEVELOPER_ADDRESS,
     {
       gasPrice: ethers.gasPrice,
     }
@@ -102,7 +90,7 @@ async function deployFactory() {
   console.log("Factory Deployed at:", factory.address);
 }
 
-async function deployPlugin(wallet) {
+async function deployPlugin() {
   console.log("Starting Plugin Deployment");
   const pluginArtifact = await ethers.getContractFactory("QueuePlugin");
   const pluginContract = await pluginArtifact.deploy(
@@ -110,8 +98,8 @@ async function deployPlugin(wallet) {
     VOTER_ADDRESS,
     [WBERA_ADDRESS],
     [WBERA_ADDRESS],
-    wallet.address,
-    wallet.address,
+    MULTISIG_ADDRESS,
+    DEVELOPER_ADDRESS,
     factory.address,
     moola.address,
     bullish.address,
@@ -163,17 +151,10 @@ async function verifyMoola() {
   });
 }
 
-async function verifyBullas() {
-  await hre.run("verify:verify", {
-    address: bullas.address,
-    constructorArguments: [],
-  });
-}
-
-async function verifyBullish(wallet) {
+async function verifyBullish() {
   await hre.run("verify:verify", {
     address: bullish.address,
-    constructorArguments: [bullas.address, wallet.address, wallet.address],
+    constructorArguments: [bullas.address, MULTISIG_ADDRESS, DEVELOPER_ADDRESS],
   });
 }
 
@@ -184,7 +165,7 @@ async function verifyFactory() {
   });
 }
 
-async function verifyPlugin(wallet) {
+async function verifyPlugin() {
   await hre.run("verify:verify", {
     address: plugin.address,
     constructorArguments: [
@@ -192,8 +173,8 @@ async function verifyPlugin(wallet) {
       VOTER_ADDRESS,
       [WBERA_ADDRESS],
       [WBERA_ADDRESS],
-      wallet.address,
-      wallet.address,
+      MULTISIG_ADDRESS,
+      DEVELOPER_ADDRESS,
       factory.address,
       moola.address,
       bullish.address,
@@ -401,18 +382,16 @@ async function main() {
   await getContracts();
 
   // await deployMoola();
-  // await deployBullas();
-  // await deployBullish(wallet);
+  // await deployBullish();
   // await deployFactory();
-  // await deployPlugin(wallet);
+  // await deployPlugin();
   // await deployMulticall();
   // await printDeployment();
 
   // await verifyMoola();
-  // await verifyBullas();
-  // await verifyBullish(wallet);
+  // await verifyBullish();
   // await verifyFactory();
-  // await verifyPlugin(wallet);
+  // await verifyPlugin();
   // await verifyMulticall();
 
   // await setUpSystem(wallet);

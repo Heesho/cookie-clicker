@@ -16,7 +16,7 @@ contract Bullish is ERC721, ERC721Enumerable, ERC721URIStorage, ReentrancyGuard,
 
     string public baseTokenURI;
     uint256 public currentTokenId;
-    uint256 public price = 0.69 ether;
+    uint256 public price = 6.9 ether;
     address public immutable bullas;
     address public treasury;
     address public developer;
