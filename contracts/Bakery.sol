@@ -43,8 +43,8 @@ contract Bakery is Ownable {
     error Bakery__InvalidCps();
 
     event Bakery__Click(address indexed from, address indexed baker, uint256 paymentAmount);
-    event Bakery__FeePaid(address indexed treasury, uint256 amount);
-    event Bakery__PaymentPaid(address indexed baker, uint256 amount);
+    event Bakery__TreasuryPaid(address indexed treasury, uint256 amount);
+    event Bakery__BakerPaid(address indexed baker, uint256 amount);
     event Bakery__Baked(address indexed baker, uint256 amount);
     event Bakery__TreasurySet(address indexed treasury);
     event Bakery__CpsSet(uint256 indexed cps);
@@ -61,12 +61,10 @@ contract Bakery is Ownable {
         _;
     }
 
-    constructor(address _cookie, address _treasury) {
+    constructor(address _cookie) {
         if (_cookie == address(0)) revert Bakery__InvalidAddress();
-        if (_treasury == address(0)) revert Bakery__InvalidAddress();
 
         cookie = _cookie;
-        treasury = _treasury;
 
         slot0.initPrice = uint192(MIN_INIT_PRICE);
         slot0.startTime = uint40(block.timestamp);
@@ -84,14 +82,18 @@ contract Bakery is Ownable {
         if (paymentAmount > maxPaymentAmount) revert Bakery__MaxPaymentAmountExceeded();
 
         if (paymentAmount > 0) {
-            uint256 feeAmount = paymentAmount * FEE / DIVISOR;
-            (bool feeSent, ) = payable(treasury).call{value: feeAmount}("");
-            require(feeSent, "ETH fee transfer failed");
-            emit Bakery__TreasuryPaid(treasury, feeAmount);
+            
+            uint256 treasuryAmount = 0;
+            if (treasury != address(0)) {
+                treasuryAmount = paymentAmount * FEE / DIVISOR;
+                (bool treasurySent, ) = payable(treasury).call{value: treasuryAmount}("");
+                require(treasurySent, "ETH treasury transfer failed");
+                emit Bakery__TreasuryPaid(treasury, treasuryAmount);
+            }
 
-            uint256 bakerAmount = paymentAmount - feeAmount;
-            (bool sent, ) = payable(slot0Cache.owner).call{value: bakerAmount}("");
-            require(sent, "ETH transfer failed");
+            uint256 bakerAmount = paymentAmount - treasuryAmount;
+            (bool bakerSent, ) = payable(slot0Cache.owner).call{value: bakerAmount}("");
+            require(bakerSent, "ETH baker transfer failed");
             emit Bakery__BakerPaid(slot0Cache.owner, bakerAmount);
         }
 
@@ -135,7 +137,6 @@ contract Bakery is Ownable {
     }
 
     function setTreasury(address _treasury) external onlyOwner {
-        if (_treasury == address(0)) revert Bakery__InvalidAddress();
         treasury = _treasury;
         emit Bakery__TreasurySet(_treasury);
     }
