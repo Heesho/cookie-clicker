@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract Cookie is ERC20, Ownable {
+    uint256 public minted;
     mapping(address => bool) public minters;
 
     error Cookie__NotAuthorized();
@@ -21,6 +22,7 @@ contract Cookie is ERC20, Ownable {
     constructor() ERC20("Cookie", "COOKIE") {}
 
     function mint(address account, uint256 amount) external onlyMinter {
+        minted += amount;
         _mint(account, amount);
         emit Cookie__Minted(account, amount);
     }

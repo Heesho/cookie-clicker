@@ -2,7 +2,7 @@
 pragma solidity 0.8.19;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721.sol";
+import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/Math.sol";
 
@@ -11,26 +11,35 @@ interface ICookie {
     function burn(address account, uint256 amount) external;
 }
 
+interface IRewarder {
+    function duration() external view returns (uint256);
+    function left(address token) external view returns (uint256);
+    function deposit(address account, uint256 amount) external;
+    function withdraw(address account, uint256 amount) external;
+    function getReward(address account) external view returns (uint256);
+    function notifyRewardAmount(address token, uint256 amount) external;
+}
+
 contract Factory is ReentrancyGuard, Ownable {
+    using SafeERC20 for IERC20;
+
     uint256 constant PRECISION = 1 ether;
-    uint256 constant DURATION = 28800;
 
     address public immutable cookie;
+    address public immutable rewarder;
 
     uint256 public lvlIndex;
-    mapping(uint256 => uint256) public lvl_Unlock; // level => amount required to unlock
-    mapping(uint256 => uint256) public lvl_CostMultiplier; // level => cost multiplier
+    mapping(uint256 => uint256) public lvl_Unlock;
+    mapping(uint256 => uint256) public lvl_CostMultiplier;
 
     uint256 public toolIndex;
     uint256 public amountIndex;
-    mapping(uint256 => uint256) public toolId_BaseCost; // tool id => base cost
-    mapping(uint256 => uint256) public toolId_BaseCps; // tool id => base cookies per second
-    mapping(uint256 => uint256) public amount_CostMultiplier; // tool amount => cost multiplier
-    mapping(address => uint256) public account_Cps; // account => cookies per second
-    mapping(address => uint256) public account_Last; // account => last time claimed
+    mapping(uint256 => uint256) public toolId_BaseCost;
+    mapping(uint256 => uint256) public toolId_BasePower;
+    mapping(uint256 => uint256) public amount_CostMultiplier;
 
-    mapping(address => mapping(uint256 => uint256)) public account_toolId_Amount; // account => tool id => amount
-    mapping(address => mapping(uint256 => uint256)) public account_toolId_Lvl; // account => tool id => level
+    mapping(address => mapping(uint256 => uint256)) public account_toolId_Amount;
+    mapping(address => mapping(uint256 => uint256)) public account_toolId_Lvl;
 
     error Factory__AmountMaxed();
     error Factory__LevelMaxed();
@@ -46,58 +55,43 @@ contract Factory is ReentrancyGuard, Ownable {
     event Factory__ToolSet(uint256 toolId, uint256 baseCps, uint256 baseCost);
     event Factory__ToolMultiplierSet(uint256 index, uint256 multiplier);
 
-    modifier onlyAccount(address account) {
-        if (msg.sender != account) revert Factory__NotAuthorized();
-        _;
-    }
-
-    constructor(address _cookie) {
+    constructor(address _cookie, address _rewarder) {
         cookie = _cookie;
+        rewarder = _rewarder;
     }
 
-    function claim(address account) public {
-        uint256 amount = account_Cps[account] * (block.timestamp - account_Last[account]);
-        uint256 maxAmount = account_Cps[account] * DURATION;
-        if (amount > maxAmount) amount = maxAmount;
-        account_Last[account] = block.timestamp;
-        emit Factory__Claimed(account, amount);
-        ICookie(cookie).mint(account, amount);
-    }
-
-    function purchaseTool(address account, uint256 toolId, uint256 toolAmount)
-        external
-        nonReentrant
-        onlyAccount(account)
-    {
+    function purchaseTool(address account, uint256 toolId, uint256 toolAmount) external nonReentrant {
         if (toolAmount == 0) revert Factory__InvalidInput();
-        claim(account);
+        IRewarder(rewarder).getReward(account);
         uint256 cost = 0;
+        uint256 power = 0;
         for (uint256 i = 0; i < toolAmount; i++) {
             uint256 currentAmount = account_toolId_Amount[account][toolId];
             if (currentAmount == amountIndex) revert Factory__AmountMaxed();
             uint256 unitCost = getToolCost(toolId, currentAmount);
             cost += unitCost;
             if (unitCost == 0) revert Factory__ToolDoesNotExist();
+            uint256 unitPower = getToolPower(toolId, account_toolId_Lvl[account][toolId]);
             account_toolId_Amount[account][toolId]++;
-            account_Cps[account] += getToolCps(toolId, account_toolId_Lvl[account][toolId]);
-            emit Factory__ToolPurchased(
-                account, toolId, account_toolId_Amount[account][toolId], unitCost, account_Cps[account]
-            );
+            power += unitPower;
+            emit Factory__ToolPurchased(account, toolId, account_toolId_Amount[account][toolId], unitCost, unitPower);
         }
         ICookie(cookie).burn(account, cost);
+        IRewarder(rewarder).deposit(account, power);
     }
 
-    function upgradeTool(address account, uint256 toolId) external nonReentrant onlyAccount(account) {
+    function upgradeTool(address account, uint256 toolId) external nonReentrant {
         uint256 currentLvl = account_toolId_Lvl[account][toolId];
         uint256 cost = toolId_BaseCost[toolId] * lvl_CostMultiplier[currentLvl + 1];
         if (cost == 0) revert Factory__LevelMaxed();
         if (account_toolId_Amount[account][toolId] < lvl_Unlock[currentLvl + 1]) revert Factory__UpgradeLocked();
-        claim(account);
+        IRewarder(rewarder).getReward(account);
         account_toolId_Lvl[account][toolId]++;
-        account_Cps[account] += (getToolCps(toolId, currentLvl + 1) - getToolCps(toolId, currentLvl))
+        uint256 power = (getToolPower(toolId, currentLvl + 1) - getToolPower(toolId, currentLvl))
             * account_toolId_Amount[account][toolId];
-        emit Factory__ToolUpgraded(account, toolId, account_toolId_Lvl[account][toolId], cost, account_Cps[account]);
+        emit Factory__ToolUpgraded(account, toolId, account_toolId_Lvl[account][toolId], cost, power);
         ICookie(cookie).burn(account, cost);
+        IRewarder(rewarder).deposit(account, power);
     }
 
     function setLvl(uint256[] calldata cost, uint256[] calldata unlock) external onlyOwner {
@@ -115,7 +109,7 @@ contract Factory is ReentrancyGuard, Ownable {
         if (baseCps.length != baseCost.length) revert Factory__InvalidInput();
         for (uint256 i = toolIndex; i < toolIndex + baseCps.length; i++) {
             uint256 arrayIndex = i - toolIndex;
-            toolId_BaseCps[i] = baseCps[arrayIndex];
+            toolId_BasePower[i] = baseCps[arrayIndex];
             toolId_BaseCost[i] = baseCost[arrayIndex];
             emit Factory__ToolSet(i, baseCps[arrayIndex], baseCost[arrayIndex]);
         }
@@ -131,8 +125,8 @@ contract Factory is ReentrancyGuard, Ownable {
         amountIndex += multipliers.length;
     }
 
-    function getToolCps(uint256 toolId, uint256 lvl) public view returns (uint256) {
-        return toolId_BaseCps[toolId] * 2 ** lvl;
+    function getToolPower(uint256 toolId, uint256 lvl) public view returns (uint256) {
+        return toolId_BasePower[toolId] * 2 ** lvl;
     }
 
     function getToolCost(uint256 toolId, uint256 amount) public view returns (uint256) {
@@ -140,15 +134,14 @@ contract Factory is ReentrancyGuard, Ownable {
         return toolId_BaseCost[toolId] * amount_CostMultiplier[amount] / PRECISION;
     }
 
-    function getMultipleToolCost(uint256 toolId, uint256 initialAmount, uint256 finalAmount)
-        external
-        view
-        returns (uint256)
-    {
-        uint256 cost = 0;
-        for (uint256 i = initialAmount; i < finalAmount; i++) {
-            cost += getToolCost(toolId, i);
+    function distribute() external {
+        uint256 duration = IRewarder(rewarder).duration();
+        uint256 balance = IERC20(cookie).balanceOf(address(this));
+        uint256 left = IRewarder(rewarder).left(cookie);
+        if (balance > left && balance > duration) {
+            IERC20(cookie).safeApprove(rewarder, 0);
+            IERC20(cookie).safeApprove(rewarder, balance);
+            IRewarder(rewarder).notifyRewardAmount(cookie, balance);
         }
-        return cost;
     }
 }

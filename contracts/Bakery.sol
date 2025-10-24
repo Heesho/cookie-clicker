@@ -13,6 +13,7 @@ contract Bakery is Ownable {
     using SafeERC20 for IERC20;
 
     uint256 public constant FEE = 1_000;
+    uint256 public constant MINT_SPLIT = 8_000;
     uint256 public constant DIVISOR = 10_000;
     uint256 public constant PRECISION = 1e18;
     uint256 public constant EPOCH_PERIOD = 1 hours;
@@ -21,6 +22,8 @@ contract Bakery is Ownable {
     uint256 public constant ABS_MAX_INIT_PRICE = type(uint192).max;
 
     address public immutable cookie;
+    address public immutable quote;
+    address public factory;
     address public treasury;
 
     uint256 public cps;
@@ -30,7 +33,7 @@ contract Bakery is Ownable {
         uint16 epochId;
         uint192 initPrice;
         uint40 startTime;
-        address owner;
+        address baker;
     }
 
     Slot0 internal slot0;
@@ -45,9 +48,11 @@ contract Bakery is Ownable {
     event Bakery__Click(address indexed from, address indexed baker, uint256 paymentAmount);
     event Bakery__TreasuryPaid(address indexed treasury, uint256 amount);
     event Bakery__BakerPaid(address indexed baker, uint256 amount);
-    event Bakery__Baked(address indexed baker, uint256 amount);
+    event Bakery__FactoryMint(address indexed factory, uint256 amount);
+    event Bakery__BakeryMint(address indexed bakery, uint256 amount);
     event Bakery__TreasurySet(address indexed treasury);
     event Bakery__CpsSet(uint256 indexed cps);
+    event Bakery__FactorySet(address indexed factory);
 
     modifier nonReentrant() {
         if (slot0.locked == 2) revert Bakery__Reentrancy();
@@ -61,17 +66,22 @@ contract Bakery is Ownable {
         _;
     }
 
-    constructor(address _cookie) {
+    constructor(address _cookie, address _quote) {
         if (_cookie == address(0)) revert Bakery__InvalidAddress();
 
         cookie = _cookie;
+        quote = _quote;
 
         slot0.initPrice = uint192(MIN_INIT_PRICE);
         slot0.startTime = uint40(block.timestamp);
-        slot0.owner = msg.sender;
+        slot0.baker = msg.sender;
     }
 
-    function click(address baker, uint256 epochId, uint256 deadline, uint256 maxPaymentAmount) external payable nonReentrant returns (uint256 paymentAmount) {
+    function click(address baker, uint256 epochId, uint256 deadline, uint256 maxPaymentAmount)
+        external
+        nonReentrant
+        returns (uint256 paymentAmount)
+    {
         if (block.timestamp > deadline) revert Bakery__Expired();
 
         Slot0 memory slot0Cache = slot0;
@@ -82,19 +92,16 @@ contract Bakery is Ownable {
         if (paymentAmount > maxPaymentAmount) revert Bakery__MaxPaymentAmountExceeded();
 
         if (paymentAmount > 0) {
-            
             uint256 treasuryAmount = 0;
             if (treasury != address(0)) {
                 treasuryAmount = paymentAmount * FEE / DIVISOR;
-                (bool treasurySent, ) = payable(treasury).call{value: treasuryAmount}("");
-                require(treasurySent, "ETH treasury transfer failed");
+                IERC20(quote).safeTransferFrom(msg.sender, treasury, treasuryAmount);
                 emit Bakery__TreasuryPaid(treasury, treasuryAmount);
             }
 
             uint256 bakerAmount = paymentAmount - treasuryAmount;
-            (bool bakerSent, ) = payable(slot0Cache.owner).call{value: bakerAmount}("");
-            require(bakerSent, "ETH baker transfer failed");
-            emit Bakery__BakerPaid(slot0Cache.owner, bakerAmount);
+            IERC20(quote).safeTransferFrom(msg.sender, slot0Cache.baker, bakerAmount);
+            emit Bakery__BakerPaid(slot0Cache.baker, bakerAmount);
         }
 
         uint256 newInitPrice = paymentAmount * PRICE_MULTIPLIER / PRECISION;
@@ -106,18 +113,22 @@ contract Bakery is Ownable {
         }
 
         uint256 bakeTime = block.timestamp - slot0Cache.startTime;
-        uint256 bakedAmount = bakeTime * cps;
-        if (bakeTime > 0) {
-            ICookie(cookie).mint(slot0Cache.owner, bakedAmount);
-            emit Bakery__Baked(slot0Cache.owner, bakedAmount);
-        }
+        uint256 mintAmount = bakeTime * cps;
+        uint256 factoryAmount = mintAmount * MINT_SPLIT / DIVISOR;
+        uint256 bakeryAmount = mintAmount - factoryAmount;
+
+        ICookie(cookie).mint(factory, factoryAmount);
+        ICookie(cookie).mint(slot0Cache.baker, bakeryAmount);
+
+        emit Bakery__FactoryMint(factory, factoryAmount);
+        emit Bakery__BakeryMint(slot0Cache.baker, bakeryAmount);
 
         unchecked {
             slot0Cache.epochId++;
         }
         slot0Cache.initPrice = uint192(newInitPrice);
         slot0Cache.startTime = uint40(block.timestamp);
-        slot0Cache.owner = baker;
+        slot0Cache.baker = baker;
 
         slot0 = slot0Cache;
 
@@ -146,8 +157,6 @@ contract Bakery is Ownable {
         cps = _cps;
         emit Bakery__CpsSet(_cps);
     }
-
-    receive() external payable {}
 
     function getPrice() external view nonReentrantView returns (uint256) {
         return getPriceFromCache(slot0);
