@@ -26,7 +26,7 @@ contract Factory is ReentrancyGuard, Ownable {
     uint256 constant PRECISION = 1 ether;
 
     address public immutable cookie;
-    address public immutable rewarder;
+    address public rewarder;
 
     uint256 public lvlIndex;
     mapping(uint256 => uint256) public lvl_Unlock;
@@ -47,17 +47,18 @@ contract Factory is ReentrancyGuard, Ownable {
     error Factory__NotAuthorized();
     error Factory__UpgradeLocked();
     error Factory__ToolDoesNotExist();
+    error Factory__AlreadyInitialized();
 
+    event Factory__Initialized(address indexed rewarder);
     event Factory__ToolPurchased(address indexed account, uint256 toolId, uint256 newAmount, uint256 cost, uint256 cps);
     event Factory__ToolUpgraded(address indexed account, uint256 toolId, uint256 newLevel, uint256 cost, uint256 cps);
     event Factory__Claimed(address indexed account, uint256 amount);
     event Factory__LvlSet(uint256 lvl, uint256 cost, uint256 unlock);
-    event Factory__ToolSet(uint256 toolId, uint256 baseCps, uint256 baseCost);
+    event Factory__ToolSet(uint256 toolId, uint256 basePower, uint256 baseCost);
     event Factory__ToolMultiplierSet(uint256 index, uint256 multiplier);
 
-    constructor(address _cookie, address _rewarder) {
+    constructor(address _cookie) {
         cookie = _cookie;
-        rewarder = _rewarder;
     }
 
     function purchaseTool(address account, uint256 toolId, uint256 toolAmount) external nonReentrant {
@@ -94,26 +95,21 @@ contract Factory is ReentrancyGuard, Ownable {
         IRewarder(rewarder).deposit(account, power);
     }
 
-    function setLvl(uint256[] calldata cost, uint256[] calldata unlock) external onlyOwner {
-        if (cost.length != unlock.length) revert Factory__InvalidInput();
-        for (uint256 i = lvlIndex; i < lvlIndex + cost.length; i++) {
-            uint256 arrayIndex = i - lvlIndex;
-            lvl_CostMultiplier[i] = cost[arrayIndex];
-            lvl_Unlock[i] = unlock[arrayIndex];
-            emit Factory__LvlSet(i, cost[arrayIndex], unlock[arrayIndex]);
-        }
-        lvlIndex += cost.length;
+    function initialize(address _rewarder) external onlyOwner {
+        if (rewarder != address(0)) revert Factory__AlreadyInitialized();
+        rewarder = _rewarder;
+        emit Factory__Initialized(_rewarder);
     }
 
-    function setTool(uint256[] calldata baseCps, uint256[] calldata baseCost) external onlyOwner {
-        if (baseCps.length != baseCost.length) revert Factory__InvalidInput();
-        for (uint256 i = toolIndex; i < toolIndex + baseCps.length; i++) {
+    function setTool(uint256[] calldata basePower, uint256[] calldata baseCost) external onlyOwner {
+        if (basePower.length != baseCost.length) revert Factory__InvalidInput();
+        for (uint256 i = toolIndex; i < toolIndex + basePower.length; i++) {
             uint256 arrayIndex = i - toolIndex;
-            toolId_BasePower[i] = baseCps[arrayIndex];
+            toolId_BasePower[i] = basePower[arrayIndex];
             toolId_BaseCost[i] = baseCost[arrayIndex];
-            emit Factory__ToolSet(i, baseCps[arrayIndex], baseCost[arrayIndex]);
+            emit Factory__ToolSet(i, basePower[arrayIndex], baseCost[arrayIndex]);
         }
-        toolIndex += baseCps.length;
+        toolIndex += basePower.length;
     }
 
     function setToolMultipliers(uint256[] calldata multipliers) external onlyOwner {
@@ -123,6 +119,17 @@ contract Factory is ReentrancyGuard, Ownable {
             emit Factory__ToolMultiplierSet(i, multipliers[arrayIndex]);
         }
         amountIndex += multipliers.length;
+    }
+
+    function setLvl(uint256[] calldata cost, uint256[] calldata unlock) external onlyOwner {
+        if (cost.length != unlock.length) revert Factory__InvalidInput();
+        for (uint256 i = lvlIndex; i < lvlIndex + cost.length; i++) {
+            uint256 arrayIndex = i - lvlIndex;
+            lvl_CostMultiplier[i] = cost[arrayIndex];
+            lvl_Unlock[i] = unlock[arrayIndex];
+            emit Factory__LvlSet(i, cost[arrayIndex], unlock[arrayIndex]);
+        }
+        lvlIndex += cost.length;
     }
 
     function getToolPower(uint256 toolId, uint256 lvl) public view returns (uint256) {

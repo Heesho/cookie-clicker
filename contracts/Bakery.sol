@@ -38,6 +38,7 @@ contract Bakery is Ownable {
 
     Slot0 internal slot0;
 
+    error Bakery__AlreadyInitialized();
     error Bakery__Reentrancy();
     error Bakery__Expired();
     error Bakery__EpochIdMismatch();
@@ -52,7 +53,7 @@ contract Bakery is Ownable {
     event Bakery__BakeryMint(address indexed bakery, uint256 amount);
     event Bakery__TreasurySet(address indexed treasury);
     event Bakery__CpsSet(uint256 indexed cps);
-    event Bakery__FactorySet(address indexed factory);
+    event Bakery__Initialized(address indexed factory);
 
     modifier nonReentrant() {
         if (slot0.locked == 2) revert Bakery__Reentrancy();
@@ -135,6 +136,12 @@ contract Bakery is Ownable {
         emit Bakery__Click(msg.sender, baker, paymentAmount);
 
         return paymentAmount;
+    }
+
+    function initialize(address _factory) external onlyOwner {
+        if (factory != address(0)) revert Bakery__AlreadyInitialized();
+        factory = _factory;
+        emit Bakery__Initialized(_factory);
     }
 
     function getPriceFromCache(Slot0 memory slot0Cache) internal view returns (uint256) {

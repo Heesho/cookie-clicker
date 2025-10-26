@@ -8,9 +8,7 @@ const { execPath } = require("process");
 const AddressZero = "0x0000000000000000000000000000000000000000";
 
 let owner, multisig, treasury, user0, user1, user2, user3;
-let usdc, wft;
-let tokenFactory, contentFactory, rewarderFactory;
-let core, multicall, router;
+let weth, cookie, bakery, factory, rewarder, multicall;
 
 describe("local: test0", function () {
   before("Initial set up", async function () {
@@ -19,273 +17,94 @@ describe("local: test0", function () {
     [owner, multisig, treasury, user0, user1, user2, user3] =
       await ethers.getSigners();
 
-    const usdcArtifact = await ethers.getContractFactory("USDC");
-    usdc = await usdcArtifact.deploy();
-    console.log("- USDC Initialized");
+    const baseArtifact = await ethers.getContractFactory("Base");
+    weth = await baseArtifact.deploy();
+    console.log("- WETH Initialized");
 
-    const tokenFactoryArtifact = await ethers.getContractFactory(
-      "TokenFactory"
-    );
-    tokenFactory = await tokenFactoryArtifact.deploy();
-    console.log("- TokenFactory Initialized");
+    const cookieArtifact = await ethers.getContractFactory("Cookie");
+    cookie = await cookieArtifact.deploy();
+    console.log("- Cookie Initialized");
 
-    const contentFactoryArtifact = await ethers.getContractFactory(
-      "ContentFactory"
-    );
-    contentFactory = await contentFactoryArtifact.deploy();
-    console.log("- ContentFactory Initialized");
+    const bakeryArtifact = await ethers.getContractFactory("Bakery");
+    bakery = await bakeryArtifact.deploy(cookie.address, weth.address);
+    console.log("- Bakery Initialized");
 
-    const rewarderFactoryArtifact = await ethers.getContractFactory(
-      "RewarderFactory"
-    );
-    rewarderFactory = await rewarderFactoryArtifact.deploy();
-    console.log("- RewarderFactory Initialized");
+    const factoryArtifact = await ethers.getContractFactory("Factory");
+    factory = await factoryArtifact.deploy(cookie.address);
+    console.log("- Factory Initialized");
 
-    const coreArtifact = await ethers.getContractFactory("Core");
-    core = await coreArtifact.deploy(
-      usdc.address,
-      tokenFactory.address,
-      contentFactory.address,
-      rewarderFactory.address
-    );
-    console.log("- Core Initialized");
+    const rewarderArtifact = await ethers.getContractFactory("Rewarder");
+    rewarder = await rewarderArtifact.deploy(factory.address);
+    console.log("- Rewarder Initialized");
 
     const multicallArtifact = await ethers.getContractFactory("Multicall");
-    multicall = await multicallArtifact.deploy(core.address);
+    multicall = await multicallArtifact.deploy(
+      cookie.address,
+      weth.address,
+      bakery.address,
+      factory.address,
+      rewarder.address
+    );
     console.log("- Multicall Initialized");
 
-    const routerArtifact = await ethers.getContractFactory("Router");
-    router = await routerArtifact.deploy(core.address);
-    console.log("- Router Initialized");
+    await factory
+      .connect(owner)
+      .setTool(
+        [
+          ethers.utils.parseUnits("1", 18),
+          ethers.utils.parseUnits("10", 18),
+          ethers.utils.parseUnits("100", 18),
+        ],
+        [
+          ethers.utils.parseUnits("1", 18),
+          ethers.utils.parseUnits("10", 18),
+          ethers.utils.parseUnits("100", 18),
+        ]
+      );
+    console.log("- Tools set");
 
-    const amount = convert("100000", 6);
-    await usdc.connect(owner).mint(user0.address, amount);
-    await usdc.connect(owner).mint(user1.address, amount);
-    await usdc.connect(owner).mint(user2.address, amount);
-    await usdc.connect(owner).mint(user3.address, amount);
+    await factory
+      .connect(owner)
+      .setToolMultipliers([
+        ethers.utils.parseUnits("1", 18),
+        ethers.utils.parseUnits("2", 18),
+        ethers.utils.parseUnits("3", 18),
+        ethers.utils.parseUnits("4", 18),
+        ethers.utils.parseUnits("5", 18),
+        ethers.utils.parseUnits("6", 18),
+        ethers.utils.parseUnits("7", 18),
+        ethers.utils.parseUnits("8", 18),
+        ethers.utils.parseUnits("9", 18),
+        ethers.utils.parseUnits("10", 18),
+      ]);
+    console.log("- Tool multipliers set");
+
+    await factory
+      .connect(owner)
+      .setLvl(["0", "10", "50", "500"], [0, 1, 5, 10]);
+    console.log("- Lvl set");
+
+    await bakery.connect(owner).initialize(factory.address);
+    await factory.connect(owner).initialize(rewarder.address);
+    await cookie.connect(owner).setMinter(bakery.address, true);
+    await rewarder.connect(owner).addReward(cookie.address);
     console.log("- System set up");
 
     console.log("Initialization Complete");
     console.log();
   });
 
-  it("User0 creates wft", async function () {
+  it("Bakery state", async function () {
     console.log("******************************************************");
-
-    const wftName = "wft";
-    const wftSymbol = "wft";
-    const wftUri = "https://wavefront.io/wft";
-
-    await router
-      .connect(user0)
-      .createToken(wftName, wftSymbol, wftUri, false, 0);
-    wft = await ethers.getContractAt("Token", await tokenFactory.lastToken());
-    console.log("- wft created");
+    const bakeryState = await multicall.getBakery();
+    console.log(bakeryState);
   });
 
-  it("Token Data", async function () {
+  it("User0 clicks", async function () {
     console.log("******************************************************");
-    let res = await multicall.getTokenData(wft.address, user0.address);
-    console.log(res);
-  });
-
-  it("Token Data", async function () {
-    console.log("******************************************************");
-    let res = await multicall.getTokenData(wft.address, user0.address);
-    console.log(res);
-  });
-
-  it("Token Data", async function () {
-    console.log("******************************************************");
-    let res = await multicall.getTokenData(wft.address, user0.address);
-    console.log(res);
-  });
-
-  it("User0 buys wft with 10 usdc", async function () {
-    console.log("******************************************************");
-    const amount = convert("10", 6);
-    await usdc.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .buy(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 10 usdc bought wft");
-  });
-
-  it("User0 sells 0.001 wft", async function () {
-    console.log("******************************************************");
-    const amount = convert("0.001", 18);
-    await wft.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .sell(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 0.001 wft sold");
-  });
-
-  it("User0 buys wft with 0.01 usdc", async function () {
-    console.log("******************************************************");
-    const amount = convert("0.01", 6);
-    await usdc.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .buy(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 0.01 usdc bought wft");
-  });
-
-  it("User0 sells 0.01 wft", async function () {
-    console.log("******************************************************");
-    const amount = convert("0.01", 18);
-    await wft.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .sell(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 0.01 wft sold");
-  });
-
-  it("User0 buys wft with 0.001 usdc", async function () {
-    console.log("******************************************************");
-    const amount = convert("1000", 0);
-    await usdc.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .buy(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 0.00001 usdc bought wft");
-  });
-
-  it("User0 buys wft with 0.001 usdc", async function () {
-    console.log("******************************************************");
-    const amount = convert("1000", 6);
-    await usdc.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .buy(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 0.000001 usdc bought wft");
-  });
-
-  it("User0 buys wft with 0.001 usdc", async function () {
-    console.log("******************************************************");
-    const amount = convert("1000", 0);
-    await usdc.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .buy(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 0.000001 usdc bought wft");
-  });
-
-  it("User0 sells 0.000000001 wft", async function () {
-    console.log("******************************************************");
-    const amount = convert("0.000000001", 18);
-    await wft.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .sell(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 0.000000001 wft sold");
-  });
-
-  it("Token Data", async function () {
-    console.log("******************************************************");
-    let res = await multicall.getTokenData(wft.address, user0.address);
-    console.log(res);
-  });
-
-  it("User0 sells all wft", async function () {
-    console.log("******************************************************");
-    const amount = await wft.balanceOf(user0.address);
-    await wft.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .sell(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- all wft sold");
-  });
-
-  it("Token Data", async function () {
-    console.log("******************************************************");
-    let res = await multicall.getTokenData(wft.address, user0.address);
-    console.log(res);
-  });
-
-  it("User0 buys wft with 1000 usdc", async function () {
-    console.log("******************************************************");
-    const amount = convert("1000", 6);
-    await usdc.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .buy(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 1000 usdc bought wft");
-  });
-
-  it("User0 sells all wft", async function () {
-    console.log("******************************************************");
-    const amount = await wft.balanceOf(user0.address);
-    await wft.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .sell(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- all wft sold");
-  });
-
-  it("Token Data", async function () {
-    console.log("******************************************************");
-    let res = await multicall.getTokenData(wft.address, user0.address);
-    console.log(res);
-  });
-
-  it("User0 buys wft with 1000 usdc", async function () {
-    console.log("******************************************************");
-    const amount = convert("10000", 6);
-    await usdc.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .buy(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 1000 usdc bought wft");
-  });
-
-  it("User0 sells all wft", async function () {
-    console.log("******************************************************");
-    const amount = await wft.balanceOf(user0.address);
-    await wft.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .sell(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- all wft sold");
-  });
-
-  it("User0 heals 100 usdc on wft", async function () {
-    console.log("******************************************************");
-    const amount = convert("100", 6);
-    await usdc.connect(user0).approve(wft.address, amount);
-    await wft.connect(user0).heal(amount);
-    console.log("- 100 usdc healed on wft");
-  });
-
-  it("Token Data", async function () {
-    console.log("******************************************************");
-    let res = await multicall.getTokenData(wft.address, user0.address);
-    console.log(res);
-  });
-
-  it("User0 buys wft with 1000 usdc", async function () {
-    console.log("******************************************************");
-    const amount = convert("10000", 6);
-    await usdc.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .buy(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- 1000 usdc bought wft");
-  });
-
-  it("User0 sells all wft", async function () {
-    console.log("******************************************************");
-    const amount = await wft.balanceOf(user0.address);
-    await wft.connect(user0).approve(router.address, amount);
-    await router
-      .connect(user0)
-      .sell(wft.address, AddressZero, amount, 0, 2000000000);
-    console.log("- all wft sold");
-  });
-
-  it("Token Data", async function () {
-    console.log("******************************************************");
-    let res = await multicall.getTokenData(wft.address, user0.address);
-    console.log(res);
+    let res = await multicall.getBakery();
+    await multicall.click(res.epochId, 1861439882, res.price, {
+      value: res.price,
+    });
   });
 });
